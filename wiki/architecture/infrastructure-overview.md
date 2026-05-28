@@ -3,14 +3,14 @@ type: architecture
 created: 2026-05-28
 updated: 2026-05-28
 related: [concepts/cdk-stage-model.md]
-sources: [sources/git/2026-05-28-cdkstarter-infrastructure-git.md]
+sources: [sources/git/2026-05-28-your-project-infrastructure-git.md]
 sensitivity: internal
 ---
 
-# Cdkstarter — Architecture Overview
+# Your Project — Architecture Overview
 
-The Cdkstarter infrastructure is an AWS CDK application (TypeScript) that provisions the cloud
-foundation for the Cdkstarter product. The CDK app entry point is `bin/infrastructure.ts`, run via
+The Your Project infrastructure is an AWS CDK application (TypeScript) that provisions the cloud
+foundation for the Your Project product. The CDK app entry point is `bin/infrastructure.ts`, run via
 `npx tsx bin/infrastructure.ts` (see `cdk.json`).
 
 ## Stage model
@@ -46,4 +46,4 @@ ESLint for linting, knip for dead-code detection, ast-grep for structural rules,
 `@codyswann/lisa` for governance/templates. CDK tests were migrated from Jest to Vitest (PR #78,
 2026-03-19). The package manager was switched from npm to bun (2026-01-19) and later realigned.
 
-Source: wiki/sources/git/2026-05-28-cdkstarter-infrastructure-git.md
+Source: wiki/sources/git/2026-05-28-your-project-infrastructure-git.md

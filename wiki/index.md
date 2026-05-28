@@ -1,4 +1,4 @@
-# Cdkstarter — Index
+# Your Project — Index
 
 > The navigation map of this wiki. Maintained on every ingestion. One table per category;
 > rows are `| Page | Summary | Updated |`. Read this first when looking for anything.
@@ -33,5 +33,5 @@
 ## Sources
 | Source notes | Latest |
 |---|---|
-| `sources/git/` | [2026-05-28 git history](sources/git/2026-05-28-cdkstarter-infrastructure-git.md) |
+| `sources/git/` | [2026-05-28 git history](sources/git/2026-05-28-your-project-infrastructure-git.md) |
 | `sources/roles/` | [2026-05-28 roles](sources/roles/2026-05-28-roles.md) |

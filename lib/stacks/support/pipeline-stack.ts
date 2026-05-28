@@ -44,7 +44,7 @@ import type { StageEnvironment } from "../../types";
 export interface PipelineStackProps extends cdk.StackProps {
   /**
    * GitHub repository owner (organization or username).
-   * Example: "cdkstarter-io"
+   * Example: "your-project-io"
    */
   readonly repositoryOwner: string;
 
@@ -115,7 +115,7 @@ export class PipelineStack extends cdk.Stack {
 
     // Create the CDK Pipeline
     this.pipeline = new pipelines.CodePipeline(this, "Pipeline", {
-      pipelineName: "cdkstarter-infrastructure",
+      pipelineName: "your-project-infrastructure",
       crossAccountKeys: true,
       synth: new pipelines.ShellStep("Synth", {
         input: pipelines.CodePipelineSource.connection(
@@ -155,7 +155,7 @@ export class PipelineStack extends cdk.Stack {
     new cdk.CfnOutput(this, "PipelineArn", {
       value: this.pipeline.pipeline.pipelineArn,
       description: "CDK Pipeline ARN",
-      exportName: "cdkstarter-pipeline-arn",
+      exportName: "your-project-pipeline-arn",
     });
 
     new cdk.CfnOutput(this, "DeployableEnvironments", {

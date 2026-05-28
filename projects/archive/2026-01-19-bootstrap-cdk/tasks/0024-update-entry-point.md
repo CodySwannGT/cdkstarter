@@ -55,7 +55,7 @@ import {
 } from "../util/config-loader";
 
 /**
- * CDK Application entry point for cdkstarter infrastructure.
+ * CDK Application entry point for your-project infrastructure.
  *
  * This application creates a CDK Pipeline that deploys infrastructure
  * to multiple AWS accounts based on configuration in config/*.ts files.
@@ -97,13 +97,13 @@ if (!sharedEnvironment) {
 
 // Create pipeline stack (only if shared environment is deployable)
 if (sharedEnvironment) {
-  new PipelineStack(app, "CdkstarterInfrastructurePipeline", {
+  new PipelineStack(app, "Your ProjectInfrastructurePipeline", {
     env: {
       account: sharedEnvironment.accountId,
       region: sharedEnvironment.region,
     },
-    repositoryOwner: "cdkstarter",
-    repositoryName: "cdkstarter",
+    repositoryOwner: "your-project",
+    repositoryName: "your-project",
     branch: "main",
     connectionArn: app.node.tryGetContext("connectionArn") ?? "PLACEHOLDER",
     stageEnvironments,

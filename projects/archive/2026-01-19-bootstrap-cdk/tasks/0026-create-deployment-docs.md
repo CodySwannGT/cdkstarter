@@ -42,7 +42,7 @@ Invoke these skills before writing implementation code:
 ```markdown
 # Configuration Guide
 
-This directory contains all configuration for the cdkstarter infrastructure.
+This directory contains all configuration for the your-project infrastructure.
 
 ## Quick Start
 
@@ -197,7 +197,7 @@ N/A - no GraphQL changes
 
 ### Proof Command
 ```bash
-cat /Users/cody/workspace/cdkstarter/infrastructure/config/README.md | head -50
+cat /Users/cody/workspace/your-project/infrastructure/config/README.md | head -50
 ```
 
 ### Expected Output

@@ -8,14 +8,14 @@ last_updated: 2026-01-19
 
 ## Integration
 
-`~/workspace/cdkstarter/backend/docker-compose.yml` will consume the exports from this project. Make sure to review the import/export names expected and match them in this repo.
+`~/workspace/your-project/backend/docker-compose.yml` will consume the exports from this project. Make sure to review the import/export names expected and match them in this repo.
 
 ## Summary
 
-This research documents the existing codebase patterns and external resources needed to implement a configurable CDK infrastructure for the cdkstarter project. The implementation will create a new infrastructure setup inspired by `geminisportsai/infrastructure-v2` patterns but with JSON-based configuration, dynamic environment support, and enterprise-grade observability.
+This research documents the existing codebase patterns and external resources needed to implement a configurable CDK infrastructure for the your-project project. The implementation will create a new infrastructure setup inspired by `geminisportsai/infrastructure-v2` patterns but with JSON-based configuration, dynamic environment support, and enterprise-grade observability.
 
 **Key findings:**
-- The cdkstarter/infrastructure project exists but is mostly empty (only a placeholder entry point)
+- The your-project/infrastructure project exists but is mostly empty (only a placeholder entry point)
 - The geminisportsai/infrastructure-v2 project provides comprehensive patterns for Aurora, ElastiCache, Cognito, VPC, security groups, pipeline stages, and cross-stage imports
 - AWS CDK supports Aurora Serverless v2 via `DatabaseCluster` (not `ServerlessCluster`)
 - ElastiCache Valkey support is available via L1 constructs (`CfnReplicationGroup`) or newer L2 alpha constructs
@@ -23,7 +23,7 @@ This research documents the existing codebase patterns and external resources ne
 
 ## Detailed Findings
 
-### Current State of cdkstarter/infrastructure
+### Current State of your-project/infrastructure
 
 The target codebase is essentially empty with only infrastructure scaffolding:
 
@@ -153,7 +153,7 @@ The reference project provides proven patterns for multi-account AWS infrastruct
 | `geminisportsai/infrastructure-v2/lib/app-stage.ts` | 1-264 | Application stage orchestration |
 | `geminisportsai/infrastructure-v2/lib/trust-policy-stage.ts` | 1-61 | Trust policy management |
 | `geminisportsai/infrastructure-v2/lib/cdk-trust-policy-stack.ts` | 1-207 | CDK bootstrap role trust |
-| `cdkstarter/infrastructure/bin/infrastructure.ts` | 1-16 | Empty entry point placeholder |
+| `your-project/infrastructure/bin/infrastructure.ts` | 1-16 | Empty entry point placeholder |
 
 ## Architecture Documentation
 

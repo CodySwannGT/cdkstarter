@@ -1,6 +1,6 @@
 # SOC 2 Compliance and Enterprise Readiness Review
 
-**Repository:** Cdkstarter
+**Repository:** Your Project
 **Review Date:** 2026-01-20
 **Reviewer:** Claude Code (Automated Analysis)
 **Overall Rating:** **Strong** - Enterprise-ready with minor gaps

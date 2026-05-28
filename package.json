@@ -85,15 +85,12 @@
     "vite": "^8.0.5",
     "vitest": "^4.1.0"
   },
-  "bin": {
-    "cdkstarter": "bin/cdkstarter.js"
-  },
   "trustedDependencies": [
     "@ast-grep/cli",
     "@codyswann/lisa",
     "@sentry/cli"
   ],
-  "name": "cdkstarter",
+  "name": "your-project",
   "version": "0.0.0",
   "description": "AWS CDK starter template (lisa-wiki kernel)",
   "author": "",

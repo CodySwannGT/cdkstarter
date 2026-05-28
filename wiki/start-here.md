@@ -1,7 +1,7 @@
-# Start here — Cdkstarter
+# Start here — Your Project
 
 ## Purpose
-The durable knowledge base for the Cdkstarter AWS CDK infrastructure monorepo — the cloud foundation (auth, database, network, observability, and support stacks deployed across staged environments) that the Cdkstarter product runs on. It captures the architecture, design decisions, domain concepts, conventions, and operational playbooks behind the infrastructure so that engineers and agents can understand and safely change it from a single cited source of truth rather than re-deriving everything from the CDK code each time.
+The durable knowledge base for the Your Project AWS CDK infrastructure monorepo — the cloud foundation (auth, database, network, observability, and support stacks deployed across staged environments) that the Your Project product runs on. It captures the architecture, design decisions, domain concepts, conventions, and operational playbooks behind the infrastructure so that engineers and agents can understand and safely change it from a single cited source of truth rather than re-deriving everything from the CDK code each time.
 
 ## What this is
 A git-native LLM Wiki owned by **`<your-org>`** (set `org` in [wiki/lisa-wiki.config.json](lisa-wiki.config.json) after templating) and maintained by the `lisa-wiki` kernel. It is the

@@ -2,7 +2,7 @@
 
 ## Original Request
 
-> ~/workspace/geminisportsai/infrastructure-v2 is old and creates a lot of AWS resources that ~/workspace/cdkstarter/backend doesn't need. In fact, the list of resources we need are here: /Users/cody/workspace/cdkstarter/backend/aws-resources.md
+> ~/workspace/geminisportsai/infrastructure-v2 is old and creates a lot of AWS resources that ~/workspace/your-project/backend doesn't need. In fact, the list of resources we need are here: /Users/cody/workspace/your-project/backend/aws-resources.md
 >
 > However, I like the way ~/workspace/geminisportsai/infrastructure-v2 is highly configurable with config files and also supports the three stages (dev, staging, production) that we need. However, it seems a bit too hardcoded. The environments should also be configurable where any stage environment with an AWS account ID and a name get created and setup. Now, there might be a difference between a stage environment (dev, pre-prod, build, staging, production) and a support account/environment (like logging, infrastructure, security, etc).
 
@@ -43,7 +43,7 @@
 1. **Hardcoded account IDs** in `shared-config.ts`
 2. **Hardcoded environment list** (dev, staging, production only)
 3. **Hardcoded Aurora capacity** (min: 2, max: 16 for all environments)
-4. **Many unused resources** for cdkstarter (Neptune, OpenSearch, TransferFamily, Amplify, etc.)
+4. **Many unused resources** for your-project (Neptune, OpenSearch, TransferFamily, Amplify, etc.)
 5. **No clear separation** between stage vs support account types
 6. **Limited observability** - basic alarms only, no dashboards
 
@@ -130,7 +130,7 @@ interface Domain {
       }
     },
     {
-      "name": "cdkstarter.dev",
+      "name": "your-project.dev",
       "isPrimary": false,
       "environments": {
         "dev": { "useApex": true }

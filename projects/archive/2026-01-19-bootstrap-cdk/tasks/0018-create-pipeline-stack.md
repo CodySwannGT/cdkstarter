@@ -58,7 +58,7 @@ interface PipelineStackProps extends cdk.StackProps {
 **Implementation:**
 ```typescript
 const pipeline = new pipelines.CodePipeline(this, "Pipeline", {
-  pipelineName: "cdkstarter-infrastructure",
+  pipelineName: "your-project-infrastructure",
   crossAccountKeys: true,
   synth: new pipelines.ShellStep("Synth", {
     input: pipelines.CodePipelineSource.connection(

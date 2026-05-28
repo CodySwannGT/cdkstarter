@@ -66,7 +66,7 @@ describe("PipelineStack", () => {
   };
 
   const defaultProps = {
-    repositoryOwner: "cdkstarter-io",
+    repositoryOwner: "your-project-io",
     repositoryName: "infrastructure",
     branch: "main",
     connectionArn:
@@ -99,7 +99,7 @@ describe("PipelineStack", () => {
       const template = createStack();
 
       template.hasResourceProperties("AWS::CodePipeline::Pipeline", {
-        Name: "cdkstarter-infrastructure",
+        Name: "your-project-infrastructure",
       });
     });
   });
@@ -136,7 +136,7 @@ describe("PipelineStack", () => {
             Actions: Match.arrayWith([
               Match.objectLike({
                 Configuration: Match.objectLike({
-                  FullRepositoryId: "cdkstarter-io/infrastructure",
+                  FullRepositoryId: "your-project-io/infrastructure",
                   BranchName: "main",
                 }),
               }),
@@ -203,7 +203,7 @@ describe("PipelineStack", () => {
 
       template.hasOutput("PipelineArn", {
         Export: {
-          Name: "cdkstarter-pipeline-arn",
+          Name: "your-project-pipeline-arn",
         },
       });
     });

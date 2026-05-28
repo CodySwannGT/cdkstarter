@@ -1,6 +1,6 @@
 # Configuration Guide
 
-This directory contains all configuration for the cdkstarter infrastructure.
+This directory contains all configuration for the your-project infrastructure.
 
 ## Quick Start
 
@@ -119,7 +119,7 @@ domains: [
     environments: { ... },
   },
   {
-    name: "cdkstarter.com",
+    name: "your-project.com",
     isPrimary: false, // Only one domain can be primary
     environments: { ... },
   },

@@ -3,7 +3,7 @@ type: concept
 created: 2026-05-28
 updated: 2026-05-28
 related: [architecture/infrastructure-overview.md]
-sources: [sources/git/2026-05-28-cdkstarter-infrastructure-git.md]
+sources: [sources/git/2026-05-28-your-project-infrastructure-git.md]
 sensitivity: internal
 ---
 
@@ -26,4 +26,4 @@ configured environment.
 Within an environment the stages compose in dependency order: Network → App (Aurora, Valkey,
 Cognito, IAM) → Observability → Support.
 
-Source: wiki/sources/git/2026-05-28-cdkstarter-infrastructure-git.md
+Source: wiki/sources/git/2026-05-28-your-project-infrastructure-git.md
