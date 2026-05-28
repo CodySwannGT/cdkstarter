@@ -27,7 +27,7 @@
  * 3. ObservabilityStage (SNS, Alarms, Dashboard)
  * @see config/environments.ts
  * @see config/observability.ts
- * @module bin/your-project
+ * @module bin/app
  */
 import "source-map-support/register";
 import * as cdk from "aws-cdk-lib";
