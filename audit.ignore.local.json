@@ -1,0 +1,59 @@
+{
+  "exclusions": [
+    {
+      "id": "GHSA-3mfm-83xf-c92r",
+      "package": "handlebars",
+      "reason": "JavaScript injection via AST type confusion (@partial-block) — transitive via ts-jest and standard-version > conventional-changelog, devDeps only, no untrusted template input"
+    },
+    {
+      "id": "GHSA-2w6w-674q-4c4q",
+      "package": "handlebars",
+      "reason": "JavaScript injection via AST type confusion — transitive via ts-jest and standard-version, devDeps only; handlebars 4.7.8 is latest with no patch available"
+    },
+    {
+      "id": "GHSA-xjpj-3mr7-gcpf",
+      "package": "handlebars",
+      "reason": "JavaScript injection via CLI precompiler unescaped names — transitive via ts-jest and standard-version, devDeps only"
+    },
+    {
+      "id": "GHSA-xhpv-hc6g-r9c6",
+      "package": "handlebars",
+      "reason": "JavaScript injection via AST type confusion (partial) — transitive via ts-jest and standard-version, devDeps only"
+    },
+    {
+      "id": "GHSA-9cx6-37pm-9jff",
+      "package": "handlebars",
+      "reason": "DoS via malformed decorator syntax — transitive via ts-jest and standard-version, devDeps only"
+    },
+    {
+      "id": "GHSA-r5fr-rjxr-66jc",
+      "package": "lodash",
+      "reason": "Code injection via _.template — transitive via @commitlint and standard-version, devDeps only; not using _.template with untrusted input"
+    },
+    {
+      "id": "GHSA-25h7-pfq9-p65f",
+      "package": "flatted",
+      "reason": "Unbounded recursion DoS in parse() revive phase — transitive via eslint > file-entry-cache > flat-cache > flatted, devDep only"
+    },
+    {
+      "id": "GHSA-rf6f-7fwh-wjgh",
+      "package": "flatted",
+      "reason": "Prototype pollution in parse() — transitive via eslint flat-cache, devDeps only"
+    },
+    {
+      "id": "GHSA-c2c7-rcm5-vvqj",
+      "package": "picomatch",
+      "reason": "ReDoS via extglob quantifiers — transitive via knip, vitest, ts-jest, micromatch, and many others; devDeps only, not processing untrusted glob patterns"
+    },
+    {
+      "id": "GHSA-q3j6-qgpj-74h6",
+      "package": "fast-uri",
+      "reason": "Path traversal via percent-encoded dot segments in fast-uri parser. Reachable transitively via eslint > @eslint/eslintrc > ajv > fast-uri and via aws-cdk-lib's bundled JSON Schema validator. aws-cdk-lib is invoked only at build/synth/deploy time — its ajv usage validates CloudFormation/CDK schemas authored by the developer, not attacker-controlled URIs. No runtime/production code path passes attacker-controlled URIs through ajv schema validation that relies on fast-uri parsing."
+    },
+    {
+      "id": "GHSA-v39h-62p7-jpjc",
+      "package": "fast-uri",
+      "reason": "Host confusion via percent-encoded authority delimiters in fast-uri parser. Reachable transitively via eslint > @eslint/eslintrc > ajv > fast-uri and via aws-cdk-lib's bundled JSON Schema validator. aws-cdk-lib is invoked only at build/synth/deploy time — its ajv usage validates CloudFormation/CDK schemas authored by the developer, not attacker-controlled URIs. No runtime/production code path passes attacker-controlled URIs through ajv schema validation that relies on fast-uri parsing."
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+# GitGuardian configuration file
+# Documentation: https://docs.gitguardian.com/secrets-detection/configuration
+
+version: 2
+
+# Paths to ignore for secret detection
+paths-ignore:
+  # Ignore all test files
+  - '**/*.spec.ts'
+  - '**/*.test.ts'
+  - '**/test/**'
+  - '**/tests/**'
+  - '**/__tests__/**'
+
+# Specific patterns to ignore (using regex)
+secret-ignore-patterns:
+  # Test passwords in test files
+  - name: test-passwords
+    match: 'Test123!|P@ssw0rd|Complex!123|TEST123!|test123!|Te1!'
+
+  # Common test/example passwords
+  - name: common-test-passwords
+    match: 'password123|testpassword|examplepassword|dummypassword'

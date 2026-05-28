@@ -1,0 +1,17 @@
+{
+  "connector": "git",
+  "profile": "cdkstarter-infrastructure",
+  "lastSuccessfulRunAt": "2026-05-28T00:56:53.779Z",
+  "cursor": {
+    "lastCommit": "fa3c66de9a52c92172124193e01cd330e0c2850a",
+    "lastPr": 153
+  },
+  "sourceNotes": [
+    "wiki/sources/git/2026-05-28-cdkstarter-infrastructure-git.md"
+  ],
+  "synthesisPages": [
+    "wiki/architecture/infrastructure-overview.md",
+    "wiki/concepts/cdk-stage-model.md"
+  ],
+  "schemaVersion": "1.0.0"
+}

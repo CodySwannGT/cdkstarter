@@ -1,0 +1,66 @@
+# This file is managed by Lisa.
+# Do not edit directly — changes will be overwritten on the next `lisa` run.
+
+name: 🚀 Release and Deploy
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'main'
+        type: choice
+        options:
+          - main
+
+# Prevent concurrent runs of the same workflow on the same ref
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Environment setup
+  determine_environment:
+    name: 🌍 Determine Environment
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      environment: ${{ steps.env.outputs.environment }}
+    steps:
+      - name: 🔄 Set environment
+        id: env
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "environment=${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
+          else
+            echo "environment=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          fi
+
+  release:
+    name: 📦 Release
+    # Reference to the quality checks workflow
+    uses: CodySwannGT/lisa/.github/workflows/release.yml@main
+    needs: [determine_environment]
+    with:
+      environment: ${{ needs.determine_environment.outputs.environment }}
+      release_strategy: 'standard-version'
+      skip_jobs: 'test:e2e,test:integration'
+      require_approval: false
+      require_signatures: false
+      generate_sbom: true
+      override_blackout: true
+      node_version: '22.21.1'
+      package_manager: 'npm'
+    secrets:
+      DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+      RELEASE_SIGNING_KEY: ${{ secrets.RELEASE_SIGNING_KEY }}
+      SIGNING_KEY_ID: ${{ secrets.SIGNING_KEY_ID }}
+      SIGNING_KEY_PASSPHRASE: ${{ secrets.SIGNING_KEY_PASSPHRASE }}
+      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+      SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+      SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+# Trigger staging deployment after CDK trust fix

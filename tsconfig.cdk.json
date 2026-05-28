@@ -1,0 +1,14 @@
+{
+  "extends": "@codyswann/lisa/tsconfig/base",
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "commonjs",
+    "lib": ["es2020"],
+    "sourceMap": false,
+    "inlineSourceMap": true,
+    "inlineSources": true,
+    "experimentalDecorators": true,
+    "strictPropertyInitialization": false
+  },
+  "include": ["lib/**/*", "bin/**/*", "test/**/*"]
+}

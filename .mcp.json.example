@@ -1,0 +1,99 @@
+{
+  "mcpServers": {
+    "awslabs.aws-iac-mcp-server": {
+      "command": "uvx",
+      "args": ["awslabs.aws-iac-mcp-server@latest"],
+      "env": {
+        "AWS_PROFILE": "default",
+        "FASTMCP_LOG_LEVEL": "ERROR"
+      },
+      "disabled": false,
+      "autoApprove": []
+    },
+    "serverless": {
+      "command": "serverless",
+      "args": [
+        "mcp"
+      ]
+    },
+    "jira": {
+      "command": "uvx",
+      "args": [
+        "mcp-atlassian",
+        "--jira-url=https://geminisportsanalytics.atlassian.net",
+        "--jira-username=xxxxxxxx",
+        "--jira-token=xxxxxxxx"
+      ]
+    },
+    "fetch": {
+      "command": "uvx",
+      "args": [
+        "mcp-server-fetch"
+      ],
+      "alwaysAllow": [
+        "fetch"
+      ]
+    },
+    "brave-search": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-brave-search"
+      ],
+      "env": {
+        "BRAVE_API_KEY": "xxxxxxxx"
+      },
+      "alwaysAllow": [
+        "brave_web_search"
+      ]
+    },
+    "browser": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@agentdeskai/browser-tools-mcp@1.2.0"
+      ],
+      "alwaysAllow": [
+        "getConsoleLogs",
+        "getConsoleErrors",
+        "getNetworkErrors",
+        "getNetworkLogs",
+        "takeScreenshot",
+        "getSelectedElement",
+        "wipeLogs",
+        "runAccessibilityAudit",
+        "runPerformanceAudit"
+      ]
+    },
+    "github": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-github"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "xxxxxxxx"
+      },
+      "alwaysAllow": [
+        "search_issues",
+        "search_code"
+      ]
+    },
+    "aws": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-aws"
+      ],
+      "env": {
+        "AWS_PROFILE": "default",
+        "AWS_REGION": "us-east-1"
+      },
+      "alwaysAllow": [
+        "describe_resource",
+        "list_resources",
+        "search_resources"
+      ]
+    }
+  }
+}

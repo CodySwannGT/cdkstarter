@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "sourceMap": false,
+    "types": ["vitest/globals", "node"]
+  },
+  "include": ["lib/**/*", "bin/**/*", "test/**/*"],
+  "exclude": [
+    "node_modules",
+    "cdk.out",
+    "eslint.base.ts",
+    "eslint.cdk.ts",
+    "eslint.config.ts",
+    "eslint.config.local.ts",
+    "eslint.slow.config.ts",
+    "eslint.typescript.ts",
+    "vitest.cdk.ts",
+    "vitest.config.ts",
+    "vitest.config.local.ts"
+  ]
+}

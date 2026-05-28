@@ -1,0 +1,219 @@
+---
+type: source
+created: 2026-05-28
+updated: 2026-05-28
+related: []
+sources: []
+source_system: git
+project: cdkstarter-infrastructure
+---
+
+# git history — cdkstarter-infrastructure (2026-05-28)
+
+- Repo: `/Users/cody/workspace/cdkstarter/infrastructure`
+- HEAD: `fa3c66de9a52c92172124193e01cd330e0c2850a`
+- Total commits on HEAD: 247
+- New commits since last ingest (first run): 247
+- Merged PRs: 20 recent merged PR(s) in gunnertech/cdkstarter-infrastructure; latest #153 "chore: update @codyswann/lisa to 2.62.1"
+
+## New commits
+- fa3c66d · 2026-05-25 · chore(release): 0.0.55 [skip ci]
+- c922ef0 · 2026-05-25 · Merge pull request #153 from gunnertech/chore/lisa-update-latest
+- 87600d1 · 2026-05-25 · chore: update @codyswann/lisa to 2.62.1
+- 50817f5 · 2026-05-25 · chore(release): 0.0.54 [skip ci]
+- 4d60a29 · 2026-05-24 · Merge pull request #152 from gunnertech/chore/lisa-update-2026-05-24
+- 2d6cb8b · 2026-05-24 · fix: align test:debug script to Vitest
+- 6208389 · 2026-05-24 · chore: update @codyswann/lisa to 2.59.0 and apply templates
+- 5edf809 · 2026-05-24 · chore(release): 0.0.53 [skip ci]
+- 3886437 · 2026-05-24 · chore: remove nightly Jira triage workflow (#151)
+- 2db9a24 · 2026-05-22 · chore(release): 0.0.52 [skip ci]
+- efbed2e · 2026-05-22 · chore: update @codyswann/lisa to 2.23.1 (#150)
+- ae24326 · 2026-05-21 · chore(release): 0.0.51 [skip ci]
+- 4c48f45 · 2026-05-21 · chore: update @codyswann/lisa to 2.19.0 (#149)
+- 3560000 · 2026-05-13 · chore(release): 0.0.50 [skip ci]
+- 7e21aa6 · 2026-05-13 · chore(lisa): update @codyswann/lisa to latest (#148)
+- 4e52232 · 2026-05-12 · chore(release): 0.0.49 [skip ci]
+- 601e094 · 2026-05-12 · chore: update @codyswann/lisa to 2.16.0 and apply templates (#147)
+- 62b080c · 2026-05-07 · chore(release): 0.0.48 [skip ci]
+- 745bed4 · 2026-05-07 · chore: update @codyswann/lisa to 2.15.0 (#146)
+- d29122a · 2026-04-29 · chore(release): 0.0.47 [skip ci]
+- 70c9140 · 2026-04-29 · chore: update @codyswann/lisa to 2.8.3 (#145)
+- 3eda4c7 · 2026-04-29 · chore(release): 0.0.46 [skip ci]
+- 09780ed · 2026-04-29 · chore: update @codyswann/lisa to 2.8.2 (#143)
+- 5d3e767 · 2026-04-29 · chore(release): 0.0.45 [skip ci]
+- 8fb4da3 · 2026-04-29 · chore: upgrade @codyswann/lisa to 2.8.0 (#140)
+- f3388a1 · 2026-04-28 · chore(release): 0.0.44 [skip ci]
+- 694c2bd · 2026-04-28 · chore: update @codyswann/lisa to 2.6.0 (#138)
+- f3570d3 · 2026-04-27 · chore(release): 0.0.43 [skip ci]
+- 0458824 · 2026-04-27 · chore(deps): upgrade typescript to ^6.0.3 (#136)
+- 20b3f56 · 2026-04-26 · chore(release): 0.0.42 [skip ci]
+- 0111ef6 · 2026-04-26 · chore: lisa update 2026-04-26 -> 2.1.0 (#134)
+- afb49d1 · 2026-04-26 · chore(release): 0.0.41 [skip ci]
+- b0a5ec3 · 2026-04-25 · chore(lisa): bump to @codyswann/lisa@1.95.0 (#131)
+- ff78d20 · 2026-04-23 · chore(release): 0.0.40 [skip ci]
+- 7f33d55 · 2026-04-23 · chore(lisa): update to @codyswann/lisa@1.92.0 (#129)
+- c2d34e9 · 2026-04-19 · chore(release): 0.0.39 [skip ci]
+- cbac90f · 2026-04-19 · chore(lisa): update to @codyswann/lisa@1.90.0 (#127)
+- a9e404a · 2026-04-15 · chore(release): 0.0.38 [skip ci]
+- 622b5d2 · 2026-04-15 · chore(deps): remove rogue bun.lock (engines.bun=please-use-npm) (#125)
+- 0086e46 · 2026-04-15 · chore(release): 0.0.37 [skip ci]
+- 9227af9 · 2026-04-15 · chore: update @codyswann/lisa to 1.86.1 (#117)
+- c03d21a · 2026-04-15 · chore(deps): bump @codyswann/lisa to 1.86.3 (#121)
+- c3d9dbc · 2026-04-13 · chore(release): 0.0.36 [skip ci]
+- c3b45cf · 2026-04-13 · chore: update @codyswann/lisa to 1.85.7 (v7 rollout) (#115)
+- 1b8588d · 2026-04-13 · chore: update @codyswann/lisa to 1.85.3 (v4 rollout) (#108)
+- 431f4c1 · 2026-04-12 · chore(release): 0.0.35 [skip ci]
+- c82c2ad · 2026-04-12 · chore: update @codyswann/lisa to 1.85.1 (#106)
+- 57d3781 · 2026-04-11 · chore(release): 0.0.34 [skip ci]
+- c265f4a · 2026-04-11 · chore: update @codyswann/lisa to latest (#100)
+- 4c5a482 · 2026-04-09 · chore: lisa update 2026-04-09 (#97)
+- c7704df · 2026-04-08 · chore: update @codyswann/lisa to 1.81.0 (#94)
+- a818f37 · 2026-04-07 · chore: update @codyswann/lisa to latest (#91)
+- 8315510 · 2026-04-05 · chore(release): 0.0.33 [skip ci]
+- 12afa68 · 2026-04-05 · chore: update Lisa to 1.78.3 (#88)
+- 3d038d0 · 2026-03-25 · chore(release): 0.0.32 [skip ci]
+- ef87af5 · 2026-03-25 · chore: update @codyswann/lisa to 1.74.0 (#86)
+- de5a34e · 2026-03-24 · chore(release): 0.0.31 [skip ci]
+- 57e6691 · 2026-03-24 · chore: update lisa to 1.71.5 (#84)
+- a477cd7 · 2026-03-21 · chore(release): 0.0.30 [skip ci]
+- 59448c9 · 2026-03-20 · chore: update lisa to latest (#81)
+- eeee1ae · 2026-03-19 · chore(release): 0.0.29 [skip ci]
+- 8054de8 · 2026-03-19 · Merge pull request #75 from gunnertech/chore/lisa-update-2026-03-18
+- 7f436d4 · 2026-03-19 · Merge branch 'main' into chore/lisa-update-2026-03-18
+- 204f09b · 2026-03-19 · Merge pull request #78 from gunnertech/chore/cdk-vitest-migration
+- 66c1ac1 · 2026-03-19 · chore: migrate CDK tests from Jest to Vitest
+- f6879ed · 2026-03-19 · fix: update @codyswann/lisa to 1.65.3 to fix jest config deletion in CI
+- c258435 · 2026-03-19 · chore: update @codyswann/lisa
+- f69b62b · 2026-03-13 · chore(release): 0.0.28 [skip ci]
+- 2349959 · 2026-03-13 · Merge pull request #73 from gunnertech/chore/lisa-update-2026-03-12
+- 6e4bc8e · 2026-03-12 · chore: update @codyswann/lisa to latest
+- b451983 · 2026-03-12 · chore(release): 0.0.27 [skip ci]
+- 08b28df · 2026-03-12 · Merge pull request #71 from gunnertech/chore/lisa-update-2026-03-11
+- 26fd55f · 2026-03-11 · test: add missing tests and fix coverage thresholds
+- 935605e · 2026-03-11 · chore: update @codyswann/lisa to latest
+- 96ea287 · 2026-03-06 · chore(release): 0.0.26 [skip ci]
+- 4afbb87 · 2026-03-06 · Merge pull request #69 from gunnertech/chore/add-package-manager-to-workflows
+- 3284d9d · 2026-03-06 · fix(ci): add package_manager input to Claude workflow callers
+- 037ce86 · 2026-03-05 · chore(release): 0.0.25 [skip ci]
+- 43e9daa · 2026-03-05 · Merge pull request #67 from gunnertech/chore/lisa-update-2026-03-05
+- af5d3a2 · 2026-03-05 · chore: update @codyswann/lisa to latest
+- 82fde02 · 2026-03-04 · chore(release): 0.0.24 [skip ci]
+- 6189020 · 2026-03-03 · Merge pull request #65 from gunnertech/chore/lisa-update-2026-03-03
+- 09cf6c9 · 2026-03-03 · chore: update @codyswann/lisa to 1.54.7
+- 5abcdb3 · 2026-03-03 · chore(release): 0.0.23 [skip ci]
+- 6b14d4d · 2026-03-03 · Merge pull request #63 from gunnertech/chore/lisa-update-2026-03-03
+- 332e5f2 · 2026-03-03 · chore: update @codyswann/lisa to latest
+- acd5954 · 2026-02-27 · chore(release): 0.0.22 [skip ci]
+- d8235da · 2026-02-27 · Merge pull request #61 from gunnertech/chore/upgrade-lisa
+- 59c3bf6 · 2026-02-27 · chore: upgrade Lisa templates
+- 75b39f5 · 2026-02-27 · chore: add audit ignore config files
+- 6240e8c · 2026-02-26 · chore(release): 0.0.21 [skip ci]
+- 432f1e2 · 2026-02-26 · Merge pull request #58 from gunnertech/chore/upgrade-lisa
+- 96122c8 · 2026-02-26 · chore: upgrade lisa templates
+- 81537c3 · 2026-02-26 · chore(release): 0.0.20 [skip ci]
+- 0bae8be · 2026-02-26 · Merge pull request #56 from gunnertech/chore/upgrade-lisa
+- a2d6ccd · 2026-02-26 · chore: upgrade lisa templates
+- fefe62c · 2026-02-26 · chore(release): 0.0.19 [skip ci]
+- 9eb6d98 · 2026-02-26 · Merge pull request #54 from gunnertech/chore/upgrade-lisa
+- 0f54f29 · 2026-02-26 · chore: upgrade lisa templates
+- 5d5b12f · 2026-02-26 · chore(release): 0.0.18 [skip ci]
+- 281c3cb · 2026-02-26 · Merge pull request #52 from gunnertech/chore/upgrade-lisa
+- 11df214 · 2026-02-26 · chore: upgrade lisa
+- f1c38fe · 2026-02-25 · chore(release): 0.0.17 [skip ci]
+- b828d98 · 2026-02-25 · Merge pull request #50 from gunnertech/chore/upgrade-lisa
+- 6ca762d · 2026-02-24 · chore: upgrade lisa
+- 6267fcd · 2026-02-24 · chore: add .entire directory gitignore
+- 5cc522f · 2026-02-23 · Merge pull request #47 from gunnertech/chore/upgrade-lisa
+- 81d715e · 2026-02-23 · fix: regenerate lockfile to sync brace-expansion override
+- e9d073c · 2026-02-23 · chore: upgrade Lisa templates
+- 127d641 · 2026-02-18 · chore(release): 0.0.16 [skip ci]
+- 87c8047 · 2026-02-18 · Merge pull request #45 from gunnertech/chore/upgrade-lisa-1.43.1
+- d9326d7 · 2026-02-18 · chore: upgrade lisa to 1.43.1
+- 5472bb6 · 2026-02-17 · chore(release): 0.0.15 [skip ci]
+- 3ad9bf2 · 2026-02-17 · Merge pull request #43 from gunnertech/chore/upgrade-lisa-1.41.0
+- f897c7c · 2026-02-17 · chore: upgrade Lisa to v1.41.0
+- 32794bf · 2026-02-16 · chore(release): 0.0.14 [skip ci]
+- 4fe1b68 · 2026-02-16 · Merge pull request #41 from gunnertech/chore/upgrade-lisa-1.41.0
+- de1139f · 2026-02-16 · chore: upgrade lisa to 1.41.0
+- 0ef8220 · 2026-02-14 · chore(release): 0.0.13 [skip ci]
+- 69d03e2 · 2026-02-13 · Merge pull request #39 from gunnertech/chore/upgrade-lisa-1.39.1
+- 793b063 · 2026-02-13 · chore: upgrade Lisa to 1.39.1
+- c97c9ac · 2026-02-11 · chore(release): 0.0.12 [skip ci]
+- 3716d19 · 2026-02-11 · Merge pull request #37 from gunnertech/chore/upgrade-lisa-1.36.0
+- 50b0fba · 2026-02-11 · chore: upgrade lisa to 1.36.0
+- 4baa096 · 2026-02-11 · chore(release): 0.0.11 [skip ci]
+- 12f0141 · 2026-02-11 · Merge pull request #34 from gunnertech/chore/upgrade-lisa-add-jira-install-on-remote
+- bd657f2 · 2026-02-11 · Merge branch 'main' into chore/upgrade-lisa-add-jira-install-on-remote
+- 03f6abb · 2026-02-11 · chore(release): 0.0.10 [skip ci]
+- cc29f89 · 2026-02-11 · Merge pull request #32 from gunnertech/chore/upgrade-lisa-add-code-rabbit
+- 109dd75 · 2026-02-11 · chore: upgrade Lisa to add jira-cli remote install
+- a6d5365 · 2026-02-11 · chore: upgrade lisa and add coderabbit config
+- 8cb2e89 · 2026-02-11 · chore(release): 0.0.9 [skip ci]
+- 21be6b3 · 2026-02-10 · Merge pull request #30 from gunnertech/chore/upgrade-lisa-fix-sub-agents-not-being-teammates
+- d75b83c · 2026-02-10 · chore: upgrade Lisa - fix sub-agents not being teammates
+- c77be96 · 2026-02-10 · chore(release): 0.0.8 [skip ci]
+- 273ea45 · 2026-02-10 · Merge pull request #28 from gunnertech/chore/upgrade-lisa-to-agent-teams
+- 139be57 · 2026-02-10 · chore: upgrade Lisa to agent teams
+- 0980324 · 2026-02-09 · chore(release): 0.0.7 [skip ci]
+- b3e981e · 2026-02-09 · Merge pull request #26 from gunnertech/chore/apply-lisa-1.28.0-updates
+- 790f74e · 2026-02-09 · chore: apply Lisa 1.28.0 templates
+- 99125b7 · 2026-02-09 · chore: apply Lisa 1.28.0 template updates
+- 155ed38 · 2026-02-09 · chore(release): 0.0.6 [skip ci]
+- cebd655 · 2026-02-09 · Merge pull request #24 from gunnertech/chore/lisa-update-v1.28.0
+- 348ad47 · 2026-02-09 · chore(lisa): apply Lisa v1.28.0 templates
+- bb2f0b7 · 2026-02-08 · chore(release): 0.0.5 [skip ci]
+- 4c4a751 · 2026-02-08 · Merge pull request #22 from gunnertech/chore/lisa-tooling-update-v2
+- 41efb7b · 2026-02-08 · chore(lisa): update tooling configs and manifest
+- 66b102d · 2026-02-08 · docs(lisa): update documentation for plan mode workflow
+- 0795a78 · 2026-02-08 · chore(lisa): update build, lint, and test configurations
+- 6e0f487 · 2026-02-08 · chore(lisa): add plan mode hooks, rules, and settings
+- dd93caf · 2026-02-08 · chore(lisa): rename project commands/skills to plan prefix
+- 7e96c17 · 2026-02-04 · chore: rebuild packages
+- 3a945e6 · 2026-02-03 · chore(release): 0.0.4 [skip ci]
+- 206d125 · 2026-02-02 · Merge pull request #20 from gunnertech/chore/lisa-tooling-update
+- 6da0c6e · 2026-02-02 · fix(deps): add zod as explicit dependency and clean up knip config
+- d931488 · 2026-02-02 · fix(lint): include util directory in tsconfig.eslint.json
+- 64b4d01 · 2026-02-02 · chore(ci): update workflows and project configuration
+- 092ac10 · 2026-02-02 · chore(build): update jest and typescript configuration
+- 20ff405 · 2026-02-02 · chore(claude): update settings configuration
+- ccd944f · 2026-02-02 · chore(claude): simplify command definitions
+- 9ca18ec · 2026-02-02 · feat(claude): add skills and security commands
+- 5081d43 · 2026-01-29 · chore(release): 0.0.3 [skip ci]
+- 5e80393 · 2026-01-29 · Merge pull request #16 from gunnertech/chore/lisa-update-cleanup
+- 6435fbf · 2026-01-29 · chore(ci): temporarily disable cdk-checks job
+- e697e9e · 2026-01-29 · chore: test working
+- 16a54af · 2026-01-29 · fix(lint): include util directory in tsconfig.eslint.json
+- 6abdb77 · 2026-01-29 · chore(lisa): update dependencies and fix tooling configuration
+- 669ee77 · 2026-01-29 · chore: test working
+- 22b23cf · 2026-01-29 · chore(lisa): update manifest and tooling configuration
+- c428a1a · 2026-01-29 · chore: remove prompt-complexity-scorer skill
+- 4c41165 · 2026-01-29 · docs: add GitHub Actions configuration guide
+- d4dd43b · 2026-01-29 · chore(release): 0.0.2 [skip ci]
+- 4eafa04 · 2026-01-28 · Merge pull request #14 from gunnertech/chore/lisa-update-and-tooling-improvements
+- d7429f6 · 2026-01-28 · fix(deps): add zod dependency and remove unused aws-cdk-github-oidc
+- 784603b · 2026-01-28 · fix(lint): include util and config directories in tsconfig.eslint
+- 0c8254c · 2026-01-28 · docs: add project documentation and ast-grep rules
+- 7a3a962 · 2026-01-28 · chore(lint): add file preambles to eslint plugin files
+- c91a93f · 2026-01-28 · test: update tests for improved stack configurations
+- 9946245 · 2026-01-28 · feat(cdk): improve stack configurations and add type definitions
+- 0eac9da · 2026-01-28 · chore(deps): update dependencies and build configuration
+- 40b2b43 · 2026-01-28 · chore(claude): update claude code tooling and skills
+- 59c5a0b · 2026-01-28 · chore(lisa): update lisa-managed configs and workflows
+- 8123058 · 2026-01-20 · Merge pull request #13 from gunnertech/chore/add-safety-net-config
+- 739d694 · 2026-01-20 · chore(tooling): add safety-net configuration to block --no-verify
+- f3cdd3a · 2026-01-19 · Merge pull request #12 from gunnertech/fix/tsconfig-eslint-include-patterns
+- 2dc5069 · 2026-01-19 · style(lint): add trailing commas to eslint config exports
+- 9dcb1f7 · 2026-01-19 · chore(tooling): update husky hooks, eslint configs, and CI workflow
+- 7b34ccc · 2026-01-19 · fix(lint): update tsconfig.eslint.json to include CDK project directories
+- 4bf6ea9 · 2026-01-19 · Merge pull request #10 from gunnertech/chore/update-lisa
+- 3139cf5 · 2026-01-19 · Merge branch 'main' into chore/update-lisa
+- a2b30ba · 2026-01-19 · Merge pull request #9 from gunnertech/feature/add-slow-linting-checks
+- 4d616b5 · 2026-01-19 · docs(skill): add JSDoc escaping guide for decorators
+- af7044f · 2026-01-19 · chore(lisa): update lisa manifest with new workflow and config files
+- 15931dd · 2026-01-19 · chore(deps): switch from npm to bun package manager
+- 300de6a · 2026-01-19 · chore(ci): update workflows for bun and re-enable CDK synth
+- d38ba0e · 2026-01-19 · chore(eslint): update ESLint config with improved rules and thresholds
+- 0f6b4f6 · 2026-01-19 · chore: add slow linting workflow and configuration
+- 4b311e5 · 2026-01-19 · Merge pull request #6 from gunnertech/feature/bootstrap-cdk-infrastructure
+- e0f55ae · 2026-01-19 · fix: address code quality issues in stacks and tests
+- 4e717f9 · 2026-01-19 · fix(infra): add SupportStage, fix metrics, and make bootstrap configurable

@@ -1,0 +1,125 @@
+{
+  "schemaVersion": "1.0.0",
+  "org": "gunnertech",
+  "displayName": "Cdkstarter",
+  "purpose": "The durable knowledge base for the Cdkstarter AWS CDK infrastructure monorepo — the cloud foundation (auth, database, network, observability, and support stacks deployed across staged environments) that the Cdkstarter product runs on. It captures the architecture, design decisions, domain concepts, conventions, and operational playbooks behind the infrastructure so that engineers and agents can understand and safely change it from a single cited source of truth rather than re-deriving everything from the CDK code each time.",
+  "mode": "embedded",
+  "wikiRoot": "wiki",
+  "frontmatter": true,
+  "categories": [
+    "concepts",
+    "entities",
+    "decisions",
+    "architecture",
+    "requirements",
+    "playbooks",
+    "open-questions",
+    "projects",
+    "sales",
+    "marketing",
+    "finance",
+    "customers",
+    "people",
+    "legal"
+  ],
+  "sources": {
+    "layout": "by-system"
+  },
+  "git": {
+    "prPerIngestion": true,
+    "autoMerge": true,
+    "targetBranch": "main",
+    "branchPrefix": "wiki/ingest"
+  },
+  "sensitivity": {
+    "enabled": true,
+    "default": "internal"
+  },
+  "sourceRetention": "sanitized-note-only",
+  "readme": {
+    "mode": "rich"
+  },
+  "documentation": {
+    "absorb": true
+  },
+  "connectors": {
+    "git": {
+      "enabled": true,
+      "sideEffects": "read-only-ingest"
+    },
+    "memory": {
+      "enabled": true,
+      "sideEffects": "read-only-ingest"
+    },
+    "roles": {
+      "enabled": true,
+      "sideEffects": "read-only-ingest"
+    }
+  },
+  "staff": [
+    {
+      "id": "chief",
+      "role": "Chief of Staff",
+      "expertise": "cross-functional coordination, project status, decisions, playbooks, and open questions",
+      "owns": {
+        "categories": ["projects", "decisions", "playbooks", "open-questions"]
+      },
+      "sensitivity": "confidential"
+    },
+    {
+      "id": "sally",
+      "role": "Sales",
+      "expertise": "sales pipeline, deals, and revenue motion",
+      "owns": {
+        "categories": ["sales"]
+      },
+      "sensitivity": "internal"
+    },
+    {
+      "id": "mark",
+      "role": "Marketing",
+      "expertise": "marketing, positioning, and demand generation",
+      "owns": {
+        "categories": ["marketing"]
+      },
+      "sensitivity": "internal"
+    },
+    {
+      "id": "felix",
+      "role": "Finance",
+      "expertise": "budgets, spend, and financial reporting",
+      "owns": {
+        "categories": ["finance"]
+      },
+      "sensitivity": "confidential"
+    },
+    {
+      "id": "casey",
+      "role": "Customer Success",
+      "expertise": "customer relationships, onboarding, and support outcomes",
+      "owns": {
+        "categories": ["customers"]
+      },
+      "sensitivity": "internal"
+    },
+    {
+      "id": "parker",
+      "role": "People",
+      "expertise": "people operations, hiring, and team",
+      "owns": {
+        "categories": ["people"]
+      },
+      "sensitivity": "confidential"
+    },
+    {
+      "id": "lex",
+      "role": "Legal & Compliance",
+      "expertise": "contracts, compliance, and risk",
+      "owns": {
+        "categories": ["legal"]
+      },
+      "sensitivity": "confidential"
+    }
+  ],
+  "contaminationTerms": []
+}
