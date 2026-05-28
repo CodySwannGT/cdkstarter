@@ -102,7 +102,7 @@ if (sharedEnvironment) {
       account: sharedEnvironment.accountId,
       region: sharedEnvironment.region,
     },
-    repositoryOwner: "gunnertech",
+    repositoryOwner: "cdkstarter",
     repositoryName: "cdkstarter",
     branch: "main",
     connectionArn: app.node.tryGetContext("connectionArn") ?? "PLACEHOLDER",

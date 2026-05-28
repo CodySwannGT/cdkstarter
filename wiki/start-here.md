@@ -4,7 +4,7 @@
 The durable knowledge base for the Cdkstarter AWS CDK infrastructure monorepo — the cloud foundation (auth, database, network, observability, and support stacks deployed across staged environments) that the Cdkstarter product runs on. It captures the architecture, design decisions, domain concepts, conventions, and operational playbooks behind the infrastructure so that engineers and agents can understand and safely change it from a single cited source of truth rather than re-deriving everything from the CDK code each time.
 
 ## What this is
-A git-native LLM Wiki owned by **gunnertech** and maintained by the `lisa-wiki` kernel. It is the
+A git-native LLM Wiki owned by **cdkstarter** and maintained by the `lisa-wiki` kernel. It is the
 durable home for this project's knowledge (and documentation). Raw sources are preserved under
 `wiki/sources/`; distilled knowledge lives in the category pages; the rules are in
 `wiki/schema/llm-wiki-contract.md`.
