@@ -1,9 +1,16 @@
 {
   "compilerOptions": {
     "sourceMap": false,
-    "types": ["vitest/globals", "node"]
+    "types": [
+      "vitest/globals",
+      "node"
+    ]
   },
-  "include": ["lib/**/*", "bin/**/*", "test/**/*"],
+  "include": [
+    "lib/**/*",
+    "bin/**/*",
+    "test/**/*"
+  ],
   "exclude": [
     "node_modules",
     "cdk.out",
@@ -16,5 +23,6 @@
     "vitest.cdk.ts",
     "vitest.config.ts",
     "vitest.config.local.ts"
-  ]
+  ],
+  "files": []
 }
