@@ -63,6 +63,8 @@ dev-debug.log
 .env*.local
 .env.*.local
 .env.secrets
+.env.lisa
+.envrc
 
 # Test coverage
 coverage/
@@ -100,6 +102,7 @@ zap-report.md
 lambdas/**/*.js
 lambdas/**/*.js.map
 !jest.config.js
+!vitest.config.js
 !commitlint.config.js
 !scripts/*.js
 *.tsbuildinfo
@@ -161,6 +164,7 @@ tasks.json
 **/.claude/settings.local.json
 **/.claude/debug/
 **/.claude/worktrees/
+**/.claude/scheduled_tasks.lock
 .roo
 .roo/
 .roomodes
@@ -198,6 +202,11 @@ expo-env.d.ts
 .track-plan-debug.log
 
 .lisa.config.local.json
+
+# Generated Codex plugin marketplace — points into node_modules, so a committed
+# copy breaks plugin resolution in git worktrees / fresh checkouts (lisa#1366).
+# Lisa regenerates it on apply; never commit it.
+.agents/plugins/marketplace.json
 
 # END: AI GUARDRAILS
 
