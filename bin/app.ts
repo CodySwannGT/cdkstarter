@@ -12,36 +12,47 @@
  * - `config/environments.ts` - Environment definitions (dev, staging, production)
  * - `config/domains.ts` - Domain configurations (optional)
  * - `config/observability.ts` - Alarm thresholds and dashboard settings
+ * - `config/github.ts` - GitHub/CodeConnections integration (optional)
+ * - `config/agent-operations.ts` - Headless agent IAM kit (optional)
  *
- * ## Environment Filtering
+ * ## Deploy Modes
  *
- * Only environments with valid (non-PLACEHOLDER) account IDs are deployed.
- * This allows the CDK app to synth with placeholder values but only deploy
- * configured environments.
+ * **Pipeline mode** — chosen when the shared environment is deployable, its
+ * `purpose.pipeline` flag is set, and a real CodeConnections connection ARN
+ * is configured. A single self-mutating CDK Pipeline (in the shared account)
+ * deploys everything: pushes to the configured branch roll out to every
+ * environment in order, with approval gates at environment boundaries.
  *
- * ## Stack Structure
- *
- * For each stage environment:
- * 1. NetworkStage (VPC, Security Groups)
- * 2. AppStage (Aurora, Valkey, Cognito, IAM)
- * 3. ObservabilityStage (SNS, Alarms, Dashboard)
+ * **Direct mode** — otherwise. Stages are instantiated directly and deployed
+ * with `cdk deploy` (typically from CI such as GitHub Actions). Only
+ * environments with valid (non-PLACEHOLDER) account IDs are created.
  * @see config/environments.ts
- * @see config/observability.ts
+ * @see lib/stacks/support/pipeline-stack.ts - Pipeline mode
  * @module bin/app
  */
 import "source-map-support/register";
 import * as cdk from "aws-cdk-lib";
+import { agentOperationsConfig } from "../config/agent-operations";
 import { domainConfig } from "../config/domains";
 import { env } from "../config/env";
 import { environments } from "../config/environments";
+import { githubConfig } from "../config/github";
 import { alarmThresholds } from "../config/observability";
-import type { AuroraAlarmsThresholds } from "../lib/stacks/observability/aurora-alarms-stack";
-import type { ValkeyAlarmsThresholds } from "../lib/stacks/observability/valkey-alarms-stack";
+import { PipelineStack } from "../lib/stacks/support/pipeline-stack";
+import { AgentOperationsStage } from "../lib/stages/agent-operations-stage";
 import { AppStage } from "../lib/stages/app-stage";
+import { CicdStage } from "../lib/stages/cicd-stage";
 import { NetworkStage } from "../lib/stages/network-stage";
 import { ObservabilityStage } from "../lib/stages/observability-stage";
 import { SupportStage } from "../lib/stages/support-stage";
+import type { StageEnvironment, SupportEnvironment } from "../lib/types";
 import {
+  toAuroraAlarmsThresholds,
+  toValkeyAlarmsThresholds,
+} from "../util/alarm-threshold-mapping";
+import {
+  isCodeConnectionConfigured,
+  isDeployableAccountId,
   loadDeployableEnvironments,
   validateConfiguration,
 } from "../util/config-loader";
@@ -53,6 +64,9 @@ validateConfiguration();
 
 // Load only environments with valid account IDs
 const deployableStages = loadDeployableEnvironments(environments);
+const supportEnv = environments.support[0];
+const supportDeployable =
+  supportEnv !== undefined && isDeployableAccountId(supportEnv.accountId);
 
 if (deployableStages.length === 0) {
   console.log(
@@ -60,84 +74,128 @@ if (deployableStages.length === 0) {
   );
 }
 
-// Create stacks for each deployable stage environment
-deployableStages.forEach(env => {
-  const stageName = env.name;
+const pipelineMode =
+  supportDeployable &&
+  supportEnv.purpose.pipeline &&
+  isCodeConnectionConfigured();
 
-  // Network stage - VPC and security groups
+/**
+ * Creates the direct-mode stages for one environment
+ * (network, app, observability, and optional CI/CD).
+ * @param environment - Stage environment configuration
+ */
+const createDirectStages = (environment: StageEnvironment): void => {
+  const stageName = environment.name;
+  const stageEnv = {
+    account: environment.accountId,
+    region: environment.region,
+  };
+
+  // Network stage - VPC, security groups, SSM relay, migration runner
   const networkStage = new NetworkStage(app, `${stageName}-network`, {
-    environment: env,
-    env: { account: env.accountId, region: env.region },
+    environment,
+    github: githubConfig,
+    env: stageEnv,
   });
 
-  // App stage - databases, cache, auth
-  const appStage = new AppStage(app, `${stageName}-app`, {
-    environment: env,
+  // App stage - databases, cache, auth, backup
+  new AppStage(app, `${stageName}-app`, {
+    environment,
     vpc: networkStage.vpcStack.vpc,
     auroraSecurityGroup: networkStage.securityGroupsStack.auroraSecurityGroup,
     valkeySecurityGroup: networkStage.securityGroupsStack.valkeySecurityGroup,
-    env: { account: env.accountId, region: env.region },
+    env: stageEnv,
   });
 
-  // Transform alarm thresholds to match stack prop interfaces
-  const auroraThresholds: AuroraAlarmsThresholds = {
-    cpuCriticalPercent: alarmThresholds.aurora.cpuCritical,
-    cpuWarningPercent: alarmThresholds.aurora.cpuWarning,
-    storageCriticalGB: alarmThresholds.aurora.freeStorageCriticalGB,
-    storageWarningGB: alarmThresholds.aurora.freeStorageCriticalGB * 2,
-    connectionsCritical: alarmThresholds.aurora.connectionsCritical,
-    connectionsWarning: alarmThresholds.aurora.connectionsWarning,
-    replicationLagMs: alarmThresholds.aurora.replicationLagCriticalMs,
-  };
-
-  const valkeyThresholds: ValkeyAlarmsThresholds = {
-    cpuWarningPercent: alarmThresholds.valkey.cpuWarning,
-    cpuCriticalPercent: alarmThresholds.valkey.cpuCritical,
-    cacheHitRateWarningPercent: alarmThresholds.valkey.cacheHitRateWarning,
-    cacheHitRateCriticalPercent: alarmThresholds.valkey.cacheHitRateCritical,
-    evictionsWarning: alarmThresholds.valkey.evictionsWarning,
-    evictionsCritical: alarmThresholds.valkey.evictionsCritical,
-  };
-
   // Observability stage - monitoring and alerting
-  const observabilityStage = new ObservabilityStage(
-    app,
-    `${stageName}-observability`,
-    {
-      environment: env,
-      auroraClusterId: env.features.aurora
-        ? `${stageName}-aurora-cluster`
-        : undefined,
-      valkeyReplicationGroupId: env.features.valkey
-        ? `${stageName}-valkey`
-        : undefined,
-      auroraThresholds: env.features.aurora ? auroraThresholds : undefined,
-      valkeyThresholds: env.features.valkey ? valkeyThresholds : undefined,
-      env: { account: env.accountId, region: env.region },
-    }
-  );
+  new ObservabilityStage(app, `${stageName}-observability`, {
+    environment,
+    auroraClusterId: environment.features.aurora
+      ? `${stageName}-aurora-cluster`
+      : undefined,
+    valkeyReplicationGroupId: environment.features.valkey
+      ? `${stageName}-valkey`
+      : undefined,
+    auroraThresholds: environment.features.aurora
+      ? toAuroraAlarmsThresholds(alarmThresholds)
+      : undefined,
+    valkeyThresholds: environment.features.valkey
+      ? toValkeyAlarmsThresholds(alarmThresholds)
+      : undefined,
+    env: stageEnv,
+  });
 
-  // Log environment creation
+  // CI/CD stage - GitHub Actions OIDC deploy role + bootstrap trust
+  if (environment.features.githubOidcDeploy && supportDeployable) {
+    new CicdStage(app, `${stageName}-cicd`, {
+      environment,
+      github: githubConfig,
+      sharedAccountId: supportEnv.accountId,
+      bootstrapQualifier: env.CDK_BOOTSTRAP_QUALIFIER,
+      env: stageEnv,
+    });
+  }
+
   console.log(`Created infrastructure for ${stageName} environment`);
-  console.log(`  - Network stage: ${networkStage.stageName}`);
-  console.log(`  - App stage: ${appStage.stageName}`);
-  console.log(`  - Observability stage: ${observabilityStage.stageName}`);
-});
+};
 
-// Support stage - shared account infrastructure (DNS, trust policies, pipeline)
-const supportEnv = environments.support[0];
-if (supportEnv) {
-  const supportStage = new SupportStage(app, `${supportEnv.name}-support`, {
-    supportEnvironment: supportEnv,
+/**
+ * Creates the direct-mode shared account stages (support + agent operations).
+ * @param sharedEnvironment - The deployable shared environment
+ */
+const createSharedStages = (sharedEnvironment: SupportEnvironment): void => {
+  new SupportStage(app, `${sharedEnvironment.name}-support`, {
+    supportEnvironment: sharedEnvironment,
     domainConfig,
     deployableEnvironments: deployableStages,
     bootstrapQualifier: env.CDK_BOOTSTRAP_QUALIFIER,
     executionPolicyArn: env.CDK_BOOTSTRAP_EXECUTION_POLICY_ARN,
+    github: githubConfig,
+    codeConnectionConfigured: isCodeConnectionConfigured(),
+    env: {
+      account: sharedEnvironment.accountId,
+      region: sharedEnvironment.region,
+    },
+  });
+
+  if (agentOperationsConfig.enabled && env.AGENT_OPERATIONS_EXTERNAL_ID) {
+    new AgentOperationsStage(app, "agent-operations", {
+      agentOperations: agentOperationsConfig,
+      externalId: env.AGENT_OPERATIONS_EXTERNAL_ID,
+      stageEnvironments: deployableStages,
+      sharedEnvironment,
+    });
+  }
+
+  console.log(
+    `Created infrastructure for ${sharedEnvironment.name} environment`
+  );
+};
+
+if (pipelineMode) {
+  // Pipeline mode: one self-mutating pipeline in the shared account
+  // contains every stage; deploy the pipeline once, then push to deploy.
+  new PipelineStack(app, "PipelineStack", {
+    github: githubConfig,
+    stageEnvironments: deployableStages,
+    supportEnvironment: supportEnv,
+    domainConfig,
+    alarmThresholds,
+    bootstrapQualifier: env.CDK_BOOTSTRAP_QUALIFIER,
+    executionPolicyArn: env.CDK_BOOTSTRAP_EXECUTION_POLICY_ARN,
+    agentOperations: agentOperationsConfig,
+    agentOperationsExternalId: env.AGENT_OPERATIONS_EXTERNAL_ID,
     env: { account: supportEnv.accountId, region: supportEnv.region },
   });
 
-  console.log(`Created infrastructure for ${supportEnv.name} environment`);
-  console.log(`  - Support stage: ${supportStage.stageName}`);
+  console.log("Created CDK Pipeline (pipeline mode)");
+} else {
+  // Direct mode: instantiate stages directly for cdk deploy.
+  deployableStages.forEach(createDirectStages);
+
+  if (supportDeployable) {
+    createSharedStages(supportEnv);
+  }
 }
 
 app.synth();

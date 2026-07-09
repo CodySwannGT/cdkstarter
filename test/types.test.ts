@@ -47,6 +47,10 @@ describe("Configuration Types", () => {
         xray: false,
         waf: false,
         shieldAdvanced: false,
+        backup: false,
+        ssmRelay: false,
+        githubOidcDeploy: false,
+        migrationRunner: false,
       };
 
       expect(features.aurora).toBe(true);
@@ -132,6 +136,10 @@ describe("Configuration Types", () => {
           xray: true,
           waf: false,
           shieldAdvanced: false,
+          backup: false,
+          ssmRelay: false,
+          githubOidcDeploy: false,
+          migrationRunner: false,
         },
         aurora: {
           minCapacity: 0.5,
@@ -171,6 +179,7 @@ describe("Configuration Types", () => {
         pipeline: true,
         dns: true,
         codeConnections: true,
+        flowLogs: false,
       };
 
       expect(purpose.pipeline).toBe(true);
@@ -188,6 +197,7 @@ describe("Configuration Types", () => {
           pipeline: true,
           dns: true,
           codeConnections: true,
+          flowLogs: false,
         },
       };
 

@@ -28,10 +28,13 @@
  */
 import * as cdk from "aws-cdk-lib";
 import type { Construct } from "constructs";
+import { CodeConnectionsShareStack } from "../stacks/support/codeconnections-share-stack";
 import { DnsStack } from "../stacks/support/dns-stack";
+import { FlowLogsStack } from "../stacks/support/flow-logs-stack";
 import { TrustPolicyStack } from "../stacks/support/trust-policy-stack";
 import type {
   DomainConfig,
+  GitHubConfig,
   StageEnvironment,
   SupportEnvironment,
 } from "../types";
@@ -68,6 +71,18 @@ export interface SupportStageProps extends cdk.StageProps {
    * Defaults to AdministratorAccess.
    */
   readonly executionPolicyArn?: string;
+
+  /**
+   * GitHub configuration. When the CodeConnections connection ARN is real
+   * (not a placeholder) and deployable environments exist, the connection
+   * is RAM-shared to the stage accounts.
+   */
+  readonly github?: GitHubConfig;
+
+  /**
+   * Whether the GitHub CodeConnections connection ARN is configured.
+   */
+  readonly codeConnectionConfigured?: boolean;
 }
 
 /**
@@ -86,6 +101,17 @@ export class SupportStage extends cdk.Stage {
    * Trust policy stacks for each deployable environment.
    */
   public readonly trustPolicyStacks: readonly TrustPolicyStack[];
+
+  /**
+   * The central flow logs stack (only if the purpose flag is enabled).
+   */
+  public readonly flowLogsStack?: FlowLogsStack;
+
+  /**
+   * The CodeConnections RAM share stack (only when the connection is
+   * configured and deployable environments exist).
+   */
+  public readonly codeConnectionsShareStack?: CodeConnectionsShareStack;
 
   /**
    * The support environment configuration.
@@ -132,5 +158,35 @@ export class SupportStage extends cdk.Stage {
           stackName: `${supportEnvironment.name}-trust-${env.name}`,
         })
     );
+
+    // Central flow-log sink receiving VPC flow logs from all stage accounts
+    if (supportEnvironment.purpose.flowLogs) {
+      this.flowLogsStack = new FlowLogsStack(this, "FlowLogsStack", {
+        sources: deployableEnvironments.map(env => ({
+          accountId: env.accountId,
+          region: env.region,
+        })),
+        stackName: `${supportEnvironment.name}-flow-logs`,
+      });
+    }
+
+    // Share the GitHub CodeConnections connection with stage accounts so
+    // their CodeBuild projects (e.g. the migration runner) can use it
+    if (
+      props.github &&
+      props.codeConnectionConfigured &&
+      supportEnvironment.purpose.codeConnections &&
+      deployableEnvironments.length > 0
+    ) {
+      this.codeConnectionsShareStack = new CodeConnectionsShareStack(
+        this,
+        "CodeConnectionsShareStack",
+        {
+          codeConnectionArn: props.github.codeConnectionArn,
+          principalAccountIds: deployableEnvironments.map(env => env.accountId),
+          stackName: `${supportEnvironment.name}-codeconnections-share`,
+        }
+      );
+    }
   }
 }

@@ -5,8 +5,18 @@
  */
 import * as cdk from "aws-cdk-lib";
 import { Match, Template } from "aws-cdk-lib/assertions";
-import type { StageEnvironment, SupportEnvironment } from "../../../lib/types";
-import { PipelineStack } from "../../../lib/stacks/support/pipeline-stack";
+import type {
+  AlarmThresholds,
+  DomainConfig,
+  GitHubConfig,
+  StageEnvironment,
+  SupportEnvironment,
+} from "../../../lib/types";
+import {
+  MANUAL_APPROVAL_STEP_NAME,
+  PipelineStack,
+  shouldAddManualApproval,
+} from "../../../lib/stacks/support/pipeline-stack";
 
 describe("PipelineStack", () => {
   const devEnvironment: StageEnvironment = {
@@ -21,6 +31,10 @@ describe("PipelineStack", () => {
       xray: true,
       waf: false,
       shieldAdvanced: false,
+      backup: false,
+      ssmRelay: false,
+      githubOidcDeploy: false,
+      migrationRunner: false,
     },
     aurora: {
       minCapacity: 0.5,
@@ -43,18 +57,14 @@ describe("PipelineStack", () => {
     },
   };
 
-  const stagingEnvironment: StageEnvironment = {
-    ...devEnvironment,
-    name: "staging",
-    accountId: "222222222222",
-    network: { vpcCidr: "10.1.0.0/16" },
-  };
-
-  const placeholderEnvironment: StageEnvironment = {
+  const productionEnvironment: StageEnvironment = {
     ...devEnvironment,
     name: "production",
-    accountId: "PLACEHOLDER",
+    accountId: "222222222222",
     network: { vpcCidr: "10.2.0.0/16" },
+    deployment: {
+      requireManualApproval: true,
+    },
   };
 
   const supportEnvironment: SupportEnvironment = {
@@ -62,17 +72,57 @@ describe("PipelineStack", () => {
     name: "shared",
     accountId: "999999999999",
     region: "us-east-1",
-    purpose: { pipeline: true, dns: true, codeConnections: true },
+    purpose: {
+      pipeline: true,
+      dns: true,
+      codeConnections: true,
+      flowLogs: false,
+    },
+  };
+
+  const githubConfig: GitHubConfig = {
+    owner: "your-project-io",
+    infrastructureRepo: "infrastructure",
+    branch: "main",
+    codeConnectionArn:
+      "arn:aws:codestar-connections:us-east-1:999999999999:connection/test-connection",
+    deployRoleName: "DeployServiceRole",
+    deployRepoPattern: "*",
+    migrationRunnerRepo: "backend",
+  };
+
+  const domainConfig: DomainConfig = { domains: [] };
+
+  const alarmThresholds: AlarmThresholds = {
+    aurora: {
+      cpuWarning: 70,
+      cpuCritical: 90,
+      memoryWarningMB: 512,
+      memoryCriticalMB: 256,
+      connectionsWarning: 80,
+      connectionsCritical: 100,
+      replicationLagWarningMs: 1000,
+      replicationLagCriticalMs: 5000,
+      freeStorageCriticalGB: 10,
+    },
+    valkey: {
+      cpuWarning: 70,
+      cpuCritical: 90,
+      cacheHitRateWarning: 80,
+      cacheHitRateCritical: 50,
+      evictionsWarning: 100,
+      evictionsCritical: 1000,
+    },
   };
 
   const defaultProps = {
-    repositoryOwner: "your-project-io",
-    repositoryName: "infrastructure",
-    branch: "main",
-    connectionArn:
-      "arn:aws:codestar-connections:us-east-1:999999999999:connection/test-connection",
-    stageEnvironments: [devEnvironment, stagingEnvironment],
+    github: githubConfig,
+    stageEnvironments: [devEnvironment],
     supportEnvironment,
+    domainConfig,
+    alarmThresholds,
+    bootstrapQualifier: "hnb659fds",
+    executionPolicyArn: "arn:aws:iam::aws:policy/AdministratorAccess",
     env: { account: "999999999999", region: "us-east-1" },
   };
 
@@ -82,8 +132,7 @@ describe("PipelineStack", () => {
       ...defaultProps,
       ...props,
     });
-    // Build the pipeline to finalize resources before creating template
-    stack.buildPipeline();
+    app.synth();
     return Template.fromStack(stack);
   };
 
@@ -91,7 +140,6 @@ describe("PipelineStack", () => {
     it("should create CodePipeline", () => {
       const template = createStack();
 
-      // CDK Pipelines creates AWS::CodePipeline::Pipeline
       template.resourceCountIs("AWS::CodePipeline::Pipeline", 1);
     });
 
@@ -99,8 +147,20 @@ describe("PipelineStack", () => {
       const template = createStack();
 
       template.hasResourceProperties("AWS::CodePipeline::Pipeline", {
-        Name: "your-project-infrastructure",
+        Name: "InfrastructurePipeline",
       });
+    });
+
+    it("should throw when the connection ARN is a placeholder", () => {
+      const app = new cdk.App();
+
+      expect(
+        () =>
+          new PipelineStack(app, "TestStack", {
+            ...defaultProps,
+            github: { ...githubConfig, codeConnectionArn: "PLACEHOLDER" },
+          })
+      ).toThrow(/CodeConnections connection ARN/);
     });
   });
 
@@ -108,7 +168,6 @@ describe("PipelineStack", () => {
     it("should use GitHub connection source", () => {
       const template = createStack();
 
-      // The pipeline should have a Source stage
       template.hasResourceProperties("AWS::CodePipeline::Pipeline", {
         Stages: Match.arrayWith([
           Match.objectLike({
@@ -126,7 +185,7 @@ describe("PipelineStack", () => {
       });
     });
 
-    it("should use correct repository", () => {
+    it("should use correct repository and branch", () => {
       const template = createStack();
 
       template.hasResourceProperties("AWS::CodePipeline::Pipeline", {
@@ -165,47 +224,94 @@ describe("PipelineStack", () => {
     it("should create KMS key for cross-account artifact encryption", () => {
       const template = createStack();
 
-      // Cross-account pipelines require a KMS key
       template.resourceCountIs("AWS::KMS::Key", 1);
     });
   });
 
-  describe("PLACEHOLDER Filtering", () => {
-    it("should skip PLACEHOLDER environments", () => {
-      const app = new cdk.App();
-      const stack = new PipelineStack(app, "TestStack", {
-        ...defaultProps,
-        stageEnvironments: [devEnvironment, placeholderEnvironment],
-      });
-      stack.buildPipeline();
+  describe("Stage Composition", () => {
+    it("should deploy the support stage before environment stages", () => {
+      const template = createStack();
 
-      // Stack should still create successfully
-      expect(stack).toBeDefined();
-      expect(stack.deployableEnvironments).toHaveLength(1);
-      expect(stack.deployableEnvironments[0].name).toBe("dev");
+      template.hasResourceProperties("AWS::CodePipeline::Pipeline", {
+        Stages: Match.arrayWith([
+          Match.objectLike({ Name: "Support" }),
+          Match.objectLike({ Name: "Env-dev" }),
+        ]),
+      });
     });
 
-    it("should include non-PLACEHOLDER environments", () => {
-      const app = new cdk.App();
-      const stack = new PipelineStack(app, "TestStack", {
-        ...defaultProps,
-        stageEnvironments: [devEnvironment, stagingEnvironment],
+    it("should add a CI/CD stage when githubOidcDeploy is enabled", () => {
+      const template = createStack({
+        stageEnvironments: [
+          {
+            ...devEnvironment,
+            features: { ...devEnvironment.features, githubOidcDeploy: true },
+          },
+        ],
       });
-      stack.buildPipeline();
 
-      expect(stack.deployableEnvironments).toHaveLength(2);
+      template.hasResourceProperties("AWS::CodePipeline::Pipeline", {
+        Stages: Match.arrayWith([Match.objectLike({ Name: "Cicd-dev" })]),
+      });
+    });
+
+    it("should not add a CI/CD stage when githubOidcDeploy is disabled", () => {
+      const template = createStack();
+
+      const pipelines = template.findResources("AWS::CodePipeline::Pipeline");
+      const stages = Object.values(pipelines)[0].Properties.Stages as {
+        Name: string;
+      }[];
+
+      expect(stages.map(stage => stage.Name)).not.toContain("Cicd-dev");
     });
   });
 
-  describe("Outputs", () => {
-    it("should export pipeline ARN", () => {
+  describe("Promotion Gates", () => {
+    it("should gate environments that require manual approval", () => {
+      const template = createStack({
+        stageEnvironments: [devEnvironment, productionEnvironment],
+      });
+
+      template.hasResourceProperties("AWS::CodePipeline::Pipeline", {
+        Stages: Match.arrayWith([
+          Match.objectLike({
+            Name: "Env-production",
+            Actions: Match.arrayWith([
+              Match.objectLike({
+                ActionTypeId: Match.objectLike({ Category: "Approval" }),
+              }),
+            ]),
+          }),
+        ]),
+      });
+    });
+
+    it("should not gate environments that deploy automatically", () => {
       const template = createStack();
 
-      template.hasOutput("PipelineArn", {
-        Export: {
-          Name: "your-project-pipeline-arn",
-        },
-      });
+      const pipelines = template.findResources("AWS::CodePipeline::Pipeline");
+      const stages = Object.values(pipelines)[0].Properties.Stages as {
+        Name: string;
+        Actions: { ActionTypeId: { Category: string } }[];
+      }[];
+      const devStage = stages.find(stage => stage.Name === "Env-dev");
+
+      expect(devStage).toBeDefined();
+      expect(
+        devStage?.Actions.some(
+          action => action.ActionTypeId.Category === "Approval"
+        )
+      ).toBe(false);
+    });
+
+    it("shouldAddManualApproval should follow environment config", () => {
+      expect(shouldAddManualApproval(devEnvironment)).toBe(false);
+      expect(shouldAddManualApproval(productionEnvironment)).toBe(true);
+    });
+
+    it("should export a stable approval step name", () => {
+      expect(MANUAL_APPROVAL_STEP_NAME).toBe("approval");
     });
   });
 });

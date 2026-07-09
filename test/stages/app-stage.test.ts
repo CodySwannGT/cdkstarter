@@ -47,6 +47,10 @@ describe("AppStage", () => {
         xray: true,
         waf: false,
         shieldAdvanced: false,
+        backup: false,
+        ssmRelay: false,
+        githubOidcDeploy: false,
+        migrationRunner: false,
       },
       aurora: {
         minCapacity: 0.5,
@@ -115,6 +119,10 @@ describe("AppStage", () => {
           xray: true,
           waf: false,
           shieldAdvanced: false,
+          backup: false,
+          ssmRelay: false,
+          githubOidcDeploy: false,
+          migrationRunner: false,
         },
       });
 
@@ -130,6 +138,10 @@ describe("AppStage", () => {
           xray: true,
           waf: false,
           shieldAdvanced: false,
+          backup: false,
+          ssmRelay: false,
+          githubOidcDeploy: false,
+          migrationRunner: false,
         },
       });
 
@@ -145,6 +157,10 @@ describe("AppStage", () => {
           xray: true,
           waf: false,
           shieldAdvanced: false,
+          backup: false,
+          ssmRelay: false,
+          githubOidcDeploy: false,
+          migrationRunner: false,
         },
       });
 
@@ -160,6 +176,10 @@ describe("AppStage", () => {
           xray: true,
           waf: false,
           shieldAdvanced: false,
+          backup: false,
+          ssmRelay: false,
+          githubOidcDeploy: false,
+          migrationRunner: false,
         },
       });
 
@@ -175,6 +195,10 @@ describe("AppStage", () => {
           xray: true,
           waf: false,
           shieldAdvanced: false,
+          backup: false,
+          ssmRelay: false,
+          githubOidcDeploy: false,
+          migrationRunner: false,
         },
       });
 
@@ -190,6 +214,10 @@ describe("AppStage", () => {
           xray: false,
           waf: false,
           shieldAdvanced: false,
+          backup: false,
+          ssmRelay: false,
+          githubOidcDeploy: false,
+          migrationRunner: false,
         },
       });
 

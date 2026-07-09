@@ -1,95 +1,137 @@
 /**
- * Pipeline Stack - CDK Pipeline for Multi-Account Deployment
+ * Pipeline Stack - Self-Mutating CDK Pipeline for Multi-Account Deployment
  *
- * This stack creates a CDK Pipeline that orchestrates deployments to all
- * stage environments from a shared account. It uses GitHub as the source
- * via AWS CodeConnections (formerly CodeStar Connections).
+ * Creates a CodePipeline (V2) that sources this repository from GitHub via
+ * AWS CodeConnections (no token rotation), synthesizes the CDK app, and
+ * deploys every stage in order — self-mutating when the pipeline definition
+ * itself changes.
  *
- * ## Pipeline Structure
+ * ## Stage Ordering and Promotion Gates
  *
- * 1. **Source Stage**: Pulls code from GitHub on push to configured branch
- * 2. **Build Stage**: Runs `npm ci`, `npm run build`, and `cdk synth`
- * 3. **Deploy Stages**: Deploys to each configured environment
+ * Stages deploy in this order:
  *
- * ## Cross-Account Deployment
+ * 1. SupportStage (shared account: DNS, trust docs, flow logs, RAM share)
+ * 2. AgentOperationsStage (when enabled)
+ * 3. Per environment, in config order: EnvironmentStage, then CicdStage
  *
- * The pipeline uses cross-account deployment with KMS encryption for artifacts.
- * Each target account must be bootstrapped with `--trust {pipelineAccountId}`
- * before the pipeline can deploy to it.
- *
- * ## Environment Filtering
- *
- * Environments with `accountId: "PLACEHOLDER"` are automatically filtered out.
- * This allows template development without real AWS account IDs.
- *
- * ## CodeConnections Setup
- *
- * Before using this pipeline, create a CodeConnection in the AWS Console:
- * 1. Go to CodePipeline > Settings > Connections
- * 2. Create connection to GitHub
- * 3. Authorize the connection
- * 4. Copy the connection ARN
+ * Promotion gates attach at the ENVIRONMENT BOUNDARY: when an environment
+ * sets `deployment.requireManualApproval`, a ManualApprovalStep is added as
+ * a `pre` step on that environment's first stage — the pipeline pauses
+ * before touching the environment, never mid-environment. With the default
+ * config only production is gated, so dev→staging flows automatically
+ * (faster iteration) while production stays protected by both the approval
+ * and a ConfirmPermissionsBroadening check that publishes to the security
+ * SNS topic when an IAM change widens permissions.
+ * @see lib/stages/environment-stage.ts - Per-environment composition
+ * @see lib/stages/support-stage.ts - Shared account stage
+ * @see config/github.ts - Source repository and connection configuration
  * @see https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.pipelines-readme.html
- * @see lib/stacks/support/trust-policy-stack.ts - Bootstrap trust configuration
  * @module lib/stacks/support/pipeline-stack
  */
 import * as cdk from "aws-cdk-lib";
-import * as pipelines from "aws-cdk-lib/pipelines";
+import { BuildSpec, LinuxBuildImage } from "aws-cdk-lib/aws-codebuild";
+import { PipelineType } from "aws-cdk-lib/aws-codepipeline";
+import * as iam from "aws-cdk-lib/aws-iam";
+import * as sns from "aws-cdk-lib/aws-sns";
+import * as subscriptions from "aws-cdk-lib/aws-sns-subscriptions";
+import {
+  CodePipeline,
+  CodePipelineSource,
+  ConfirmPermissionsBroadening,
+  ManualApprovalStep,
+  ShellStep,
+} from "aws-cdk-lib/pipelines";
 import type { Construct } from "constructs";
-import type { StageEnvironment } from "../../types";
+import { AgentOperationsStage } from "../../stages/agent-operations-stage";
+import { CicdStage } from "../../stages/cicd-stage";
+import { EnvironmentStage } from "../../stages/environment-stage";
+import { SupportStage } from "../../stages/support-stage";
+import type {
+  AgentOperationsConfig,
+  AlarmThresholds,
+  DomainConfig,
+  GitHubConfig,
+  StageEnvironment,
+  SupportEnvironment,
+} from "../../types";
+
+/**
+ * Name of the manual approval step, exported so external tooling
+ * (for example an auto-approver bot) can locate the gate by name.
+ */
+export const MANUAL_APPROVAL_STEP_NAME = "approval";
+
+/**
+ * Whether a manual promotion gate should pause the pipeline before this
+ * environment deploys. Driven by per-environment config so the gating
+ * policy lives in config/environments.ts, not in pipeline code.
+ * @param environment - Stage environment configuration
+ * @returns True when the pipeline must pause for approval
+ */
+export const shouldAddManualApproval = (
+  environment: StageEnvironment
+): boolean => environment.deployment.requireManualApproval;
 
 /**
  * Configuration properties for PipelineStack.
  */
 export interface PipelineStackProps extends cdk.StackProps {
   /**
-   * GitHub repository owner (organization or username).
-   * Example: "your-project-io"
+   * GitHub configuration (source repo, branch, connection ARN).
    */
-  readonly repositoryOwner: string;
+  readonly github: GitHubConfig;
 
   /**
-   * GitHub repository name.
-   * Example: "infrastructure"
-   */
-  readonly repositoryName: string;
-
-  /**
-   * Git branch to deploy from.
-   * Example: "main"
-   */
-  readonly branch: string;
-
-  /**
-   * ARN of the AWS CodeConnection to GitHub.
-   * Create this in the CodePipeline settings before deployment.
-   */
-  readonly connectionArn: string;
-
-  /**
-   * Stage environments to deploy to.
-   * Environments with PLACEHOLDER accountId are filtered out.
+   * Deployable stage environments, in deployment order.
    */
   readonly stageEnvironments: readonly StageEnvironment[];
+
+  /**
+   * The shared support environment hosting this pipeline.
+   */
+  readonly supportEnvironment: SupportEnvironment;
+
+  /**
+   * Domain configuration for the support stage.
+   */
+  readonly domainConfig: DomainConfig;
+
+  /**
+   * Alarm thresholds passed through to environment stages.
+   */
+  readonly alarmThresholds: AlarmThresholds;
+
+  /**
+   * CDK bootstrap qualifier for bootstrap role names.
+   */
+  readonly bootstrapQualifier: string;
+
+  /**
+   * CloudFormation execution policy ARN for bootstrap documentation.
+   */
+  readonly executionPolicyArn: string;
+
+  /**
+   * Agent operations configuration; the stage is added when enabled and
+   * an ExternalId is provided.
+   */
+  readonly agentOperations?: AgentOperationsConfig;
+
+  /**
+   * ExternalId for the agent operations roles
+   * (AGENT_OPERATIONS_EXTERNAL_ID).
+   */
+  readonly agentOperationsExternalId?: string;
 }
 
 /**
- * Pipeline Stack creating CDK Pipeline for cross-account deployments.
- *
- * This stack is deployed to the shared account and creates a pipeline that
- * monitors a GitHub repository and deploys to all configured stage accounts.
+ * Pipeline Stack creating the self-mutating CDK Pipeline.
  */
 export class PipelineStack extends cdk.Stack {
   /**
    * The CDK Pipeline.
    */
-  public readonly pipeline: pipelines.CodePipeline;
-
-  /**
-   * Filtered list of environments that will be deployed.
-   * Excludes PLACEHOLDER environments.
-   */
-  public readonly deployableEnvironments: readonly StageEnvironment[];
+  public readonly pipeline: CodePipeline;
 
   /**
    * Creates a new PipelineStack.
@@ -100,67 +142,143 @@ export class PipelineStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: PipelineStackProps) {
     super(scope, id, props);
 
-    const {
-      repositoryOwner,
-      repositoryName,
-      branch,
-      connectionArn,
-      stageEnvironments,
-    } = props;
+    const { github, stageEnvironments, supportEnvironment } = props;
 
-    // Filter out PLACEHOLDER environments
-    this.deployableEnvironments = stageEnvironments.filter(
-      env => env.accountId !== "PLACEHOLDER"
-    );
+    if (!github.codeConnectionArn.startsWith("arn:")) {
+      throw new Error(
+        "A real CodeConnections connection ARN is required in config/github.ts " +
+          "to create the pipeline. Create the connection in the AWS Console " +
+          "(CodePipeline > Settings > Connections) and update the config."
+      );
+    }
 
-    // Create the CDK Pipeline
-    this.pipeline = new pipelines.CodePipeline(this, "Pipeline", {
-      pipelineName: "your-project-infrastructure",
+    // The pipeline needs to create and mutate arbitrary infrastructure
+    // across stages; the deployment itself happens via the CDK bootstrap
+    // roles in the target accounts.
+    const pipelineRole = new iam.Role(this, "CustomPipelineRole", {
+      assumedBy: new iam.ServicePrincipal("codepipeline.amazonaws.com"),
+      managedPolicies: [
+        iam.ManagedPolicy.fromAwsManagedPolicyName("AdministratorAccess"),
+      ],
+    });
+
+    this.pipeline = new CodePipeline(this, "Pipeline", {
+      pipelineName: "InfrastructurePipeline",
+      pipelineType: PipelineType.V2,
       crossAccountKeys: true,
-      synth: new pipelines.ShellStep("Synth", {
-        input: pipelines.CodePipelineSource.connection(
-          `${repositoryOwner}/${repositoryName}`,
-          branch,
-          { connectionArn }
+      role: pipelineRole,
+      synth: new ShellStep("Synth", {
+        input: CodePipelineSource.connection(
+          `${github.owner}/${github.infrastructureRepo}`,
+          github.branch,
+          { connectionArn: github.codeConnectionArn }
         ),
         commands: ["npm ci", "npm run build", "npx cdk synth"],
         primaryOutputDirectory: "cdk.out",
       }),
+      synthCodeBuildDefaults: {
+        buildEnvironment: {
+          buildImage: LinuxBuildImage.STANDARD_7_0,
+        },
+        partialBuildSpec: BuildSpec.fromObject({
+          phases: {
+            install: {
+              "runtime-versions": {
+                nodejs: "22",
+              },
+            },
+          },
+        }),
+      },
     });
 
-    // Note: Stage addition is handled separately after pipeline creation
-    // because cross-stage dependencies require additional coordination.
-    // See bin/infrastructure.ts for stage orchestration.
-    //
-    // Call buildPipeline() after adding stages to build the pipeline.
-    // Outputs are created in buildPipeline() because the pipeline
-    // resource isn't available until then.
-  }
+    // Topic for security change notifications (permissions broadening)
+    const securityTopic = new sns.Topic(this, "SecurityChangesTopic");
+    if (github.notificationEmail) {
+      securityTopic.addSubscription(
+        new subscriptions.EmailSubscription(github.notificationEmail)
+      );
+    }
 
-  /**
-   * Builds the pipeline and creates outputs.
-   *
-   * This method must be called after adding all stages to the pipeline.
-   * It finalizes the pipeline structure and creates CloudFormation outputs.
-   */
-  public buildPipeline(): void {
-    this.pipeline.buildPipeline();
-    this.createOutputs();
-  }
+    // Shared account infrastructure deploys first — DNS zones and trust
+    // documentation are prerequisites for the stage environments.
+    this.pipeline.addStage(
+      new SupportStage(this, "Support", {
+        supportEnvironment,
+        domainConfig: props.domainConfig,
+        deployableEnvironments: stageEnvironments,
+        bootstrapQualifier: props.bootstrapQualifier,
+        executionPolicyArn: props.executionPolicyArn,
+        github,
+        codeConnectionConfigured: true,
+        env: {
+          account: supportEnvironment.accountId,
+          region: supportEnvironment.region,
+        },
+      })
+    );
 
-  /**
-   * Creates CloudFormation outputs for pipeline information.
-   */
-  private createOutputs(): void {
-    new cdk.CfnOutput(this, "PipelineArn", {
-      value: this.pipeline.pipeline.pipelineArn,
-      description: "CDK Pipeline ARN",
-      exportName: "your-project-pipeline-arn",
-    });
+    // Headless agent role (per member account) + dedicated user (shared
+    // account). Each child stack targets its own account via explicit env.
+    if (props.agentOperations?.enabled && props.agentOperationsExternalId) {
+      this.pipeline.addStage(
+        new AgentOperationsStage(this, "AgentOperations", {
+          agentOperations: props.agentOperations,
+          externalId: props.agentOperationsExternalId,
+          stageEnvironments,
+          sharedEnvironment: supportEnvironment,
+        })
+      );
+    }
 
-    new cdk.CfnOutput(this, "DeployableEnvironments", {
-      value: this.deployableEnvironments.map(e => e.name).join(","),
-      description: "Environments that will be deployed",
+    stageEnvironments.forEach(environment => {
+      const environmentStage = new EnvironmentStage(
+        this,
+        `Env-${environment.name}`,
+        {
+          environment,
+          alarmThresholds: props.alarmThresholds,
+          github,
+          env: { account: environment.accountId, region: environment.region },
+        }
+      );
+
+      const addedEnvironmentStage = this.pipeline.addStage(environmentStage);
+
+      // Attach the promotion gate at the ENVIRONMENT BOUNDARY — as a pre
+      // step on the environment's first (and only) stage — so the pipeline
+      // pauses before touching the environment, never mid-environment.
+      if (shouldAddManualApproval(environment)) {
+        addedEnvironmentStage.addPre(
+          new ManualApprovalStep(MANUAL_APPROVAL_STEP_NAME)
+        );
+      }
+
+      // Security review gate: block production deploys that broaden IAM
+      // permissions until a human confirms, notifying the security topic.
+      if (environment.name === "production") {
+        addedEnvironmentStage.addPre(
+          new ConfirmPermissionsBroadening("PermissionCheck", {
+            stage: environmentStage,
+            notificationTopic: securityTopic,
+          })
+        );
+      }
+
+      if (environment.features.githubOidcDeploy) {
+        this.pipeline.addStage(
+          new CicdStage(this, `Cicd-${environment.name}`, {
+            environment,
+            github,
+            sharedAccountId: supportEnvironment.accountId,
+            bootstrapQualifier: props.bootstrapQualifier,
+            env: {
+              account: environment.accountId,
+              region: environment.region,
+            },
+          })
+        );
+      }
     });
   }
 }
