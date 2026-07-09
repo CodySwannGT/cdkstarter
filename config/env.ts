@@ -53,6 +53,14 @@ const envSchema = z.object({
     .string()
     .optional()
     .default(DEFAULT_EXECUTION_POLICY_ARN),
+
+  /**
+   * ExternalId required on sts:AssumeRole for the remote-agent roles
+   * (confused-deputy protection). Required when agent operations are
+   * enabled in config/agent-operations.ts. Generate with:
+   * `openssl rand -hex 16`
+   */
+  AGENT_OPERATIONS_EXTERNAL_ID: z.string().optional(),
 });
 
 /**

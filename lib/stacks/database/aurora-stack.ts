@@ -100,7 +100,20 @@ export class AuroraStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: AuroraStackProps) {
     super(scope, id, props);
 
-    const { stageName, vpc, securityGroup, aurora } = props;
+    const { stageName, vpc, aurora } = props;
+
+    // Reference the security group by ID rather than using the construct
+    // directly. The proxy (addProxy) auto-adds an ingress rule on the
+    // cluster's security group using the cluster's port token; with a
+    // direct construct reference that rule materializes in the stack that
+    // OWNS the security group, creating a dependency cycle
+    // (security-groups stack -> this stack -> security-groups stack).
+    // With a by-ID reference the rule lands in this stack instead.
+    const securityGroup = ec2.SecurityGroup.fromSecurityGroupId(
+      this,
+      "ClusterSecurityGroup",
+      props.securityGroup.securityGroupId
+    );
 
     this.cluster = this.createCluster(stageName, vpc, securityGroup, aurora);
 

@@ -24,6 +24,10 @@ describe("SupportStage", () => {
       xray: true,
       waf: false,
       shieldAdvanced: false,
+      backup: false,
+      ssmRelay: false,
+      githubOidcDeploy: false,
+      migrationRunner: false,
     },
     aurora: {
       minCapacity: 0.5,
@@ -58,7 +62,12 @@ describe("SupportStage", () => {
     name: "shared",
     accountId: "999999999999",
     region: "us-east-1",
-    purpose: { pipeline: true, dns: true, codeConnections: true },
+    purpose: {
+      pipeline: true,
+      dns: true,
+      codeConnections: true,
+      flowLogs: false,
+    },
   };
 
   const domainConfig: DomainConfig = {

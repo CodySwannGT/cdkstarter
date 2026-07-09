@@ -46,6 +46,20 @@ export interface SecurityGroupsStackProps extends cdk.StackProps {
    * VPC where security groups will be created.
    */
   readonly vpc: ec2.IVpc;
+
+  /**
+   * Create a security group for the SSM port-forwarding relay and allow it
+   * to reach Aurora (5432) and Valkey (6379).
+   * @see lib/stacks/network/ssm-relay-stack.ts
+   */
+  readonly createSsmRelaySecurityGroup?: boolean;
+
+  /**
+   * Create a security group for the CodeBuild migration runner and allow it
+   * to reach Aurora (5432).
+   * @see lib/stacks/cicd/migration-runner-stack.ts
+   */
+  readonly createMigrationRunnerSecurityGroup?: boolean;
 }
 
 /**
@@ -71,6 +85,16 @@ export class SecurityGroupsStack extends cdk.Stack {
   public readonly lambdaSecurityGroup: ec2.SecurityGroup;
 
   /**
+   * Security group for the SSM port-forwarding relay (if enabled).
+   */
+  public readonly ssmRelaySecurityGroup?: ec2.SecurityGroup;
+
+  /**
+   * Security group for the CodeBuild migration runner (if enabled).
+   */
+  public readonly migrationRunnerSecurityGroup?: ec2.SecurityGroup;
+
+  /**
    * Creates a new SecurityGroupsStack.
    * @param scope - Parent construct
    * @param id - Stack identifier
@@ -79,11 +103,42 @@ export class SecurityGroupsStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: SecurityGroupsStackProps) {
     super(scope, id, props);
 
-    const { stageName, vpc } = props;
+    const {
+      stageName,
+      vpc,
+      createSsmRelaySecurityGroup,
+      createMigrationRunnerSecurityGroup,
+    } = props;
 
     this.lambdaSecurityGroup = this.createLambdaSecurityGroup(stageName, vpc);
     this.auroraSecurityGroup = this.createAuroraSecurityGroup(stageName, vpc);
     this.valkeySecurityGroup = this.createValkeySecurityGroup(stageName, vpc);
+
+    if (createSsmRelaySecurityGroup) {
+      this.ssmRelaySecurityGroup = new ec2.SecurityGroup(
+        this,
+        "SsmRelaySecurityGroup",
+        {
+          vpc,
+          description:
+            "Security group for the SSM port-forwarding relay instance",
+          allowAllOutbound: true,
+        }
+      );
+    }
+
+    if (createMigrationRunnerSecurityGroup) {
+      this.migrationRunnerSecurityGroup = new ec2.SecurityGroup(
+        this,
+        "MigrationRunnerSecurityGroup",
+        {
+          vpc,
+          description:
+            "Security group for the CodeBuild migration runner project",
+          allowAllOutbound: true,
+        }
+      );
+    }
 
     this.configureIngressRules();
     this.createOutputs(stageName);
@@ -171,6 +226,29 @@ export class SecurityGroupsStack extends cdk.Stack {
       ec2.Port.tcp(6379),
       "Allow Redis access from Lambda functions"
     );
+
+    // SSM relay tunnels developer traffic to Aurora and Valkey
+    if (this.ssmRelaySecurityGroup) {
+      this.auroraSecurityGroup.addIngressRule(
+        this.ssmRelaySecurityGroup,
+        ec2.Port.tcp(5432),
+        "Allow PostgreSQL access from the SSM relay"
+      );
+      this.valkeySecurityGroup.addIngressRule(
+        this.ssmRelaySecurityGroup,
+        ec2.Port.tcp(6379),
+        "Allow Redis access from the SSM relay"
+      );
+    }
+
+    // Migration runner executes schema migrations against Aurora
+    if (this.migrationRunnerSecurityGroup) {
+      this.auroraSecurityGroup.addIngressRule(
+        this.migrationRunnerSecurityGroup,
+        ec2.Port.tcp(5432),
+        "Allow PostgreSQL access from the migration runner"
+      );
+    }
   }
 
   /**
@@ -195,5 +273,21 @@ export class SecurityGroupsStack extends cdk.Stack {
       description: `Lambda security group ID for ${stageName} environment`,
       exportName: `${stageName}-lambda-security-group-id`,
     });
+
+    if (this.ssmRelaySecurityGroup) {
+      new cdk.CfnOutput(this, "SsmRelaySecurityGroupId", {
+        value: this.ssmRelaySecurityGroup.securityGroupId,
+        description: `SSM relay security group ID for ${stageName} environment`,
+        exportName: `${stageName}-ssm-relay-security-group-id`,
+      });
+    }
+
+    if (this.migrationRunnerSecurityGroup) {
+      new cdk.CfnOutput(this, "MigrationRunnerSecurityGroupId", {
+        value: this.migrationRunnerSecurityGroup.securityGroupId,
+        description: `Migration runner security group ID for ${stageName} environment`,
+        exportName: `${stageName}-migration-runner-security-group-id`,
+      });
+    }
   }
 }

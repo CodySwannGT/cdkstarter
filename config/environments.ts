@@ -61,6 +61,10 @@ export const stageEnvironments: readonly StageEnvironment[] = [
       xray: true,
       waf: false,
       shieldAdvanced: false,
+      backup: false,
+      ssmRelay: true,
+      githubOidcDeploy: true,
+      migrationRunner: false,
     },
     aurora: {
       minCapacity: 0.5,
@@ -100,6 +104,10 @@ export const stageEnvironments: readonly StageEnvironment[] = [
       xray: true,
       waf: false,
       shieldAdvanced: false,
+      backup: true,
+      ssmRelay: true,
+      githubOidcDeploy: true,
+      migrationRunner: false,
     },
     aurora: {
       minCapacity: 1,
@@ -139,6 +147,10 @@ export const stageEnvironments: readonly StageEnvironment[] = [
       xray: true,
       waf: false,
       shieldAdvanced: false,
+      backup: true,
+      ssmRelay: true,
+      githubOidcDeploy: true,
+      migrationRunner: false,
     },
     aurora: {
       minCapacity: 2,
@@ -192,6 +204,7 @@ export const supportEnvironments: readonly SupportEnvironment[] = [
       pipeline: true,
       dns: true,
       codeConnections: true,
+      flowLogs: true,
     },
   },
 ] as const;

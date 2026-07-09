@@ -28,13 +28,17 @@
  * @see config/observability.ts - Alarm thresholds and dashboard widgets
  * @module util/config-loader
  */
+import { agentOperationsConfig } from "../config/agent-operations";
 import { domainConfig } from "../config/domains";
 import { stageEnvironments, supportEnvironments } from "../config/environments";
+import { githubConfig } from "../config/github";
 import { alarmThresholds, dashboardWidgets } from "../config/observability";
 import type {
+  AgentOperationsConfig,
   AlarmThresholds,
   DashboardWidgets,
   DomainConfig,
+  GitHubConfig,
   StageEnvironment,
   SupportEnvironment,
 } from "../lib/types";
@@ -120,6 +124,29 @@ export const getDeployableSharedEnvironment = ():
  * @returns Domain configuration from config/domains.ts
  */
 export const getDomainConfig = (): DomainConfig => domainConfig;
+
+/**
+ * Returns the GitHub integration configuration.
+ * @returns GitHub configuration from config/github.ts
+ */
+export const getGitHubConfig = (): GitHubConfig => githubConfig;
+
+/**
+ * Returns the agent operations configuration.
+ * @returns Agent operations configuration from config/agent-operations.ts
+ */
+export const getAgentOperationsConfig = (): AgentOperationsConfig =>
+  agentOperationsConfig;
+
+/**
+ * Checks if the CodeConnections connection ARN is configured (not a
+ * placeholder). Pipeline mode, the migration runner, and the RAM share
+ * all require a real connection ARN.
+ * @returns True if a real connection ARN is configured
+ */
+export const isCodeConnectionConfigured = (): boolean =>
+  githubConfig.codeConnectionArn !== "PLACEHOLDER" &&
+  githubConfig.codeConnectionArn.startsWith("arn:");
 
 /**
  * Returns alarm threshold configuration.

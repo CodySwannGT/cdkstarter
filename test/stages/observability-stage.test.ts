@@ -20,6 +20,10 @@ describe("ObservabilityStage", () => {
       xray: true,
       waf: false,
       shieldAdvanced: false,
+      backup: false,
+      ssmRelay: false,
+      githubOidcDeploy: false,
+      migrationRunner: false,
     },
     aurora: {
       minCapacity: 0.5,

@@ -31,6 +31,7 @@ import type { Construct } from "constructs";
 import { CognitoStack } from "../stacks/auth/cognito-stack";
 import { IamStack } from "../stacks/auth/iam-stack";
 import { AuroraStack } from "../stacks/database/aurora-stack";
+import { BackupStack } from "../stacks/database/backup-stack";
 import { ValkeyStack } from "../stacks/database/valkey-stack";
 import type { StageEnvironment } from "../types";
 
@@ -82,6 +83,11 @@ export class AppStage extends cdk.Stage {
    * The IAM stack.
    */
   public readonly iamStack?: IamStack;
+
+  /**
+   * The backup stack (if enabled).
+   */
+  public readonly backupStack?: BackupStack;
 
   /**
    * Creates a new AppStage.
@@ -138,6 +144,15 @@ export class AppStage extends cdk.Stage {
 
       this.iamStack.addDependency(this.auroraStack);
       this.iamStack.addDependency(this.cognitoStack);
+    }
+
+    // Create tag-driven AWS Backup plan if enabled. Resources tagged
+    // backup=yes anywhere in this account are included.
+    if (features.backup) {
+      this.backupStack = new BackupStack(this, "BackupStack", {
+        stageName,
+        stackName: `${stageName}-backup`,
+      });
     }
   }
 }

@@ -70,6 +70,38 @@ export interface StageFeatures {
    * Shield Standard is always enabled at no cost.
    */
   readonly shieldAdvanced: boolean;
+
+  /**
+   * Enable AWS Backup plan with tag-based resource selection.
+   * Resources tagged `backup=yes` are backed up daily/weekly/monthly with
+   * point-in-time recovery and cold storage archival.
+   */
+  readonly backup: boolean;
+
+  /**
+   * Enable the SSM Session Manager port-forwarding relay.
+   * A t4g.nano instance in a private subnet that lets developers tunnel to
+   * Aurora (5432) and Valkey (6379) without a Client VPN.
+   * @see scripts/connect-db.sh - Tunnel helper using this relay
+   */
+  readonly ssmRelay: boolean;
+
+  /**
+   * Enable the GitHub Actions OIDC deploy role (DeployServiceRole) and
+   * CDK bootstrap role trust-policy management for this account.
+   * Lets application repos deploy from GitHub Actions without long-lived keys.
+   * @see lib/stacks/cicd/iam-deploy-role-stack.ts
+   */
+  readonly githubOidcDeploy: boolean;
+
+  /**
+   * Enable the CodeBuild-hosted GitHub Actions runner for database migrations.
+   * Runs workflow jobs inside the VPC so migrations reach Aurora directly
+   * (the CI-side alternative to a VPN). Requires a CodeConnections connection
+   * shared into this account.
+   * @see lib/stacks/cicd/migration-runner-stack.ts
+   */
+  readonly migrationRunner: boolean;
 }
 
 /**
@@ -381,6 +413,12 @@ export interface SupportPurpose {
    * Host AWS CodeConnections for GitHub integration.
    */
   readonly codeConnections: boolean;
+
+  /**
+   * Host the central S3 bucket receiving VPC flow logs from all
+   * stage accounts.
+   */
+  readonly flowLogs: boolean;
 }
 
 /**
@@ -648,6 +686,118 @@ export interface EnvironmentsConfig {
    * Support environments (shared infrastructure).
    */
   readonly support: readonly SupportEnvironment[];
+}
+
+/**
+ * GitHub integration configuration for CI/CD.
+ *
+ * Drives the CDK Pipeline source, the GitHub Actions OIDC deploy role,
+ * and the CodeBuild-hosted migration runner. The CodeConnections connection
+ * must be created manually in the AWS Console (shared account) and authorized
+ * against the GitHub organization before pipeline mode can be enabled.
+ */
+export interface GitHubConfig {
+  /**
+   * GitHub organization or username owning the repositories.
+   * Example: "your-org"
+   */
+  readonly owner: string;
+
+  /**
+   * Repository containing this CDK infrastructure code.
+   * Used as the CDK Pipeline source.
+   */
+  readonly infrastructureRepo: string;
+
+  /**
+   * Branch the CDK Pipeline deploys from.
+   * Example: "main"
+   */
+  readonly branch: string;
+
+  /**
+   * ARN of the AWS CodeConnections connection to GitHub.
+   * Use "PLACEHOLDER" until the connection is created; pipeline mode,
+   * the migration runner, and the RAM share are skipped while it is
+   * a placeholder.
+   */
+  readonly codeConnectionArn: string;
+
+  /**
+   * Name of the GitHub Actions OIDC deploy role created in each stage
+   * account. Application repo workflows assume this role via
+   * `aws-actions/configure-aws-credentials`.
+   */
+  readonly deployRoleName: string;
+
+  /**
+   * Repository pattern allowed to assume the deploy role.
+   * "*" allows every repo in the organization; narrow to a specific
+   * repo name to restrict.
+   */
+  readonly deployRepoPattern: string;
+
+  /**
+   * Optional pre-existing IAM user used by GitHub Actions (legacy
+   * access-key based deploys). When set, a managed policy granting
+   * sts:AssumeRole on the CDK bootstrap roles is attached to the user
+   * and the user is added to the bootstrap role trust policies.
+   * Prefer the OIDC deploy role; leave undefined for new projects.
+   */
+  readonly deployUserName?: string;
+
+  /**
+   * Repository whose GitHub Actions workflows use the in-VPC CodeBuild
+   * migration runner (typically the application/backend repo, which needs
+   * network access to Aurora for schema migrations).
+   */
+  readonly migrationRunnerRepo: string;
+
+  /**
+   * Email address subscribed to pipeline security notifications
+   * (permissions-broadening checks). Optional.
+   */
+  readonly notificationEmail?: string;
+}
+
+/**
+ * Configuration for the headless remote-agent IAM kit.
+ *
+ * Provisions a scoped role in every deployable account plus a dedicated
+ * assume-only IAM user in the shared account. A headless agent (for example
+ * a Claude Code remote routine) authenticates with the user's access key and
+ * assumes the per-account role, receiving short-lived STS credentials.
+ * A leaked key grants nothing beyond "assume one scoped role".
+ */
+export interface AgentOperationsConfig {
+  /**
+   * Master switch. When false, no agent-operations resources are created.
+   * Enabling also requires the AGENT_OPERATIONS_EXTERNAL_ID environment
+   * variable (confused-deputy protection on sts:AssumeRole).
+   */
+  readonly enabled: boolean;
+
+  /**
+   * Role name deployed identically into every member account, so agent
+   * AWS profiles vary only by account ID.
+   */
+  readonly roleName: string;
+
+  /**
+   * Name of the managed policy attached to the role in each account.
+   */
+  readonly policyName: string;
+
+  /**
+   * Name of the dedicated assume-only IAM user in the shared account.
+   */
+  readonly userName: string;
+
+  /**
+   * Secrets Manager secret name holding the user's access key in the
+   * shared account.
+   */
+  readonly secretName: string;
 }
 
 /**
