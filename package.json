@@ -1,46 +1,7 @@
 {
-  "scripts": {
-    "build": "tsc --noEmit",
-    "test:integration": "vitest run tests/integration --passWithNoTests",
-    "postinstall": "[ -n \"$CI\" ] || node node_modules/@codyswann/lisa/dist/index.js --yes --skip-git-check . 2>/dev/null || true",
-    "test": "vitest run",
-    "test:unit": "vitest run --exclude='**/integration/**'",
-    "test:cov": "vitest run --coverage",
-    "watch": "tsc -w",
-    "cdk": "cdk",
-    "lint": "oxlint && eslint . --quiet",
-    "lint:fix": "oxlint --fix && eslint . --fix",
-    "lint:slow": "eslint . --config eslint.slow.config.ts --quiet",
-    "typecheck": "tsc --noEmit",
-    "format:check": "prettier --check .",
-    "format": "prettier --check . --write",
-    "prepare": "husky install || true",
-    "knip": "knip",
-    "knip:fix": "knip --fix",
-    "sg:scan": "ast-grep scan",
-    "lisa:update": "npx @codyswann/lisa@latest .",
-    "test:watch": "vitest",
-    "test:debug": "NODE_ENV=test node --inspect-brk node_modules/vitest/vitest.mjs run --no-file-parallelism",
-    "setup:deploy-key": "setup-deploy-key"
-  },
-  "engines": {
-    "npm": ">= 10.9.4",
-    "yarn": "please-use-npm",
-    "pnpm": "please-use-npm",
-    "bun": "please-use-npm",
-    "node": "22.21.1"
-  },
-  "dependencies": {
-    "@aws-cdk/aws-amplify-alpha": "^2.235.0-alpha.0",
-    "aws-cdk-github-oidc": "^2.4.1",
-    "aws-cdk-lib": "2.235.0",
-    "constructs": "^10.4.5",
-    "source-map-support": "^0.5.21",
-    "zod": "^4.3.6"
-  },
   "devDependencies": {
-    "@ast-grep/cli": "^0.40.4",
     "@codyswann/lisa": "^2.62.1",
+    "@ast-grep/cli": "^0.40.4",
     "@commitlint/cli": "^20.3.1",
     "@commitlint/config-conventional": "^20.3.1",
     "@eslint-community/eslint-plugin-eslint-comments": "^4.5.0",
@@ -85,6 +46,45 @@
     "vite": "^8.0.5",
     "vitest": "^4.1.0"
   },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "postinstall": "[ -n \"$CI\" ] || node node_modules/@codyswann/lisa/dist/index.js --yes --skip-git-check . 2>/dev/null || true",
+    "test:integration": "vitest run tests/integration --passWithNoTests",
+    "test": "vitest run",
+    "test:unit": "vitest run --exclude='**/integration/**'",
+    "test:cov": "vitest run --coverage",
+    "watch": "tsc -w",
+    "cdk": "cdk",
+    "lint": "oxlint && eslint . --quiet",
+    "lint:fix": "oxlint --fix && eslint . --fix",
+    "lint:slow": "eslint . --config eslint.slow.config.ts --quiet",
+    "typecheck": "tsc --noEmit",
+    "format:check": "prettier --check .",
+    "format": "prettier --check . --write",
+    "prepare": "husky install || true",
+    "knip": "knip",
+    "knip:fix": "knip --fix",
+    "sg:scan": "ast-grep scan",
+    "lisa:update": "npx @codyswann/lisa@latest .",
+    "test:watch": "vitest",
+    "test:debug": "NODE_ENV=test node --inspect-brk node_modules/vitest/vitest.mjs run --no-file-parallelism",
+    "setup:deploy-key": "setup-deploy-key"
+  },
+  "engines": {
+    "npm": ">= 10.9.4",
+    "yarn": "please-use-npm",
+    "pnpm": "please-use-npm",
+    "bun": "please-use-npm",
+    "node": "22.21.1"
+  },
+  "dependencies": {
+    "@aws-cdk/aws-amplify-alpha": "^2.235.0-alpha.0",
+    "aws-cdk-github-oidc": "^2.4.1",
+    "aws-cdk-lib": "2.235.0",
+    "constructs": "^10.4.5",
+    "source-map-support": "^0.5.21",
+    "zod": "^4.3.6"
+  },
   "trustedDependencies": [
     "@ast-grep/cli",
     "@codyswann/lisa",
@@ -107,5 +107,8 @@
     "axios": ">=1.15.2",
     "vite": "$vite",
     "handlebars": ">=4.7.9"
+  },
+  "bin": {
+    "infrastructure": "bin/infrastructure.js"
   }
 }

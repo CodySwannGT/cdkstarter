@@ -20,6 +20,7 @@
     "graphql-generated/**",
     "generated/**",
     "components/ui/**",
+    "src/components/ui/**",
 
     "**/k6/**/*.js",
 
@@ -47,6 +48,8 @@
     ".lighthouseci/**",
 
     ".expo/**",
+    ".codex/**",
+    ".opencode/**",
     ".github/**",
     "public/**",
     ".dead/**",
@@ -72,11 +75,15 @@
     "scripts/**",
 
     "lib/**/*.js",
+    "src/lib/**/*.js",
     "cdk.out/**",
 
     "audit.ignore.config.json",
     "audit.ignore.local.json",
+    ".lisa.config.json",
 
-    "amplify/**"
+    "amplify/**",
+
+    "wiki/**"
   ]
 }
