@@ -102,11 +102,14 @@ export const shouldFrontApiWithCloudFront = (
 
 /**
  * Finds non-production stages whose `features.waf` is a dead flag — set true
- * but with no domain configured for the stage, so it fronts nothing.
+ * but with no edge actually resolved for the stage, so it fronts nothing.
  *
- * Production is never dead: it gets the edge automatically from its domain
- * and ignores the flag. Used by config validation to fail fast rather than
- * let the flag rot into a decorative no-op.
+ * Uses the full resolution chain (`resolveCdnForStage`) rather than a bare
+ * mapping-exists check, so it also catches an empty mapping (neither
+ * `subdomain` nor `useApex`) that has a domain entry but resolves to no host.
+ * Production is never dead: it gets the edge automatically from its domain and
+ * ignores the flag. Used by config validation to fail fast rather than let the
+ * flag rot into a decorative no-op.
  * @param stages - Stage environments to check
  * @param domainConfig - Domain configuration
  * @returns The stages whose waf flag does nothing
@@ -119,7 +122,7 @@ export const findDeadWafFlags = (
     env =>
       env.name !== "production" &&
       env.features.waf === true &&
-      !getPrimaryDomainMappingForStage(domainConfig, env.name)
+      !resolveCdnForStage(env, domainConfig)
   );
 
 /**

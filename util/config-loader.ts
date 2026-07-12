@@ -247,7 +247,8 @@ const validateWafFlag = (): void => {
   if (dead.length > 0) {
     throw new ConfigurationError(
       `features.waf is set on ${dead.map(e => e.name).join(", ")} but no ` +
-        "domain is configured for those stages, so the flag does nothing. " +
+        "usable domain mapping is configured for those stages (missing, or " +
+        "empty — neither subdomain nor useApex), so the flag does nothing. " +
         "Configure a domain mapping for the stage (config/domains.ts) or set " +
         "waf: false."
     );

@@ -203,5 +203,20 @@ describe("cdn helpers", () => {
         []
       );
     });
+
+    it("flags a non-prod waf:true stage whose mapping resolves no host", () => {
+      const emptyMapping: DomainConfig = {
+        domains: [
+          {
+            name: "example.com",
+            isPrimary: true,
+            environments: { staging: {} },
+          },
+        ],
+      };
+
+      const dead = findDeadWafFlags([stage("staging", true)], emptyMapping);
+      expect(dead.map(s => s.name)).toEqual(["staging"]);
+    });
   });
 });
