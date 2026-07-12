@@ -33,6 +33,7 @@ import { domainConfig } from "../config/domains";
 import { stageEnvironments, supportEnvironments } from "../config/environments";
 import { githubConfig } from "../config/github";
 import { alarmThresholds, dashboardWidgets } from "../config/observability";
+import { findDeadWafFlags } from "./cdn";
 import type {
   AgentOperationsConfig,
   AlarmThresholds,
@@ -167,6 +168,8 @@ export const getDashboardWidgets = (): DashboardWidgets => dashboardWidgets;
  * 1. VPC CIDRs must be unique across all stage environments to enable
  *    future VPC peering if needed
  * 2. If domains are configured, exactly one must be marked as primary
+ * 3. A non-prod stage's `features.waf` must not be a dead flag — it only
+ *    does anything when a domain is also configured for that stage
  *
  * Call this function at CDK app startup to fail fast on configuration errors.
  * @throws ConfigurationError if validation fails
@@ -174,6 +177,7 @@ export const getDashboardWidgets = (): DashboardWidgets => dashboardWidgets;
 export const validateConfiguration = (): void => {
   validateUniqueCidrs();
   validatePrimaryDomain();
+  validateWafFlag();
 };
 
 /**
@@ -224,5 +228,28 @@ const validatePrimaryDomain = (): void => {
         ? "No primary domain configured. When domains are present, exactly one must have isPrimary: true."
         : `Multiple primary domains configured: ${primaryDomains.map(d => d.name).join(", ")}. Only one domain can be marked as isPrimary: true.`;
     throw new ConfigurationError(message);
+  }
+};
+
+/**
+ * Validates that no non-production stage carries a decorative `features.waf`.
+ *
+ * The `waf` flag only fronts a non-prod stage with CloudFront + WAF when a
+ * domain is also configured for that stage; with no domain mapping the flag
+ * is inert. Rejecting that combination keeps the flag from rotting into a
+ * decorative no-op. Production is exempt: it gets the edge automatically from
+ * its domain and ignores the flag.
+ * @throws ConfigurationError if a non-prod stage sets waf without a domain
+ */
+const validateWafFlag = (): void => {
+  const dead = findDeadWafFlags(stageEnvironments, domainConfig);
+
+  if (dead.length > 0) {
+    throw new ConfigurationError(
+      `features.waf is set on ${dead.map(e => e.name).join(", ")} but no ` +
+        "domain is configured for those stages, so the flag does nothing. " +
+        "Configure a domain mapping for the stage (config/domains.ts) or set " +
+        "waf: false."
+    );
   }
 };

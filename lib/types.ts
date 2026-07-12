@@ -57,9 +57,22 @@ export interface StageFeatures {
   readonly xray: boolean;
 
   /**
-   * Enable AWS WAF (Web Application Firewall) for API protection.
-   * Protects against common web exploits and bots.
-   * Note: Incurs additional costs. Disabled by default.
+   * Front this stage's HTTP API with CloudFront + an AWS WAF WebACL.
+   *
+   * This flag is only consulted for NON-production stages, and only has an
+   * effect when a domain is also configured for the stage (see
+   * config/domains.ts): it opts a non-prod stage (typically staging) into the
+   * same CloudFront + WAF edge as production, so the ruleset can be rehearsed
+   * before launch. Production ALWAYS gets the edge when its domain is
+   * configured — the protection arrives with the production domain and is not
+   * flag-gated, so it cannot be forgotten at launch.
+   *
+   * With no domain configured the flag is inert (the whole feature is a
+   * no-op); `util/config-loader.validateConfiguration` rejects a non-prod
+   * `waf: true` with no domain mapping so the flag never rots into a
+   * decorative no-op.
+   * @see util/cdn.ts - shouldFrontApiWithCloudFront (the trigger predicate)
+   * @see lib/stacks/edge/cdn-stack.ts - the edge the flag switches on
    */
   readonly waf: boolean;
 
@@ -326,6 +339,33 @@ export interface NetworkConfig {
 }
 
 /**
+ * Tuning for the CloudFront-fronted AWS WAF WebACL created for a stage.
+ *
+ * All fields are optional; the CdnStack applies safe defaults. This block
+ * only matters when the stage actually gets the edge (production with a
+ * domain, or a non-prod stage with `features.waf` and a domain).
+ * @see lib/stacks/edge/cdn-stack.ts - CdnStack (consumer)
+ */
+export interface WafOptions {
+  /**
+   * Per-IP request cap over a rolling 5-minute window for the rate-based
+   * rule. Requests above the cap from a single IP are blocked (or counted
+   * when `countOnly` is set). Defaults to 2000.
+   */
+  readonly rateLimitPerFiveMinutes?: number;
+
+  /**
+   * Put every rule (managed groups + rate limit) into Count mode instead of
+   * Block. Nothing is blocked — matches are only counted and surfaced in
+   * CloudWatch/sampled requests. Use on staging to rehearse the ruleset and
+   * watch for false positives (notably the AWS Common rule group's
+   * `SizeRestrictions_BODY`, an 8 KB body cap that trips large request
+   * bodies) before production flips to Block. Defaults to false.
+   */
+  readonly countOnly?: boolean;
+}
+
+/**
  * Complete configuration for a stage environment (dev, staging, production).
  *
  * Stage environments run application workloads in isolated AWS accounts.
@@ -390,6 +430,12 @@ export interface StageEnvironment {
    * Optional - defaults to disabled if not specified.
    */
   readonly disasterRecovery?: DisasterRecoveryConfig;
+
+  /**
+   * Optional tuning for the CloudFront-fronted WAF WebACL. Ignored unless
+   * the stage gets the edge (see {@link StageFeatures.waf}).
+   */
+  readonly wafOptions?: WafOptions;
 }
 
 /**

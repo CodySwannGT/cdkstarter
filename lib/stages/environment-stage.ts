@@ -32,7 +32,9 @@ import {
   toAuroraAlarmsThresholds,
   toValkeyAlarmsThresholds,
 } from "../../util/alarm-threshold-mapping";
+import { resolveCdnForStage } from "../../util/cdn";
 import { CognitoStack } from "../stacks/auth/cognito-stack";
+import { CdnStack } from "../stacks/edge/cdn-stack";
 import { IamStack } from "../stacks/auth/iam-stack";
 import { MigrationRunnerStack } from "../stacks/cicd/migration-runner-stack";
 import { AuroraStack } from "../stacks/database/aurora-stack";
@@ -45,7 +47,12 @@ import { AuroraAlarmsStack } from "../stacks/observability/aurora-alarms-stack";
 import { DashboardStack } from "../stacks/observability/dashboard-stack";
 import { SnsStack } from "../stacks/observability/sns-stack";
 import { ValkeyAlarmsStack } from "../stacks/observability/valkey-alarms-stack";
-import type { AlarmThresholds, GitHubConfig, StageEnvironment } from "../types";
+import type {
+  AlarmThresholds,
+  DomainConfig,
+  GitHubConfig,
+  StageEnvironment,
+} from "../types";
 
 /**
  * Configuration properties for EnvironmentStage.
@@ -65,6 +72,15 @@ export interface EnvironmentStageProps extends cdk.StageProps {
    * GitHub configuration; required when features.migrationRunner is enabled.
    */
   readonly github?: GitHubConfig;
+
+  /**
+   * Domain configuration. Drives the conditional CloudFront + WAF edge: when
+   * a domain is configured for this stage and the trigger fires (production,
+   * or a non-prod stage with `features.waf`), the CdnStack is created. When
+   * omitted or empty, no edge is created — the feature is a no-op.
+   * @see util/cdn.ts - resolveCdnForStage
+   */
+  readonly domainConfig?: DomainConfig;
 }
 
 /**
@@ -82,6 +98,12 @@ export class EnvironmentStage extends cdk.Stage {
   public readonly securityGroupsStack: SecurityGroupsStack;
 
   /**
+   * The conditional CloudFront + WAF edge stack, present only when a domain
+   * is configured for the stage and the trigger fires. Undefined otherwise.
+   */
+  public readonly cdnStack?: CdnStack;
+
+  /**
    * Creates a new EnvironmentStage.
    * @param scope - Parent construct
    * @param id - Stage identifier
@@ -90,7 +112,7 @@ export class EnvironmentStage extends cdk.Stage {
   constructor(scope: Construct, id: string, props: EnvironmentStageProps) {
     super(scope, id, props);
 
-    const { environment, alarmThresholds, github } = props;
+    const { environment, alarmThresholds, github, domainConfig } = props;
     const { name: stageName, features } = environment;
 
     // --- Network ---------------------------------------------------------
@@ -150,8 +172,39 @@ export class EnvironmentStage extends cdk.Stage {
     // --- Application -----------------------------------------------------
     this.createApplicationStacks(environment);
 
+    // --- Edge (conditional CloudFront + WAF) -----------------------------
+    this.cdnStack = this.createEdgeStack(environment, domainConfig);
+
     // --- Observability ---------------------------------------------------
     this.createObservabilityStacks(environment, alarmThresholds);
+  }
+
+  /**
+   * Creates the CloudFront + WAF edge for the HTTP API when a domain is
+   * configured for the stage and the trigger fires (production always; a
+   * non-prod stage only when it opted in via `features.waf`). A no-op
+   * otherwise — no domain means no edge resources at all.
+   * @param environment - Stage environment configuration
+   * @param domainConfig - Domain configuration (undefined ⇒ no edge)
+   * @returns The created CdnStack, or undefined when no edge is created
+   */
+  private createEdgeStack(
+    environment: StageEnvironment,
+    domainConfig?: DomainConfig
+  ): CdnStack | undefined {
+    if (!domainConfig) {
+      return undefined;
+    }
+    const cdn = resolveCdnForStage(environment, domainConfig);
+    if (!cdn) {
+      return undefined;
+    }
+    return new CdnStack(this, "CdnStack", {
+      stageName: environment.name,
+      cdn,
+      wafOptions: environment.wafOptions,
+      stackName: `${environment.name}-cdn`,
+    });
   }
 
   /**

@@ -239,6 +239,7 @@ export class PipelineStack extends cdk.Stack {
           environment,
           alarmThresholds: props.alarmThresholds,
           github,
+          domainConfig: props.domainConfig,
           env: { account: environment.accountId, region: environment.region },
         }
       );

@@ -5,11 +5,27 @@
  */
 import * as cdk from "aws-cdk-lib";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
-import type { StageEnvironment } from "../../lib/types";
+import type { DomainConfig, StageEnvironment } from "../../lib/types";
 import { AppStage } from "../../lib/stages/app-stage";
 
+const domainsFor = (stageName: string): DomainConfig => ({
+  domains: [
+    {
+      name: "example.com",
+      isPrimary: true,
+      environments:
+        stageName === "production"
+          ? { production: { useApex: true } }
+          : { [stageName]: { subdomain: stageName } },
+    },
+  ],
+});
+
 describe("AppStage", () => {
-  const createStage = (overrides: Partial<StageEnvironment> = {}): AppStage => {
+  const createStage = (
+    overrides: Partial<StageEnvironment> = {},
+    domainConfig?: DomainConfig
+  ): AppStage => {
     const app = new cdk.App();
 
     const helperStack = new cdk.Stack(app, "HelperStack", {
@@ -79,8 +95,22 @@ describe("AppStage", () => {
       vpc,
       auroraSecurityGroup,
       valkeySecurityGroup,
+      domainConfig,
       env: { account: "123456789012", region: "us-east-1" },
     });
+  };
+
+  const allFeatures: StageEnvironment["features"] = {
+    aurora: true,
+    valkey: true,
+    cognito: true,
+    xray: true,
+    waf: false,
+    shieldAdvanced: false,
+    backup: false,
+    ssmRelay: false,
+    githubOidcDeploy: false,
+    migrationRunner: false,
   };
 
   describe("All features enabled", () => {
@@ -225,6 +255,42 @@ describe("AppStage", () => {
       expect(stage.auroraStack).toBeUndefined();
       expect(stage.valkeyStack).toBeUndefined();
       expect(stage.iamStack).toBeUndefined();
+    });
+  });
+
+  describe("Conditional CloudFront + WAF edge", () => {
+    it("creates no edge when no domain is configured (no-op)", () => {
+      expect(createStage().cdnStack).toBeUndefined();
+    });
+
+    it("stays a no-op for a non-prod stage with waf:true but no domain", () => {
+      const stage = createStage({ features: { ...allFeatures, waf: true } });
+
+      expect(stage.cdnStack).toBeUndefined();
+    });
+
+    it("creates the edge for production when a domain is configured", () => {
+      const stage = createStage(
+        { name: "production" },
+        domainsFor("production")
+      );
+
+      expect(stage.cdnStack).toBeDefined();
+    });
+
+    it("creates the edge for a non-prod stage that opted in with waf:true", () => {
+      const stage = createStage(
+        { features: { ...allFeatures, waf: true } },
+        domainsFor("test")
+      );
+
+      expect(stage.cdnStack).toBeDefined();
+    });
+
+    it("creates no edge for a non-prod stage with a domain but waf:false", () => {
+      const stage = createStage({}, domainsFor("test"));
+
+      expect(stage.cdnStack).toBeUndefined();
     });
   });
 });

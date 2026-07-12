@@ -28,12 +28,14 @@
 import * as cdk from "aws-cdk-lib";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import type { Construct } from "constructs";
+import { resolveCdnForStage } from "../../util/cdn";
 import { CognitoStack } from "../stacks/auth/cognito-stack";
 import { IamStack } from "../stacks/auth/iam-stack";
 import { AuroraStack } from "../stacks/database/aurora-stack";
 import { BackupStack } from "../stacks/database/backup-stack";
 import { ValkeyStack } from "../stacks/database/valkey-stack";
-import type { StageEnvironment } from "../types";
+import { CdnStack } from "../stacks/edge/cdn-stack";
+import type { DomainConfig, StageEnvironment } from "../types";
 
 /**
  * Configuration properties for AppStage.
@@ -58,6 +60,13 @@ export interface AppStageProps extends cdk.StageProps {
    * Security group for Valkey.
    */
   readonly valkeySecurityGroup: ec2.ISecurityGroup;
+
+  /**
+   * Domain configuration. Drives the conditional CloudFront + WAF edge; when
+   * omitted or empty, no edge is created (a no-op).
+   * @see util/cdn.ts - resolveCdnForStage
+   */
+  readonly domainConfig?: DomainConfig;
 }
 
 /**
@@ -90,6 +99,11 @@ export class AppStage extends cdk.Stage {
   public readonly backupStack?: BackupStack;
 
   /**
+   * The conditional CloudFront + WAF edge stack (if a domain triggers it).
+   */
+  public readonly cdnStack?: CdnStack;
+
+  /**
    * Creates a new AppStage.
    * @param scope - Parent construct
    * @param id - Stage identifier
@@ -98,8 +112,13 @@ export class AppStage extends cdk.Stage {
   constructor(scope: Construct, id: string, props: AppStageProps) {
     super(scope, id, props);
 
-    const { environment, vpc, auroraSecurityGroup, valkeySecurityGroup } =
-      props;
+    const {
+      environment,
+      vpc,
+      auroraSecurityGroup,
+      valkeySecurityGroup,
+      domainConfig,
+    } = props;
     const { name: stageName, features, aurora, valkey } = environment;
 
     // Create Cognito stack if enabled
@@ -154,5 +173,35 @@ export class AppStage extends cdk.Stage {
         stackName: `${stageName}-backup`,
       });
     }
+
+    // Conditional CloudFront + WAF edge (production always; non-prod via
+    // features.waf). No-op when no domain is configured for the stage.
+    this.cdnStack = this.createEdgeStack(environment, domainConfig);
+  }
+
+  /**
+   * Creates the CloudFront + WAF edge for the HTTP API when a domain triggers
+   * it (production always; a non-prod stage only via `features.waf`).
+   * @param environment - Stage environment configuration
+   * @param domainConfig - Domain configuration (undefined ⇒ no edge)
+   * @returns The created CdnStack, or undefined when no edge is created
+   */
+  private createEdgeStack(
+    environment: StageEnvironment,
+    domainConfig?: DomainConfig
+  ): CdnStack | undefined {
+    if (!domainConfig) {
+      return undefined;
+    }
+    const cdn = resolveCdnForStage(environment, domainConfig);
+    if (!cdn) {
+      return undefined;
+    }
+    return new CdnStack(this, "CdnStack", {
+      stageName: environment.name,
+      cdn,
+      wafOptions: environment.wafOptions,
+      stackName: `${environment.name}-cdn`,
+    });
   }
 }
