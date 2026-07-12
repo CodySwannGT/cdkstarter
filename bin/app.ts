@@ -104,6 +104,7 @@ const createDirectStages = (environment: StageEnvironment): void => {
     vpc: networkStage.vpcStack.vpc,
     auroraSecurityGroup: networkStage.securityGroupsStack.auroraSecurityGroup,
     valkeySecurityGroup: networkStage.securityGroupsStack.valkeySecurityGroup,
+    domainConfig,
     env: stageEnv,
   });
 
