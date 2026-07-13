@@ -22,7 +22,6 @@ export default [
   {
     files: ["**/*.ts", "**/*.tsx"],
     rules: {
-      "jsdoc/require-jsdoc": "off",
       "max-lines-per-function": "off",
       "no-restricted-syntax": "off",
       "sonarjs/constructor-for-side-effects": "off",
