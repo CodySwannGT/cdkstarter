@@ -33,6 +33,22 @@ export type EnvironmentType = "stage" | "support";
  */
 export interface StageFeatures {
   /**
+   * Enable the VPC, security groups, and network-dependent helper stacks.
+   *
+   * Defaults to enabled when omitted for backward compatibility. Set false
+   * for frontend-only stages that do not need any private networking.
+   */
+  readonly network?: boolean;
+
+  /**
+   * Enable SNS topics, CloudWatch alarms, and dashboards.
+   *
+   * Defaults to enabled when omitted for backward compatibility. Set false
+   * when the stage has no backend resources to monitor.
+   */
+  readonly observability?: boolean;
+
+  /**
    * Enable Aurora PostgreSQL Serverless v2 with RDS Proxy.
    * Required for persistent data storage.
    */
@@ -115,6 +131,14 @@ export interface StageFeatures {
    * @see lib/stacks/cicd/migration-runner-stack.ts
    */
   readonly migrationRunner: boolean;
+
+  /**
+   * Host a static frontend on AWS Amplify Hosting for this stage.
+   *
+   * When true, the stage must also provide an `amplifyHosting` configuration
+   * block describing the source repository and build.
+   */
+  readonly amplifyHosting?: boolean;
 }
 
 /**
@@ -366,6 +390,42 @@ export interface WafOptions {
 }
 
 /**
+ * Configuration for a static frontend hosted by AWS Amplify Hosting.
+ *
+ * The OAuth token itself is never stored in source. Only the name of a
+ * Secrets Manager secret is configured; CloudFormation resolves its value at
+ * deploy time for the initial GitHub connection handshake.
+ */
+export interface AmplifyHostingConfig {
+  /** GitHub organization or user that owns the frontend repository. */
+  readonly owner: string;
+
+  /** GitHub repository containing the frontend. */
+  readonly repository: string;
+
+  /** Repository branch that Amplify builds automatically. */
+  readonly branch: string;
+
+  /** Secrets Manager secret name holding the GitHub OAuth token. */
+  readonly oauthTokenSecretName: string;
+
+  /** Optional custom domain. The Amplify default domain is used when absent. */
+  readonly customDomain?: string;
+
+  /** Commands run before the frontend build. */
+  readonly preBuildCommands?: readonly string[];
+
+  /** Commands that produce the static frontend output. */
+  readonly buildCommands?: readonly string[];
+
+  /** Static artifact directory, relative to the repository root. */
+  readonly artifactBaseDirectory?: string;
+
+  /** Environment variables attached to the Amplify branch. */
+  readonly environmentVariables?: Readonly<Record<string, string>>;
+}
+
+/**
  * Complete configuration for a stage environment (dev, staging, production).
  *
  * Stage environments run application workloads in isolated AWS accounts.
@@ -436,6 +496,12 @@ export interface StageEnvironment {
    * the stage gets the edge (see {@link StageFeatures.waf}).
    */
   readonly wafOptions?: WafOptions;
+
+  /**
+   * Amplify Hosting configuration. Required when
+   * {@link StageFeatures.amplifyHosting} is enabled.
+   */
+  readonly amplifyHosting?: AmplifyHostingConfig;
 }
 
 /**

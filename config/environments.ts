@@ -55,6 +55,8 @@ export const stageEnvironments: readonly StageEnvironment[] = [
     accountId: "PLACEHOLDER",
     region: "us-east-1",
     features: {
+      network: true,
+      observability: true,
       aurora: true,
       valkey: true,
       cognito: true,
@@ -65,6 +67,7 @@ export const stageEnvironments: readonly StageEnvironment[] = [
       ssmRelay: true,
       githubOidcDeploy: true,
       migrationRunner: false,
+      amplifyHosting: false,
     },
     aurora: {
       minCapacity: 0.5,
@@ -98,6 +101,8 @@ export const stageEnvironments: readonly StageEnvironment[] = [
     accountId: "PLACEHOLDER",
     region: "us-east-1",
     features: {
+      network: true,
+      observability: true,
       aurora: true,
       valkey: true,
       cognito: true,
@@ -108,6 +113,7 @@ export const stageEnvironments: readonly StageEnvironment[] = [
       ssmRelay: true,
       githubOidcDeploy: true,
       migrationRunner: false,
+      amplifyHosting: false,
     },
     aurora: {
       minCapacity: 1,
@@ -141,6 +147,8 @@ export const stageEnvironments: readonly StageEnvironment[] = [
     accountId: "PLACEHOLDER",
     region: "us-east-1",
     features: {
+      network: true,
+      observability: true,
       aurora: true,
       valkey: true,
       cognito: true,
@@ -151,6 +159,7 @@ export const stageEnvironments: readonly StageEnvironment[] = [
       ssmRelay: true,
       githubOidcDeploy: true,
       migrationRunner: false,
+      amplifyHosting: false,
     },
     aurora: {
       minCapacity: 2,

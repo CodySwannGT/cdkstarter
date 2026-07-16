@@ -91,40 +91,45 @@ const createDirectStages = (environment: StageEnvironment): void => {
     region: environment.region,
   };
 
-  // Network stage - VPC, security groups, SSM relay, migration runner
-  const networkStage = new NetworkStage(app, `${stageName}-network`, {
-    environment,
-    github: githubConfig,
-    env: stageEnv,
-  });
+  // Network stage - optional for frontend-only environments
+  const networkStage =
+    environment.features.network !== false
+      ? new NetworkStage(app, `${stageName}-network`, {
+          environment,
+          github: githubConfig,
+          env: stageEnv,
+        })
+      : undefined;
 
   // App stage - databases, cache, auth, backup
   new AppStage(app, `${stageName}-app`, {
     environment,
-    vpc: networkStage.vpcStack.vpc,
-    auroraSecurityGroup: networkStage.securityGroupsStack.auroraSecurityGroup,
-    valkeySecurityGroup: networkStage.securityGroupsStack.valkeySecurityGroup,
+    vpc: networkStage?.vpcStack.vpc,
+    auroraSecurityGroup: networkStage?.securityGroupsStack.auroraSecurityGroup,
+    valkeySecurityGroup: networkStage?.securityGroupsStack.valkeySecurityGroup,
     domainConfig,
     env: stageEnv,
   });
 
-  // Observability stage - monitoring and alerting
-  new ObservabilityStage(app, `${stageName}-observability`, {
-    environment,
-    auroraClusterId: environment.features.aurora
-      ? `${stageName}-aurora-cluster`
-      : undefined,
-    valkeyReplicationGroupId: environment.features.valkey
-      ? `${stageName}-valkey`
-      : undefined,
-    auroraThresholds: environment.features.aurora
-      ? toAuroraAlarmsThresholds(alarmThresholds)
-      : undefined,
-    valkeyThresholds: environment.features.valkey
-      ? toValkeyAlarmsThresholds(alarmThresholds)
-      : undefined,
-    env: stageEnv,
-  });
+  // Observability stage - optional for stages without backend resources
+  if (environment.features.observability !== false) {
+    new ObservabilityStage(app, `${stageName}-observability`, {
+      environment,
+      auroraClusterId: environment.features.aurora
+        ? `${stageName}-aurora-cluster`
+        : undefined,
+      valkeyReplicationGroupId: environment.features.valkey
+        ? `${stageName}-valkey`
+        : undefined,
+      auroraThresholds: environment.features.aurora
+        ? toAuroraAlarmsThresholds(alarmThresholds)
+        : undefined,
+      valkeyThresholds: environment.features.valkey
+        ? toValkeyAlarmsThresholds(alarmThresholds)
+        : undefined,
+      env: stageEnv,
+    });
+  }
 
   // CI/CD stage - GitHub Actions OIDC deploy role + bootstrap trust
   if (environment.features.githubOidcDeploy && supportDeployable) {

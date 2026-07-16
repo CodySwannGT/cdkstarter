@@ -170,6 +170,8 @@ export const getDashboardWidgets = (): DashboardWidgets => dashboardWidgets;
  * 2. If domains are configured, exactly one must be marked as primary
  * 3. A non-prod stage's `features.waf` must not be a dead flag — it only
  *    does anything when a domain is also configured for that stage
+ * 4. Network-dependent features require `features.network`
+ * 5. Amplify Hosting requires an `amplifyHosting` configuration block
  *
  * Call this function at CDK app startup to fail fast on configuration errors.
  * @throws ConfigurationError if validation fails
@@ -178,6 +180,8 @@ export const validateConfiguration = (): void => {
   validateUniqueCidrs();
   validatePrimaryDomain();
   validateWafFlag();
+  validateNetworkDependencies();
+  validateAmplifyHostingFlag();
 };
 
 /**
@@ -196,7 +200,9 @@ export const loadDeployableEnvironments = (config: {
  * @throws ConfigurationError if duplicate CIDRs are found
  */
 const validateUniqueCidrs = (): void => {
-  const cidrs = stageEnvironments.map(env => env.network.vpcCidr);
+  const cidrs = stageEnvironments
+    .filter(env => env.features.network !== false)
+    .map(env => env.network.vpcCidr);
   const uniqueCidrs = new Set(cidrs);
 
   if (uniqueCidrs.size !== cidrs.length) {
@@ -253,4 +259,65 @@ const validateWafFlag = (): void => {
         "waf: false."
     );
   }
+};
+
+/**
+ * Returns stages that disable networking while enabling a feature that must
+ * run inside a VPC.
+ * @param stages - Stage environments to inspect
+ * @returns Invalid stage environments
+ */
+export const findNetworkDependencyViolations = (
+  stages: readonly StageEnvironment[]
+): readonly StageEnvironment[] =>
+  stages.filter(
+    environment =>
+      environment.features.network === false &&
+      (environment.features.aurora ||
+        environment.features.valkey ||
+        environment.features.ssmRelay ||
+        environment.features.migrationRunner)
+  );
+
+/** Validates dependencies on the optional network layer. */
+const validateNetworkDependencies = (): void => {
+  const invalid = findNetworkDependencyViolations(stageEnvironments);
+  if (invalid.length === 0) {
+    return;
+  }
+
+  throw new ConfigurationError(
+    `features.network is false on ${invalid.map(e => e.name).join(", ")} ` +
+      "while Aurora, Valkey, the SSM relay, or the migration runner is " +
+      "enabled. Disable those network-dependent features or enable networking."
+  );
+};
+
+/**
+ * Returns stages that enable Amplify Hosting without its required repository
+ * and build configuration.
+ * @param stages - Stage environments to inspect
+ * @returns Invalid stage environments
+ */
+export const findDeadAmplifyHostingFlags = (
+  stages: readonly StageEnvironment[]
+): readonly StageEnvironment[] =>
+  stages.filter(
+    environment =>
+      environment.features.amplifyHosting === true &&
+      !environment.amplifyHosting
+  );
+
+/** Validates the optional Amplify Hosting feature. */
+const validateAmplifyHostingFlag = (): void => {
+  const invalid = findDeadAmplifyHostingFlags(stageEnvironments);
+  if (invalid.length === 0) {
+    return;
+  }
+
+  throw new ConfigurationError(
+    `features.amplifyHosting is true on ${invalid
+      .map(e => e.name)
+      .join(", ")} but no amplifyHosting configuration block is present.`
+  );
 };

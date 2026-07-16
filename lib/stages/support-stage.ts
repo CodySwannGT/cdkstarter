@@ -137,8 +137,8 @@ export class SupportStage extends cdk.Stage {
 
     this.supportEnvironment = supportEnvironment;
 
-    // Create DNS stack only if domains are configured
-    if (domainConfig.domains.length > 0) {
+    // Create DNS only when the support account opts in and domains exist.
+    if (supportEnvironment.purpose.dns && domainConfig.domains.length > 0) {
       this.dnsStack = new DnsStack(this, "DnsStack", {
         domainConfig,
         stackName: `${supportEnvironment.name}-dns`,

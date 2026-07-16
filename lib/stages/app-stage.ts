@@ -34,6 +34,7 @@ import { IamStack } from "../stacks/auth/iam-stack";
 import { AuroraStack } from "../stacks/database/aurora-stack";
 import { BackupStack } from "../stacks/database/backup-stack";
 import { ValkeyStack } from "../stacks/database/valkey-stack";
+import { AmplifyHostingStack } from "../stacks/edge/amplify-hosting-stack";
 import { CdnStack } from "../stacks/edge/cdn-stack";
 import type { DomainConfig, StageEnvironment } from "../types";
 
@@ -49,17 +50,17 @@ export interface AppStageProps extends cdk.StageProps {
   /**
    * VPC for database and cache stacks.
    */
-  readonly vpc: ec2.IVpc;
+  readonly vpc?: ec2.IVpc;
 
   /**
    * Security group for Aurora.
    */
-  readonly auroraSecurityGroup: ec2.ISecurityGroup;
+  readonly auroraSecurityGroup?: ec2.ISecurityGroup;
 
   /**
    * Security group for Valkey.
    */
-  readonly valkeySecurityGroup: ec2.ISecurityGroup;
+  readonly valkeySecurityGroup?: ec2.ISecurityGroup;
 
   /**
    * Domain configuration. Drives the conditional CloudFront + WAF edge; when
@@ -103,6 +104,9 @@ export class AppStage extends cdk.Stage {
    */
   public readonly cdnStack?: CdnStack;
 
+  /** The Amplify Hosting stack, when enabled. */
+  public readonly amplifyHostingStack?: AmplifyHostingStack;
+
   /**
    * Creates a new AppStage.
    * @param scope - Parent construct
@@ -131,6 +135,11 @@ export class AppStage extends cdk.Stage {
 
     // Create Aurora stack if enabled
     if (features.aurora) {
+      if (!vpc || !auroraSecurityGroup) {
+        throw new Error(
+          `Stage ${stageName} enables Aurora but has no VPC/Aurora security group`
+        );
+      }
       this.auroraStack = new AuroraStack(this, "AuroraStack", {
         stageName,
         vpc,
@@ -142,6 +151,11 @@ export class AppStage extends cdk.Stage {
 
     // Create Valkey stack if enabled
     if (features.valkey) {
+      if (!vpc || !valkeySecurityGroup) {
+        throw new Error(
+          `Stage ${stageName} enables Valkey but has no VPC/Valkey security group`
+        );
+      }
       this.valkeyStack = new ValkeyStack(this, "ValkeyStack", {
         stageName,
         vpc,
@@ -177,6 +191,8 @@ export class AppStage extends cdk.Stage {
     // Conditional CloudFront + WAF edge (production always; non-prod via
     // features.waf). No-op when no domain is configured for the stage.
     this.cdnStack = this.createEdgeStack(environment, domainConfig);
+
+    this.amplifyHostingStack = this.createAmplifyHostingStack(environment);
   }
 
   /**
@@ -202,6 +218,26 @@ export class AppStage extends cdk.Stage {
       cdn,
       wafOptions: environment.wafOptions,
       stackName: `${environment.name}-cdn`,
+    });
+  }
+
+  /**
+   * Creates Amplify Hosting when both its feature flag and configuration are
+   * present.
+   * @param environment - Stage environment configuration
+   * @returns Hosting stack or undefined when disabled
+   */
+  private createAmplifyHostingStack(
+    environment: StageEnvironment
+  ): AmplifyHostingStack | undefined {
+    if (!environment.features.amplifyHosting || !environment.amplifyHosting) {
+      return undefined;
+    }
+
+    return new AmplifyHostingStack(this, "AmplifyHostingStack", {
+      stageName: environment.name,
+      hosting: environment.amplifyHosting,
+      stackName: `${environment.name}-amplify-hosting`,
     });
   }
 }
