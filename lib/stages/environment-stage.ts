@@ -40,6 +40,7 @@ import { MigrationRunnerStack } from "../stacks/cicd/migration-runner-stack";
 import { AuroraStack } from "../stacks/database/aurora-stack";
 import { BackupStack } from "../stacks/database/backup-stack";
 import { ValkeyStack } from "../stacks/database/valkey-stack";
+import { AmplifyHostingStack } from "../stacks/edge/amplify-hosting-stack";
 import { SecurityGroupsStack } from "../stacks/network/security-groups-stack";
 import { SsmRelayStack } from "../stacks/network/ssm-relay-stack";
 import { VpcStack } from "../stacks/network/vpc-stack";
@@ -90,12 +91,15 @@ export class EnvironmentStage extends cdk.Stage {
   /**
    * The VPC stack.
    */
-  public readonly vpcStack: VpcStack;
+  public readonly vpcStack?: VpcStack;
 
   /**
    * The security groups stack.
    */
-  public readonly securityGroupsStack: SecurityGroupsStack;
+  public readonly securityGroupsStack?: SecurityGroupsStack;
+
+  /** The Amplify Hosting stack, when enabled. */
+  public readonly amplifyHostingStack?: AmplifyHostingStack;
 
   /**
    * The conditional CloudFront + WAF edge stack, present only when a domain
@@ -115,68 +119,75 @@ export class EnvironmentStage extends cdk.Stage {
     const { environment, alarmThresholds, github, domainConfig } = props;
     const { name: stageName, features } = environment;
 
-    // --- Network ---------------------------------------------------------
-    const natGatewayCount = stageName === "production" ? 2 : 1;
-    const enableFlowLogs = stageName !== "dev";
+    // --- Network (optional) ----------------------------------------------
+    if (features.network !== false) {
+      const natGatewayCount = stageName === "production" ? 2 : 1;
+      const enableFlowLogs = stageName !== "dev";
 
-    this.vpcStack = new VpcStack(this, "VpcStack", {
-      stageName,
-      vpcCidr: environment.network.vpcCidr,
-      natGatewayCount,
-      enableFlowLogs,
-      stackName: `${stageName}-vpc`,
-    });
-
-    this.securityGroupsStack = new SecurityGroupsStack(
-      this,
-      "SecurityGroupsStack",
-      {
+      this.vpcStack = new VpcStack(this, "VpcStack", {
         stageName,
-        vpc: this.vpcStack.vpc,
-        createSsmRelaySecurityGroup: features.ssmRelay,
-        createMigrationRunnerSecurityGroup: features.migrationRunner,
-        stackName: `${stageName}-security-groups`,
-      }
-    );
-    this.securityGroupsStack.addDependency(this.vpcStack);
-
-    if (features.ssmRelay && this.securityGroupsStack.ssmRelaySecurityGroup) {
-      const ssmRelayStack = new SsmRelayStack(this, "SsmRelayStack", {
-        stageName,
-        vpc: this.vpcStack.vpc,
-        securityGroup: this.securityGroupsStack.ssmRelaySecurityGroup,
-        stackName: `${stageName}-ssm-relay`,
+        vpcCidr: environment.network.vpcCidr,
+        natGatewayCount,
+        enableFlowLogs,
+        stackName: `${stageName}-vpc`,
       });
-      ssmRelayStack.addDependency(this.securityGroupsStack);
-    }
 
-    if (
-      features.migrationRunner &&
-      github &&
-      this.securityGroupsStack.migrationRunnerSecurityGroup
-    ) {
-      const migrationRunnerStack = new MigrationRunnerStack(
+      this.securityGroupsStack = new SecurityGroupsStack(
         this,
-        "MigrationRunnerStack",
+        "SecurityGroupsStack",
         {
           stageName,
-          github,
           vpc: this.vpcStack.vpc,
-          securityGroup: this.securityGroupsStack.migrationRunnerSecurityGroup,
-          stackName: `${stageName}-migration-runner`,
+          createSsmRelaySecurityGroup: features.ssmRelay,
+          createMigrationRunnerSecurityGroup: features.migrationRunner,
+          stackName: `${stageName}-security-groups`,
         }
       );
-      migrationRunnerStack.addDependency(this.securityGroupsStack);
+      this.securityGroupsStack.addDependency(this.vpcStack);
+
+      if (features.ssmRelay && this.securityGroupsStack.ssmRelaySecurityGroup) {
+        const ssmRelayStack = new SsmRelayStack(this, "SsmRelayStack", {
+          stageName,
+          vpc: this.vpcStack.vpc,
+          securityGroup: this.securityGroupsStack.ssmRelaySecurityGroup,
+          stackName: `${stageName}-ssm-relay`,
+        });
+        ssmRelayStack.addDependency(this.securityGroupsStack);
+      }
+
+      if (
+        features.migrationRunner &&
+        github &&
+        this.securityGroupsStack.migrationRunnerSecurityGroup
+      ) {
+        const migrationRunnerStack = new MigrationRunnerStack(
+          this,
+          "MigrationRunnerStack",
+          {
+            stageName,
+            github,
+            vpc: this.vpcStack.vpc,
+            securityGroup:
+              this.securityGroupsStack.migrationRunnerSecurityGroup,
+            stackName: `${stageName}-migration-runner`,
+          }
+        );
+        migrationRunnerStack.addDependency(this.securityGroupsStack);
+      }
     }
 
     // --- Application -----------------------------------------------------
     this.createApplicationStacks(environment);
 
+    this.amplifyHostingStack = this.createAmplifyHostingStack(environment);
+
     // --- Edge (conditional CloudFront + WAF) -----------------------------
     this.cdnStack = this.createEdgeStack(environment, domainConfig);
 
     // --- Observability ---------------------------------------------------
-    this.createObservabilityStacks(environment, alarmThresholds);
+    if (features.observability !== false) {
+      this.createObservabilityStacks(environment, alarmThresholds);
+    }
   }
 
   /**
@@ -222,21 +233,33 @@ export class EnvironmentStage extends cdk.Stage {
         })
       : undefined;
 
-    const auroraStack = features.aurora
-      ? new AuroraStack(this, "AuroraStack", {
-          stageName,
-          vpc: this.vpcStack.vpc,
-          securityGroup: this.securityGroupsStack.auroraSecurityGroup,
-          aurora,
-          stackName: `${stageName}-aurora`,
-        })
-      : undefined;
+    if (
+      (features.aurora || features.valkey) &&
+      (!this.vpcStack || !this.securityGroupsStack)
+    ) {
+      throw new Error(
+        `Stage ${stageName} enables a network-dependent data service while features.network is false`
+      );
+    }
+    const vpcStack = this.vpcStack;
+    const securityGroupsStack = this.securityGroupsStack;
 
-    if (features.valkey) {
+    const auroraStack =
+      features.aurora && vpcStack && securityGroupsStack
+        ? new AuroraStack(this, "AuroraStack", {
+            stageName,
+            vpc: vpcStack.vpc,
+            securityGroup: securityGroupsStack.auroraSecurityGroup,
+            aurora,
+            stackName: `${stageName}-aurora`,
+          })
+        : undefined;
+
+    if (features.valkey && vpcStack && securityGroupsStack) {
       new ValkeyStack(this, "ValkeyStack", {
         stageName,
-        vpc: this.vpcStack.vpc,
-        securityGroup: this.securityGroupsStack.valkeySecurityGroup,
+        vpc: vpcStack.vpc,
+        securityGroup: securityGroupsStack.valkeySecurityGroup,
         valkey,
         stackName: `${stageName}-valkey`,
       });
@@ -260,6 +283,25 @@ export class EnvironmentStage extends cdk.Stage {
         stackName: `${stageName}-backup`,
       });
     }
+  }
+
+  /**
+   * Creates Amplify Hosting when enabled and configured.
+   * @param environment - Stage environment configuration
+   * @returns Hosting stack or undefined when disabled
+   */
+  private createAmplifyHostingStack(
+    environment: StageEnvironment
+  ): AmplifyHostingStack | undefined {
+    if (!environment.features.amplifyHosting || !environment.amplifyHosting) {
+      return undefined;
+    }
+
+    return new AmplifyHostingStack(this, "AmplifyHostingStack", {
+      stageName: environment.name,
+      hosting: environment.amplifyHosting,
+      stackName: `${environment.name}-amplify-hosting`,
+    });
   }
 
   /**

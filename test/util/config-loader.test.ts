@@ -8,6 +8,8 @@
  */
 import {
   ConfigurationError,
+  findDeadAmplifyHostingFlags,
+  findNetworkDependencyViolations,
   getAlarmThresholds,
   getAllStageEnvironments,
   getDashboardWidgets,
@@ -18,6 +20,48 @@ import {
   isDeployableAccountId,
   validateConfiguration,
 } from "../../util/config-loader";
+import type { StageEnvironment } from "../../lib/types";
+
+const stage = (features: StageEnvironment["features"]): StageEnvironment => ({
+  type: "stage",
+  name: "test",
+  accountId: "123456789012",
+  region: "us-east-1",
+  features,
+  aurora: {
+    minCapacity: 0.5,
+    maxCapacity: 2,
+    instanceCount: 1,
+    deletionProtection: false,
+    backupRetentionDays: 1,
+    logRetentionDays: 3,
+  },
+  valkey: { nodeType: "cache.t4g.micro", numCacheNodes: 1 },
+  network: { vpcCidr: "10.0.0.0/16" },
+  observability: {
+    alarmEmailEndpoints: [],
+    dashboardEnabled: false,
+    detailedMonitoring: false,
+    logRetentionDays: 3,
+  },
+  deployment: { requireManualApproval: false },
+});
+
+const frontendFeatures: StageEnvironment["features"] = {
+  network: false,
+  observability: false,
+  aurora: false,
+  valkey: false,
+  cognito: false,
+  xray: false,
+  waf: false,
+  shieldAdvanced: false,
+  backup: false,
+  ssmRelay: false,
+  githubOidcDeploy: false,
+  migrationRunner: false,
+  amplifyHosting: true,
+};
 
 describe("config-loader", () => {
   describe("getAllStageEnvironments", () => {
@@ -134,6 +178,28 @@ describe("config-loader", () => {
       expect(error).toBeInstanceOf(Error);
       expect(error).toBeInstanceOf(ConfigurationError);
       expect(error.message).toBe("test");
+    });
+  });
+
+  describe("optional stage composition", () => {
+    it("accepts a frontend-only stage with networking disabled", () => {
+      expect(
+        findNetworkDependencyViolations([stage(frontendFeatures)])
+      ).toEqual([]);
+    });
+
+    it("finds network-dependent features when networking is disabled", () => {
+      expect(
+        findNetworkDependencyViolations([
+          stage({ ...frontendFeatures, aurora: true }),
+        ])
+      ).toHaveLength(1);
+    });
+
+    it("finds an Amplify flag without hosting configuration", () => {
+      expect(
+        findDeadAmplifyHostingFlags([stage(frontendFeatures)])
+      ).toHaveLength(1);
     });
   });
 });

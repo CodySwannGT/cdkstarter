@@ -112,6 +112,19 @@ describe("SupportStage", () => {
 
       expect(stage.dnsStack).toBeUndefined();
     });
+
+    it("should skip DnsStack when the support purpose disables DNS", () => {
+      const app = new cdk.App();
+      const stage = new SupportStage(app, "TestStage", {
+        ...defaultProps,
+        supportEnvironment: {
+          ...supportEnvironment,
+          purpose: { ...supportEnvironment.purpose, dns: false },
+        },
+      });
+
+      expect(stage.dnsStack).toBeUndefined();
+    });
   });
 
   describe("Trust Policy Stacks", () => {

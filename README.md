@@ -62,6 +62,41 @@ Or use utility commands:
 
 > Ask Claude: "Run CDK synth and verify the CloudFormation templates are generated correctly."
 
+### Frontend-only Environments
+
+The application infrastructure is composable. A stage can host only a static
+frontend without creating a VPC, NAT gateways, databases, caches, Cognito,
+monitoring, or backend deploy roles:
+
+```ts
+features: {
+  network: false,
+  observability: false,
+  aurora: false,
+  valkey: false,
+  cognito: false,
+  xray: false,
+  waf: false,
+  shieldAdvanced: false,
+  backup: false,
+  ssmRelay: false,
+  githubOidcDeploy: false,
+  migrationRunner: false,
+  amplifyHosting: true,
+},
+amplifyHosting: {
+  owner: "your-org",
+  repository: "frontend",
+  branch: "main",
+  oauthTokenSecretName: "your-project/amplify/github-token",
+},
+```
+
+`network` and `observability` default to enabled when omitted, preserving the
+full-stack starter behavior. Network-dependent features are rejected when
+`network` is false. Amplify build commands, artifact directory, environment
+variables, and custom domain are independently configurable.
+
 ### Diff Against Deployed Stacks
 
 > Ask Claude: "Run CDK diff to show what changes would be deployed compared to the current stacks."
