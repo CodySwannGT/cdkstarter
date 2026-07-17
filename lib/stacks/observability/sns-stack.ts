@@ -27,6 +27,8 @@
  */
 import * as cdk from "aws-cdk-lib";
 import * as kms from "aws-cdk-lib/aws-kms";
+import * as lambda from "aws-cdk-lib/aws-lambda";
+import * as logs from "aws-cdk-lib/aws-logs";
 import * as sns from "aws-cdk-lib/aws-sns";
 import * as subscriptions from "aws-cdk-lib/aws-sns-subscriptions";
 import type { Construct } from "constructs";
@@ -55,6 +57,15 @@ export interface SnsStackProps extends cdk.StackProps {
    * Email addresses to subscribe to info alerts.
    */
   readonly infoEmails: readonly string[];
+
+  /**
+   * Sentry DSN for alert forwarding (optional).
+   *
+   * When set, a forwarder Lambda subscribes to all three topics and sends
+   * each notification to Sentry as a structured event tagged `triage:ready`.
+   * The DSN is a publishable, write-only client key — not a secret.
+   */
+  readonly sentryDsn?: string;
 }
 
 /**
@@ -87,7 +98,8 @@ export class SnsStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: SnsStackProps) {
     super(scope, id, props);
 
-    const { stageName, criticalEmails, warningEmails, infoEmails } = props;
+    const { stageName, criticalEmails, warningEmails, infoEmails, sentryDsn } =
+      props;
 
     this.criticalTopic = this.createTopic(
       stageName,
@@ -96,7 +108,43 @@ export class SnsStack extends cdk.Stack {
     );
     this.warningTopic = this.createTopic(stageName, "warning", warningEmails);
     this.infoTopic = this.createTopic(stageName, "info", infoEmails);
+
+    if (sentryDsn) {
+      this.createSentryForwarder(stageName, sentryDsn);
+    }
+
     this.createOutputs(stageName);
+  }
+
+  /**
+   * Creates the Lambda that forwards topic notifications to Sentry and
+   * subscribes it to all three severity topics.
+   * @param stageName - Stage name (becomes the Sentry environment tag)
+   * @param sentryDsn - The Sentry DSN (publishable client key) to send events to
+   */
+  private createSentryForwarder(stageName: string, sentryDsn: string): void {
+    const forwarder = new lambda.Function(this, "SentryForwarder", {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: "index.handler",
+      code: lambda.Code.fromAsset("resources/observability/sentry-forwarder"),
+      timeout: cdk.Duration.seconds(30),
+      environment: {
+        SENTRY_DSN: sentryDsn,
+        STAGE: stageName,
+      },
+      logGroup: new logs.LogGroup(this, "SentryForwarderLogs", {
+        retention: logs.RetentionDays.ONE_MONTH,
+      }),
+      insightsVersion: lambda.LambdaInsightsVersion.VERSION_1_0_229_0,
+    });
+
+    for (const topic of [
+      this.criticalTopic,
+      this.warningTopic,
+      this.infoTopic,
+    ]) {
+      topic.addSubscription(new subscriptions.LambdaSubscription(forwarder));
+    }
   }
 
   /**

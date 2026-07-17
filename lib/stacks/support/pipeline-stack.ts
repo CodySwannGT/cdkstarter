@@ -30,7 +30,10 @@
  */
 import * as cdk from "aws-cdk-lib";
 import { BuildSpec, LinuxBuildImage } from "aws-cdk-lib/aws-codebuild";
-import { PipelineType } from "aws-cdk-lib/aws-codepipeline";
+import {
+  PipelineNotificationEvents,
+  PipelineType,
+} from "aws-cdk-lib/aws-codepipeline";
 import * as iam from "aws-cdk-lib/aws-iam";
 import * as sns from "aws-cdk-lib/aws-sns";
 import * as subscriptions from "aws-cdk-lib/aws-sns-subscriptions";
@@ -281,5 +284,17 @@ export class PipelineStack extends cdk.Stack {
         );
       }
     });
+
+    // A failed deploy is an incident: notify the security topic's
+    // subscribers. buildPipeline() finalizes the pipeline so the underlying
+    // CodePipeline resource exists to attach the notification rule to.
+    this.pipeline.buildPipeline();
+    this.pipeline.pipeline.notifyOn(
+      "PipelineFailureNotifications",
+      securityTopic,
+      {
+        events: [PipelineNotificationEvents.PIPELINE_EXECUTION_FAILED],
+      }
+    );
   }
 }

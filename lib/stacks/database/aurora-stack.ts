@@ -151,14 +151,22 @@ export class AuroraStack extends cdk.Stack {
         version: rds.AuroraPostgresEngineVersion.VER_16_4,
       }),
       credentials: rds.Credentials.fromGeneratedSecret("clusteradmin"),
-      writer: rds.ClusterInstance.serverlessV2("writer"),
+      writer: rds.ClusterInstance.serverlessV2("writer", {
+        enablePerformanceInsights: aurora.performanceInsights ?? false,
+      }),
       readers: Array.from(
         { length: Math.max(0, aurora.instanceCount - 1) },
         () =>
           rds.ClusterInstance.serverlessV2("reader", {
             scaleWithWriter: true,
+            enablePerformanceInsights: aurora.performanceInsights ?? false,
           })
       ),
+      // Enhanced Monitoring (OS-level metrics per instance); optional —
+      // omitting the config field creates no monitoring role at all.
+      monitoringInterval: aurora.enhancedMonitoringIntervalSeconds
+        ? cdk.Duration.seconds(aurora.enhancedMonitoringIntervalSeconds)
+        : undefined,
       vpc,
       vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
       securityGroups: [securityGroup],

@@ -5,7 +5,10 @@
  */
 import * as cdk from "aws-cdk-lib";
 import { Template } from "aws-cdk-lib/assertions";
-import { SnsStack } from "../../../lib/stacks/observability/sns-stack";
+import {
+  SnsStack,
+  type SnsStackProps,
+} from "../../../lib/stacks/observability/sns-stack";
 
 describe("SnsStack", () => {
   const defaultProps = {
@@ -16,7 +19,7 @@ describe("SnsStack", () => {
     env: { account: "123456789012", region: "us-east-1" },
   };
 
-  const createStack = (props: Partial<typeof defaultProps> = {}): Template => {
+  const createStack = (props: Partial<SnsStackProps> = {}): Template => {
     const app = new cdk.App();
     const stack = new SnsStack(app, "TestStack", {
       ...defaultProps,
@@ -64,6 +67,39 @@ describe("SnsStack", () => {
         // TopicName should not be set (CDK generates it)
         expect(topic.Properties.TopicName).toBeUndefined();
       });
+    });
+  });
+
+  describe("Sentry forwarder", () => {
+    const SENTRY_DSN = "https://key@o123.ingest.us.sentry.io/456";
+
+    it("should create no Lambda when sentryDsn is not set", () => {
+      const template = createStack();
+
+      template.resourceCountIs("AWS::Lambda::Function", 0);
+    });
+
+    it("should create the forwarder with the DSN and stage when sentryDsn is set", () => {
+      const template = createStack({ sentryDsn: SENTRY_DSN });
+
+      template.hasResourceProperties("AWS::Lambda::Function", {
+        Environment: {
+          Variables: {
+            SENTRY_DSN,
+            STAGE: "test",
+          },
+        },
+      });
+    });
+
+    it("should subscribe the forwarder to all three topics", () => {
+      const template = createStack({ sentryDsn: SENTRY_DSN });
+
+      const subscriptions = template.findResources("AWS::SNS::Subscription");
+      const lambdaSubs = Object.values(subscriptions).filter(
+        sub => sub.Properties.Protocol === "lambda"
+      );
+      expect(lambdaSubs).toHaveLength(3);
     });
   });
 

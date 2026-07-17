@@ -28,6 +28,7 @@ import {
   AuroraAlarmsStack,
   type AuroraAlarmsThresholds,
 } from "../stacks/observability/aurora-alarms-stack";
+import { CanaryStack } from "../stacks/observability/canary-stack";
 import { DashboardStack } from "../stacks/observability/dashboard-stack";
 import { SnsStack } from "../stacks/observability/sns-stack";
 import {
@@ -76,6 +77,11 @@ export class ObservabilityStage extends cdk.Stage {
   public readonly snsStack: SnsStack;
 
   /**
+   * The synthetic canary stack (if canaryUrls configured).
+   */
+  public readonly canaryStack?: CanaryStack;
+
+  /**
    * The Aurora alarms stack (if enabled).
    */
   public readonly auroraAlarmsStack?: AuroraAlarmsStack;
@@ -114,10 +120,24 @@ export class ObservabilityStage extends cdk.Stage {
       criticalEmails: [...observability.alarmEmailEndpoints],
       warningEmails: [...observability.alarmEmailEndpoints],
       infoEmails: [],
+      sentryDsn: observability.sentryDsn,
       stackName: `${stageName}-sns`,
     });
 
     const allAlarms: cloudwatch.Alarm[] = [];
+
+    // Create the synthetic canary if URLs are configured
+    if (observability.canaryUrls?.length) {
+      this.canaryStack = new CanaryStack(this, "CanaryStack", {
+        stageName,
+        urls: observability.canaryUrls,
+        intervalMinutes: observability.canaryIntervalMinutes,
+        criticalTopic: this.snsStack.criticalTopic,
+        stackName: `${stageName}-canary`,
+      });
+      this.canaryStack.addDependency(this.snsStack);
+      allAlarms.push(...this.canaryStack.alarms);
+    }
 
     // Create Aurora alarms if enabled
     if (auroraClusterId && auroraThresholds) {

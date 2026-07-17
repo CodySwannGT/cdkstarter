@@ -191,6 +191,23 @@ export interface AuroraConfig {
    * Balance between debugging capability and storage costs.
    */
   readonly logRetentionDays: number;
+
+  /**
+   * RDS Enhanced Monitoring interval in seconds (1, 5, 10, 15, 30, or 60).
+   *
+   * Provides OS-level CPU/memory/IO metrics per instance — the first thing
+   * needed in a database incident. Omit to disable (no monitoring role is
+   * created). 15 is a good production value.
+   */
+  readonly enhancedMonitoringIntervalSeconds?: number;
+
+  /**
+   * Enable RDS Performance Insights on every cluster instance.
+   *
+   * Per-query load analysis ("which query is making the database busy") —
+   * free at the default 7-day retention. Defaults to false.
+   */
+  readonly performanceInsights?: boolean;
 }
 
 /**
@@ -244,6 +261,32 @@ export interface ObservabilityConfig {
    * Balance between debugging capability and storage costs.
    */
   readonly logRetentionDays: number;
+
+  /**
+   * Sentry DSN for this environment's alert forwarding.
+   *
+   * When set, a forwarder Lambda subscribes to every alarm topic and sends
+   * each notification to Sentry as a structured event tagged `triage:ready`,
+   * making incidents machine-readable for agent triage. The DSN is a
+   * publishable, write-only client key (the same value Sentry ships in
+   * frontend bundles) — safe to keep in config. Omit to disable.
+   */
+  readonly sentryDsn?: string;
+
+  /**
+   * Public URLs a synthetic canary probes on a schedule.
+   *
+   * When non-empty, a canary Lambda fetches each URL every
+   * `canaryIntervalMinutes` and a critical alarm fires on any failure —
+   * catching "site down" regardless of cause. Omit to disable.
+   */
+  readonly canaryUrls?: readonly string[];
+
+  /**
+   * Minutes between synthetic canary runs (default 5).
+   * Only meaningful when `canaryUrls` is set.
+   */
+  readonly canaryIntervalMinutes?: number;
 }
 
 /**
