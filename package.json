@@ -54,7 +54,7 @@
     "@types/node": "^22.0.0",
     "@typescript-eslint/parser": "^8.54.0",
     "@vitest/coverage-v8": "^4.1.0",
-    "aws-cdk": "^2.1104.0",
+    "aws-cdk": "^2.1132.0",
     "esbuild": "^0.28.1",
     "esbuild-register": "^3.6.0",
     "eslint": "^9.39.0",
