@@ -4,7 +4,7 @@
  * @module test/stacks/observability/sns-stack.test
  */
 import * as cdk from "aws-cdk-lib";
-import { Template } from "aws-cdk-lib/assertions";
+import { Match, Template } from "aws-cdk-lib/assertions";
 import {
   SnsStack,
   type SnsStackProps,
@@ -66,6 +66,30 @@ describe("SnsStack", () => {
       Object.values(topics).forEach(topic => {
         // TopicName should not be set (CDK generates it)
         expect(topic.Properties.TopicName).toBeUndefined();
+      });
+    });
+  });
+
+  describe("Encryption", () => {
+    it("should encrypt all topics with a CMK CloudWatch can use", () => {
+      const template = createStack();
+
+      // alias/aws/sns would silently drop alarm notifications — the managed
+      // key's policy cannot authorize the cloudwatch.amazonaws.com principal.
+      const topics = template.findResources("AWS::SNS::Topic");
+      Object.values(topics).forEach(topic => {
+        expect(topic.Properties.KmsMasterKeyId).toBeDefined();
+      });
+      template.hasResourceProperties("AWS::KMS::Key", {
+        KeyPolicy: Match.objectLike({
+          Statement: Match.arrayWith([
+            Match.objectLike({
+              Principal: { Service: "cloudwatch.amazonaws.com" },
+              Action: ["kms:Decrypt", "kms:GenerateDataKey*"],
+              Effect: "Allow",
+            }),
+          ]),
+        }),
       });
     });
   });

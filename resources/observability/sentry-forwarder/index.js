@@ -35,6 +35,9 @@ const sendToSentry = async event => {
   const { publicKey, host, projectId } = parseDsn(process.env.SENTRY_DSN);
   const res = await fetch(`https://${host}/api/${projectId}/store/`, {
     method: "POST",
+    // Bound well below the Lambda timeout so a slow Sentry ingest fails this
+    // event instead of consuming the whole invocation and triggering retries.
+    signal: AbortSignal.timeout(10000),
     headers: {
       "Content-Type": "application/json",
       "X-Sentry-Auth": `Sentry sentry_version=7, sentry_key=${publicKey}, sentry_client=infrastructure-observability/1.0`,

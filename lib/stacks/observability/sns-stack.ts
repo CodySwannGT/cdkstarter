@@ -26,6 +26,7 @@
  * @module lib/stacks/observability/sns-stack
  */
 import * as cdk from "aws-cdk-lib";
+import * as iam from "aws-cdk-lib/aws-iam";
 import * as kms from "aws-cdk-lib/aws-kms";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as logs from "aws-cdk-lib/aws-logs";
@@ -101,13 +102,34 @@ export class SnsStack extends cdk.Stack {
     const { stageName, criticalEmails, warningEmails, infoEmails, sentryDsn } =
       props;
 
+    // Customer-managed key shared by all three topics: CloudWatch alarm
+    // actions cannot publish to a topic encrypted with the AWS-managed
+    // alias/aws/sns key (its policy cannot authorize the
+    // cloudwatch.amazonaws.com service principal), which silently drops
+    // every alarm notification.
+    const topicKey = new kms.Key(this, "TopicKey", {
+      enableKeyRotation: true,
+      description: `${stageName} alarm topic encryption key`,
+    });
+    topicKey.grant(
+      new iam.ServicePrincipal("cloudwatch.amazonaws.com"),
+      "kms:Decrypt",
+      "kms:GenerateDataKey*"
+    );
+
     this.criticalTopic = this.createTopic(
       stageName,
       "critical",
-      criticalEmails
+      criticalEmails,
+      topicKey
     );
-    this.warningTopic = this.createTopic(stageName, "warning", warningEmails);
-    this.infoTopic = this.createTopic(stageName, "info", infoEmails);
+    this.warningTopic = this.createTopic(
+      stageName,
+      "warning",
+      warningEmails,
+      topicKey
+    );
+    this.infoTopic = this.createTopic(stageName, "info", infoEmails, topicKey);
 
     if (sentryDsn) {
       this.createSentryForwarder(stageName, sentryDsn);
@@ -152,20 +174,18 @@ export class SnsStack extends cdk.Stack {
    * @param stageName - Stage name for resource naming
    * @param severity - Severity level (critical, warning, info)
    * @param emails - Email addresses to subscribe
+   * @param masterKey - Customer-managed key shared by the severity topics
    * @returns The created topic
    */
   private createTopic(
     stageName: string,
     severity: string,
-    emails: readonly string[]
+    emails: readonly string[],
+    masterKey: kms.IKey
   ): sns.Topic {
     const topic = new sns.Topic(this, `${severity}Topic`, {
       displayName: `${stageName} ${severity} alerts`,
-      masterKey: kms.Alias.fromAliasName(
-        this,
-        `${severity}Key`,
-        "alias/aws/sns"
-      ),
+      masterKey,
     });
 
     emails.forEach(email => {
