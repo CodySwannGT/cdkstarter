@@ -44,4 +44,13 @@ export default [
       ],
     },
   },
+  {
+    // Lambda runtime handlers deployed as CDK assets: environment variables
+    // ARE the config channel inside a Lambda sandbox — the type-safe config
+    // module only exists in the CDK app, not in the deployed bundle.
+    files: ["resources/**/*.js"],
+    rules: {
+      "no-restricted-syntax": "off",
+    },
+  },
 ];

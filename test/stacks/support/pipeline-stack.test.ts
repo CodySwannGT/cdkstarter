@@ -164,6 +164,19 @@ describe("PipelineStack", () => {
     });
   });
 
+  describe("Failure Notifications", () => {
+    it("should notify the security topic on pipeline execution failure", () => {
+      const template = createStack();
+
+      template.hasResourceProperties(
+        "AWS::CodeStarNotifications::NotificationRule",
+        {
+          EventTypeIds: ["codepipeline-pipeline-pipeline-execution-failed"],
+        }
+      );
+    });
+  });
+
   describe("Source Configuration", () => {
     it("should use GitHub connection source", () => {
       const template = createStack();

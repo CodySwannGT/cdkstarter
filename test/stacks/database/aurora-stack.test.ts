@@ -87,6 +87,42 @@ describe("AuroraStack", () => {
     });
   });
 
+  it("should leave Enhanced Monitoring and Performance Insights off by default", () => {
+    const template = createStack(devConfig);
+
+    const instances = template.findResources("AWS::RDS::DBInstance");
+    Object.values(instances).forEach(instance => {
+      expect(instance.Properties.MonitoringInterval).toBeUndefined();
+      expect(instance.Properties.EnablePerformanceInsights).toBeFalsy();
+    });
+  });
+
+  it("should enable Enhanced Monitoring at the configured interval", () => {
+    const template = createStack({
+      ...prodConfig,
+      enhancedMonitoringIntervalSeconds: 15,
+    });
+
+    const instances = template.findResources("AWS::RDS::DBInstance");
+    expect(Object.keys(instances).length).toBeGreaterThanOrEqual(1);
+    Object.values(instances).forEach(instance => {
+      expect(instance.Properties.MonitoringInterval).toBe(15);
+    });
+  });
+
+  it("should enable Performance Insights on every instance when configured", () => {
+    const template = createStack({
+      ...prodConfig,
+      performanceInsights: true,
+    });
+
+    const instances = template.findResources("AWS::RDS::DBInstance");
+    expect(Object.keys(instances).length).toBeGreaterThanOrEqual(1);
+    Object.values(instances).forEach(instance => {
+      expect(instance.Properties.EnablePerformanceInsights).toBe(true);
+    });
+  });
+
   it("should create RDS Proxy", () => {
     const template = createStack(devConfig);
 

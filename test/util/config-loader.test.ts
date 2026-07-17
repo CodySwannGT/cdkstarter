@@ -9,6 +9,7 @@
 import {
   ConfigurationError,
   findDeadAmplifyHostingFlags,
+  findObservabilityConfigErrors,
   findNetworkDependencyViolations,
   getAlarmThresholds,
   getAllStageEnvironments,
@@ -199,6 +200,52 @@ describe("config-loader", () => {
     it("finds an Amplify flag without hosting configuration", () => {
       expect(
         findDeadAmplifyHostingFlags([stage(frontendFeatures)])
+      ).toHaveLength(1);
+    });
+  });
+
+  describe("findObservabilityConfigErrors", () => {
+    const withObservability = (
+      observability: Partial<StageEnvironment["observability"]>
+    ): StageEnvironment => {
+      const base = stage(frontendFeatures);
+      return {
+        ...base,
+        observability: { ...base.observability, ...observability },
+      };
+    };
+
+    it("accepts a stage with no observability extras", () => {
+      expect(findObservabilityConfigErrors([stage(frontendFeatures)])).toEqual(
+        []
+      );
+    });
+
+    it("accepts a coherent canary and a valid sentry dsn", () => {
+      expect(
+        findObservabilityConfigErrors([
+          withObservability({
+            canaryUrls: ["https://staging.example.com"],
+            canaryIntervalMinutes: 10,
+            sentryDsn: "https://key@o123.ingest.us.sentry.io/456",
+          }),
+        ])
+      ).toEqual([]);
+    });
+
+    it("finds a canary interval without canary urls", () => {
+      expect(
+        findObservabilityConfigErrors([
+          withObservability({ canaryIntervalMinutes: 10 }),
+        ])
+      ).toHaveLength(1);
+    });
+
+    it("finds an unparseable sentry dsn", () => {
+      expect(
+        findObservabilityConfigErrors([
+          withObservability({ sentryDsn: "not-a-url" }),
+        ])
       ).toHaveLength(1);
     });
   });

@@ -172,6 +172,8 @@ export const getDashboardWidgets = (): DashboardWidgets => dashboardWidgets;
  *    does anything when a domain is also configured for that stage
  * 4. Network-dependent features require `features.network`
  * 5. Amplify Hosting requires an `amplifyHosting` configuration block
+ * 6. Observability extras must be coherent: a canary interval requires
+ *    canary URLs, and a Sentry DSN must be a valid URL
  *
  * Call this function at CDK app startup to fail fast on configuration errors.
  * @throws ConfigurationError if validation fails
@@ -182,6 +184,48 @@ export const validateConfiguration = (): void => {
   validateWafFlag();
   validateNetworkDependencies();
   validateAmplifyHostingFlag();
+  validateObservabilityExtras();
+};
+
+/**
+ * Finds incoherent optional observability fields across stage environments.
+ *
+ * `canaryIntervalMinutes` without `canaryUrls` is a dead setting (nothing
+ * would probe), and a malformed `sentryDsn` would only fail at runtime
+ * inside the forwarder Lambda — both are cheaper to catch at synth.
+ * @param environments - Stage environments to inspect
+ * @returns One error message per incoherent field, empty when all valid
+ */
+export const findObservabilityConfigErrors = (
+  environments: readonly StageEnvironment[]
+): string[] =>
+  environments.flatMap(env => {
+    const { canaryUrls, canaryIntervalMinutes, sentryDsn } = env.observability;
+    return [
+      ...(canaryIntervalMinutes !== undefined && !canaryUrls?.length
+        ? [
+            `Stage "${env.name}" sets observability.canaryIntervalMinutes ` +
+              "but no canaryUrls. Add canaryUrls or remove the interval.",
+          ]
+        : []),
+      ...(sentryDsn !== undefined && !URL.canParse(sentryDsn)
+        ? [
+            `Stage "${env.name}" has an invalid observability.sentryDsn — ` +
+              "expected a URL like https://<key>@<org>.ingest.sentry.io/<project>.",
+          ]
+        : []),
+    ];
+  });
+
+/**
+ * Validates the optional observability fields on each stage environment.
+ * @throws ConfigurationError if an observability field is incoherent
+ */
+const validateObservabilityExtras = (): void => {
+  const errors = findObservabilityConfigErrors(stageEnvironments);
+  if (errors.length > 0) {
+    throw new ConfigurationError(errors.join(" "));
+  }
 };
 
 /**

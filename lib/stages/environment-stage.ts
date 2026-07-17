@@ -45,6 +45,7 @@ import { SecurityGroupsStack } from "../stacks/network/security-groups-stack";
 import { SsmRelayStack } from "../stacks/network/ssm-relay-stack";
 import { VpcStack } from "../stacks/network/vpc-stack";
 import { AuroraAlarmsStack } from "../stacks/observability/aurora-alarms-stack";
+import { CanaryStack } from "../stacks/observability/canary-stack";
 import { DashboardStack } from "../stacks/observability/dashboard-stack";
 import { SnsStack } from "../stacks/observability/sns-stack";
 import { ValkeyAlarmsStack } from "../stacks/observability/valkey-alarms-stack";
@@ -320,10 +321,23 @@ export class EnvironmentStage extends cdk.Stage {
       criticalEmails: [...observability.alarmEmailEndpoints],
       warningEmails: [...observability.alarmEmailEndpoints],
       infoEmails: [],
+      sentryDsn: observability.sentryDsn,
       stackName: `${stageName}-sns`,
     });
 
     const allAlarms: cloudwatch.Alarm[] = [];
+
+    if (observability.canaryUrls?.length) {
+      const canaryStack = new CanaryStack(this, "CanaryStack", {
+        stageName,
+        urls: observability.canaryUrls,
+        intervalMinutes: observability.canaryIntervalMinutes,
+        criticalTopic: snsStack.criticalTopic,
+        stackName: `${stageName}-canary`,
+      });
+      canaryStack.addDependency(snsStack);
+      allAlarms.push(...canaryStack.alarms);
+    }
     const auroraClusterId = features.aurora
       ? `${stageName}-aurora-cluster`
       : undefined;
