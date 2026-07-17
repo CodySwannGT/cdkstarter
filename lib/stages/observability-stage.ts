@@ -29,6 +29,8 @@ import {
   type AuroraAlarmsThresholds,
 } from "../stacks/observability/aurora-alarms-stack";
 import { CanaryStack } from "../stacks/observability/canary-stack";
+import { CompositeAlarmStack } from "../stacks/observability/composite-alarm-stack";
+import { CostAnomalyStack } from "../stacks/observability/cost-anomaly-stack";
 import { DashboardStack } from "../stacks/observability/dashboard-stack";
 import { SnsStack } from "../stacks/observability/sns-stack";
 import {
@@ -121,6 +123,7 @@ export class ObservabilityStage extends cdk.Stage {
       warningEmails: [...observability.alarmEmailEndpoints],
       infoEmails: [],
       sentryDsn: observability.sentryDsn,
+      backupFailureAlerts: observability.backupFailureAlerts,
       stackName: `${stageName}-sns`,
     });
 
@@ -173,6 +176,31 @@ export class ObservabilityStage extends cdk.Stage {
       );
       this.valkeyAlarmsStack.addDependency(this.snsStack);
       allAlarms.push(...this.valkeyAlarmsStack.alarms);
+    }
+
+    // Roll everything into one root signal if enabled
+    if (observability.compositeAlarmEnabled && allAlarms.length > 0) {
+      const compositeAlarmStack = new CompositeAlarmStack(
+        this,
+        "CompositeAlarmStack",
+        {
+          stageName,
+          alarms: allAlarms,
+          criticalTopic: this.snsStack.criticalTopic,
+          stackName: `${stageName}-composite-alarm`,
+        }
+      );
+      compositeAlarmStack.addDependency(this.snsStack);
+    }
+
+    // Daily cost anomaly digest if enabled
+    if (observability.costAnomalyThresholdUsd !== undefined) {
+      new CostAnomalyStack(this, "CostAnomalyStack", {
+        stageName,
+        thresholdUsd: observability.costAnomalyThresholdUsd,
+        subscriberEmails: [...observability.alarmEmailEndpoints],
+        stackName: `${stageName}-cost-anomaly`,
+      });
     }
 
     // Create dashboard if enabled

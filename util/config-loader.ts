@@ -200,7 +200,13 @@ export const findObservabilityConfigErrors = (
   environments: readonly StageEnvironment[]
 ): string[] =>
   environments.flatMap(env => {
-    const { canaryUrls, canaryIntervalMinutes, sentryDsn } = env.observability;
+    const {
+      canaryUrls,
+      canaryIntervalMinutes,
+      sentryDsn,
+      backupFailureAlerts,
+      costAnomalyThresholdUsd,
+    } = env.observability;
     return [
       ...(canaryIntervalMinutes !== undefined && !canaryUrls?.length
         ? [
@@ -212,6 +218,20 @@ export const findObservabilityConfigErrors = (
         ? [
             `Stage "${env.name}" has an invalid observability.sentryDsn — ` +
               "expected a URL like https://<key>@<org>.ingest.sentry.io/<project>.",
+          ]
+        : []),
+      ...(backupFailureAlerts && sentryDsn === undefined
+        ? [
+            `Stage "${env.name}" sets observability.backupFailureAlerts but ` +
+              "no sentryDsn — the events ride the Sentry forwarder. Add " +
+              "sentryDsn or remove the flag.",
+          ]
+        : []),
+      ...(costAnomalyThresholdUsd !== undefined && costAnomalyThresholdUsd <= 0
+        ? [
+            `Stage "${env.name}" sets a non-positive ` +
+              "observability.costAnomalyThresholdUsd — use a positive USD " +
+              "amount or omit to disable.",
           ]
         : []),
     ];

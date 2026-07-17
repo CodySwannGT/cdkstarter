@@ -125,6 +125,28 @@ describe("SnsStack", () => {
       );
       expect(lambdaSubs).toHaveLength(3);
     });
+
+    it("should forward failed backup jobs when backupFailureAlerts is set", () => {
+      const template = createStack({
+        sentryDsn: SENTRY_DSN,
+        backupFailureAlerts: true,
+      });
+
+      template.hasResourceProperties("AWS::Events::Rule", {
+        EventPattern: Match.objectLike({
+          source: ["aws.backup"],
+          detail: Match.objectLike({
+            state: ["FAILED", "ABORTED", "EXPIRED"],
+          }),
+        }),
+      });
+    });
+
+    it("should create no backup rule without the flag", () => {
+      const template = createStack({ sentryDsn: SENTRY_DSN });
+
+      template.resourceCountIs("AWS::Events::Rule", 0);
+    });
   });
 
   describe("Subscriptions", () => {

@@ -26,6 +26,8 @@
  * @module lib/stacks/observability/sns-stack
  */
 import * as cdk from "aws-cdk-lib";
+import * as events from "aws-cdk-lib/aws-events";
+import * as eventsTargets from "aws-cdk-lib/aws-events-targets";
 import * as iam from "aws-cdk-lib/aws-iam";
 import * as kms from "aws-cdk-lib/aws-kms";
 import * as lambda from "aws-cdk-lib/aws-lambda";
@@ -67,6 +69,12 @@ export interface SnsStackProps extends cdk.StackProps {
    * The DSN is a publishable, write-only client key — not a secret.
    */
   readonly sentryDsn?: string;
+
+  /**
+   * Forward failed/aborted/expired AWS Backup jobs to Sentry (optional).
+   * Requires `sentryDsn` — the events ride the same forwarder Lambda.
+   */
+  readonly backupFailureAlerts?: boolean;
 }
 
 /**
@@ -132,7 +140,18 @@ export class SnsStack extends cdk.Stack {
     this.infoTopic = this.createTopic(stageName, "info", infoEmails, topicKey);
 
     if (sentryDsn) {
-      this.createSentryForwarder(stageName, sentryDsn);
+      const forwarder = this.createSentryForwarder(stageName, sentryDsn);
+      if (props.backupFailureAlerts) {
+        new events.Rule(this, "BackupFailureRule", {
+          description: `${stageName}: forward failed AWS Backup jobs to Sentry`,
+          eventPattern: {
+            source: ["aws.backup"],
+            detailType: ["Backup Job State Change"],
+            detail: { state: ["FAILED", "ABORTED", "EXPIRED"] },
+          },
+          targets: [new eventsTargets.LambdaFunction(forwarder)],
+        });
+      }
     }
 
     this.createOutputs(stageName);
@@ -143,8 +162,12 @@ export class SnsStack extends cdk.Stack {
    * subscribes it to all three severity topics.
    * @param stageName - Stage name (becomes the Sentry environment tag)
    * @param sentryDsn - The Sentry DSN (publishable client key) to send events to
+   * @returns The forwarder function, reusable as an EventBridge target
    */
-  private createSentryForwarder(stageName: string, sentryDsn: string): void {
+  private createSentryForwarder(
+    stageName: string,
+    sentryDsn: string
+  ): lambda.Function {
     const forwarder = new lambda.Function(this, "SentryForwarder", {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: "index.handler",
@@ -167,6 +190,7 @@ export class SnsStack extends cdk.Stack {
     ]) {
       topic.addSubscription(new subscriptions.LambdaSubscription(forwarder));
     }
+    return forwarder;
   }
 
   /**
