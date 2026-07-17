@@ -287,6 +287,32 @@ export interface ObservabilityConfig {
    * Only meaningful when `canaryUrls` is set.
    */
   readonly canaryIntervalMinutes?: number;
+
+  /**
+   * Roll every alarm in this environment into one
+   * `<stage>-environment-unhealthy` composite alarm.
+   *
+   * Pages and dashboards get a single root signal while the child alarms
+   * carry the detail. Defaults to false.
+   */
+  readonly compositeAlarmEnabled?: boolean;
+
+  /**
+   * Forward failed/aborted/expired AWS Backup jobs to Sentry.
+   *
+   * Requires `sentryDsn` — the events ride the same forwarder Lambda.
+   * Defaults to false.
+   */
+  readonly backupFailureAlerts?: boolean;
+
+  /**
+   * Enable AWS Cost Anomaly Detection with a daily email digest to the
+   * alarm endpoints; anomalies below this USD impact are not reported.
+   *
+   * Catches runaway spend (retry storms, forgotten resources) within a
+   * day. Omit to disable.
+   */
+  readonly costAnomalyThresholdUsd?: number;
 }
 
 /**

@@ -248,5 +248,34 @@ describe("config-loader", () => {
         ])
       ).toHaveLength(1);
     });
+
+    it("finds backup alerts without a sentry dsn", () => {
+      expect(
+        findObservabilityConfigErrors([
+          withObservability({ backupFailureAlerts: true }),
+        ])
+      ).toHaveLength(1);
+    });
+
+    it("finds a non-positive cost anomaly threshold", () => {
+      expect(
+        findObservabilityConfigErrors([
+          withObservability({ costAnomalyThresholdUsd: 0 }),
+        ])
+      ).toHaveLength(1);
+    });
+
+    it("accepts coherent composite, backup, and cost settings", () => {
+      expect(
+        findObservabilityConfigErrors([
+          withObservability({
+            sentryDsn: "https://key@o123.ingest.us.sentry.io/456",
+            compositeAlarmEnabled: true,
+            backupFailureAlerts: true,
+            costAnomalyThresholdUsd: 25,
+          }),
+        ])
+      ).toEqual([]);
+    });
   });
 });

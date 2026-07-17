@@ -126,6 +126,30 @@ const pipelineEvent = msg => {
 };
 
 /**
+ * Maps a failed AWS Backup job (via EventBridge) to a Sentry event.
+ * @param {object} event - The EventBridge invocation payload.
+ * @returns {object} A Sentry event payload.
+ */
+const backupEvent = event => {
+  const detail = event.detail || {};
+  return baseEvent(
+    `[${STAGE}] AWS Backup job ${detail.state}: ${detail.resourceType || "unknown resource"}`,
+    "error",
+    {
+      source: "aws-backup",
+      state: detail.state,
+      resource_type: detail.resourceType,
+    },
+    {
+      backup_job_id: detail.backupJobId,
+      status_message: detail.statusMessage,
+      resource_arn: detail.resourceArn,
+    },
+    ["backup-job-failure", detail.resourceType || "unknown"]
+  );
+};
+
+/**
  * Parses a JSON string, returning null instead of throwing.
  * @param {string} raw - The candidate JSON.
  * @returns {object|null} The parsed value, or null when unparseable.
@@ -158,12 +182,16 @@ const snsRecordEvent = record => {
 };
 
 /**
- * Lambda entry point: fans SNS records out to Sentry.
- * @param {object} event - The SNS invocation payload.
+ * Lambda entry point: fans SNS records and EventBridge events out to Sentry.
+ * @param {object} event - The SNS or EventBridge invocation payload.
  * @returns {Promise<{forwarded: number}>} How many events were sent.
  */
 exports.handler = async event => {
-  const events = (event.Records || []).map(snsRecordEvent);
+  const events = event.Records
+    ? event.Records.map(snsRecordEvent)
+    : event.source === "aws.backup" && event.detail
+      ? [backupEvent(event)]
+      : [];
   await Promise.all(events.map(sendToSentry));
   return { forwarded: events.length };
 };

@@ -46,6 +46,8 @@ import { SsmRelayStack } from "../stacks/network/ssm-relay-stack";
 import { VpcStack } from "../stacks/network/vpc-stack";
 import { AuroraAlarmsStack } from "../stacks/observability/aurora-alarms-stack";
 import { CanaryStack } from "../stacks/observability/canary-stack";
+import { CompositeAlarmStack } from "../stacks/observability/composite-alarm-stack";
+import { CostAnomalyStack } from "../stacks/observability/cost-anomaly-stack";
 import { DashboardStack } from "../stacks/observability/dashboard-stack";
 import { SnsStack } from "../stacks/observability/sns-stack";
 import { ValkeyAlarmsStack } from "../stacks/observability/valkey-alarms-stack";
@@ -322,6 +324,7 @@ export class EnvironmentStage extends cdk.Stage {
       warningEmails: [...observability.alarmEmailEndpoints],
       infoEmails: [],
       sentryDsn: observability.sentryDsn,
+      backupFailureAlerts: observability.backupFailureAlerts,
       stackName: `${stageName}-sns`,
     });
 
@@ -373,6 +376,29 @@ export class EnvironmentStage extends cdk.Stage {
     if (valkeyAlarmsStack) {
       valkeyAlarmsStack.addDependency(snsStack);
       allAlarms.push(...valkeyAlarmsStack.alarms);
+    }
+
+    if (observability.compositeAlarmEnabled && allAlarms.length > 0) {
+      const compositeAlarmStack = new CompositeAlarmStack(
+        this,
+        "CompositeAlarmStack",
+        {
+          stageName,
+          alarms: allAlarms,
+          criticalTopic: snsStack.criticalTopic,
+          stackName: `${stageName}-composite-alarm`,
+        }
+      );
+      compositeAlarmStack.addDependency(snsStack);
+    }
+
+    if (observability.costAnomalyThresholdUsd !== undefined) {
+      new CostAnomalyStack(this, "CostAnomalyStack", {
+        stageName,
+        thresholdUsd: observability.costAnomalyThresholdUsd,
+        subscriberEmails: [...observability.alarmEmailEndpoints],
+        stackName: `${stageName}-cost-anomaly`,
+      });
     }
 
     if (observability.dashboardEnabled) {
