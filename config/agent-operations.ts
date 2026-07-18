@@ -7,11 +7,11 @@
  *
  * ## How It Works
  *
- * A headless agent (for example a Claude Code remote routine) is given the
- * dedicated user's access key as `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY`.
- * That user holds NO permissions except `sts:AssumeRole` on the per-account
- * agent role, so the agent's real permissions always arrive as short-lived
- * STS credentials — and a leaked key only grants "assume one scoped role".
+ * A remote coding environment is given the Secrets Manager SecretString as one
+ * `LISA_AWS_BOOTSTRAP_JSON` value. Lisa writes the contained access key into a
+ * named source profile and generates per-account assume-role profiles. The
+ * dedicated user holds NO permissions except `sts:AssumeRole`, so the agent's
+ * real permissions always arrive as short-lived STS credentials.
  *
  * ## Enabling
  *
@@ -19,11 +19,12 @@
  * 2. Export `AGENT_OPERATIONS_EXTERNAL_ID` with a random string (for example
  *    `openssl rand -hex 16`) — this ExternalId is required on every
  *    `sts:AssumeRole` call (confused-deputy protection)
- * 3. Deploy; the access key lands in Secrets Manager in the shared account
+ * 3. Deploy; the complete bootstrap bundle lands in Secrets Manager in shared
  *
- * The permission document lives verbatim in
- * `lib/stacks/agent-operations/agent-operations-policy.json`. Adjust it to
- * match the services your agents operate on.
+ * Standing observer permissions live in
+ * `lib/stacks/agent-operations/agent-operations-policy.json`. Direct repair
+ * permissions live separately in `agent-operations-repair-policy.json` and
+ * are attached only to the environments listed in `repairEnvironmentNames`.
  * @see lib/stacks/agent-operations/agent-operations-stack.ts - Per-account role
  * @see lib/stacks/agent-operations/agent-operations-user-stack.ts - Shared user
  * @module config/agent-operations
@@ -40,6 +41,8 @@ export const agentOperationsConfig: AgentOperationsConfig = {
   enabled: false,
   roleName: "RemoteAgent",
   policyName: "AgentOperationsPolicy",
+  repairPolicyName: "AgentOperationsRepairPolicy",
+  repairEnvironmentNames: ["dev", "staging"],
   userName: "remote-agent",
   secretName: "remote-agent-credentials",
 } as const;

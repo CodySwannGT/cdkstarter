@@ -1,0 +1,40 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "RepairOperations",
+      "Effect": "Allow",
+      "Action": [
+        "cognito-idp:AdminUpdateUserAttributes",
+        "amplify:StopJob",
+        "amplify:StartJob",
+        "amplify:DeleteBranch",
+        "ssm:StartSession",
+        "rds-db:connect",
+        "cloudformation:UpdateStack",
+        "cloudformation:ContinueUpdateRollback",
+        "s3:PutObject",
+        "lambda:UpdateFunctionCode",
+        "lambda:UpdateFunctionConfiguration",
+        "lambda:PublishVersion",
+        "lambda:UpdateAlias",
+        "lambda:InvokeFunction",
+        "lambda:InvokeAsync",
+        "appsync:GraphQL"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "BedrockInvokeAnthropic",
+      "Effect": "Allow",
+      "Action": [
+        "bedrock:InvokeModel",
+        "bedrock:InvokeModelWithResponseStream"
+      ],
+      "Resource": [
+        "arn:aws:bedrock:*::foundation-model/anthropic.*",
+        "arn:aws:bedrock:*:*:inference-profile/*anthropic.*"
+      ]
+    }
+  ]
+}

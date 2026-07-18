@@ -16,6 +16,8 @@ describe("AgentOperationsStage", () => {
     enabled: true,
     roleName: "RemoteAgent",
     policyName: "AgentOperationsPolicy",
+    repairPolicyName: "AgentOperationsRepairPolicy",
+    repairEnvironmentNames: ["dev", "staging"],
     userName: "remote-agent",
     secretName: "remote-agent-credentials",
   };
@@ -69,6 +71,49 @@ describe("AgentOperationsStage", () => {
     },
   };
 
+  const attachedManagedPolicyNames = (
+    template: cdk.assertions.Template
+  ): string[] => {
+    const policies = template.findResources("AWS::IAM::ManagedPolicy");
+    const policyNamesByLogicalId = new Map(
+      Object.entries(policies).map(([logicalId, resource]) => [
+        logicalId,
+        resource.Properties?.ManagedPolicyName as string,
+      ])
+    );
+    const role = Object.values(template.findResources("AWS::IAM::Role"))[0] as {
+      Properties?: { ManagedPolicyArns?: Array<{ Ref: string }> };
+    };
+
+    return (role.Properties?.ManagedPolicyArns ?? []).map(
+      reference => policyNamesByLogicalId.get(reference.Ref)!
+    );
+  };
+
+  const parseBootstrapProfiles = (
+    template: cdk.assertions.Template
+  ): Record<string, { roleArn: string; region: string }> => {
+    const secret = Object.values(
+      template.findResources("AWS::SecretsManager::Secret")
+    )[0] as {
+      Properties?: {
+        SecretString?: { "Fn::Join": [string, unknown[]] };
+      };
+    };
+    const [delimiter, fragments] = secret.Properties!.SecretString!["Fn::Join"];
+    const rendered = fragments
+      .map(fragment =>
+        typeof fragment === "string" ? fragment : "DYNAMIC_VALUE"
+      )
+      .join(delimiter);
+    const bundle = JSON.parse(rendered) as { profiles: string };
+
+    return JSON.parse(bundle.profiles) as Record<
+      string,
+      { roleArn: string; region: string }
+    >;
+  };
+
   it("should create a role stack per member account plus the shared account", () => {
     const app = new cdk.App();
     const stage = new AgentOperationsStage(app, "TestStage", {
@@ -95,6 +140,52 @@ describe("AgentOperationsStage", () => {
     expect(stage.roleStacks[0].account).toBe("111111111111");
     expect(stage.roleStacks[1].account).toBe("999999999999");
     expect(stage.userStack.account).toBe("999999999999");
+  });
+
+  it("should enable standing repair only for configured environments", () => {
+    const app = new cdk.App();
+    const stage = new AgentOperationsStage(app, "TestStage", {
+      agentOperations,
+      externalId: "test-external-id",
+      stageEnvironments: [devEnvironment],
+      sharedEnvironment,
+    });
+
+    const devTemplate = cdk.assertions.Template.fromStack(stage.roleStacks[0]);
+    const sharedTemplate = cdk.assertions.Template.fromStack(
+      stage.roleStacks[1]
+    );
+
+    devTemplate.resourceCountIs("AWS::IAM::ManagedPolicy", 2);
+    sharedTemplate.resourceCountIs("AWS::IAM::ManagedPolicy", 1);
+    expect(attachedManagedPolicyNames(devTemplate)).toEqual([
+      "AgentOperationsPolicy",
+      "AgentOperationsRepairPolicy",
+    ]);
+    expect(attachedManagedPolicyNames(sharedTemplate)).toEqual([
+      "AgentOperationsPolicy",
+    ]);
+  });
+
+  it("should include every environment in the bootstrap profile bundle", () => {
+    const app = new cdk.App();
+    const stage = new AgentOperationsStage(app, "TestStage", {
+      agentOperations,
+      externalId: "test-external-id",
+      stageEnvironments: [devEnvironment],
+      sharedEnvironment,
+    });
+    const template = cdk.assertions.Template.fromStack(stage.userStack);
+    expect(parseBootstrapProfiles(template)).toEqual({
+      dev: {
+        roleArn: "arn:aws:iam::111111111111:role/RemoteAgent",
+        region: "us-east-1",
+      },
+      shared: {
+        roleArn: "arn:aws:iam::999999999999:role/RemoteAgent",
+        region: "us-east-1",
+      },
+    });
   });
 
   it("should throw without an ExternalId", () => {

@@ -2,9 +2,10 @@
  * Agent Operations User Stack - Dedicated Headless Agent User
  *
  * Creates the dedicated remote-agent IAM user in the shared account. Its
- * long-lived access key is set as `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY`
- * in the headless agent's environment (for example a Claude Code remote
- * routine).
+ * long-lived access key and role-profile metadata are stored as one bootstrap
+ * bundle. Remote coding environments receive that bundle as the single
+ * `LISA_AWS_BOOTSTRAP_JSON` secret and materialize short-lived role profiles
+ * with Lisa's vendor-neutral setup script.
  *
  * ## Blast Radius
  *
@@ -35,6 +36,20 @@ export interface AgentOperationsUserStackProps extends cdk.StackProps {
    * ARNs of the per-account remote-agent roles the user may assume.
    */
   readonly roleArns: readonly string[];
+
+  /** ExternalId required by every remote-agent role trust policy. */
+  readonly externalId: string;
+
+  /** Non-secret profile metadata used to generate remote AWS CLI profiles. */
+  readonly profiles: Readonly<
+    Record<
+      string,
+      {
+        readonly roleArn: string;
+        readonly region: string;
+      }
+    >
+  >;
 }
 
 /**
@@ -62,7 +77,7 @@ export class AgentOperationsUserStack extends cdk.Stack {
   ) {
     super(scope, id, props);
 
-    const { agentOperations, roleArns } = props;
+    const { agentOperations, roleArns, externalId, profiles } = props;
 
     this.user = new iam.User(this, "RemoteAgentUser", {
       userName: agentOperations.userName,
@@ -87,11 +102,14 @@ export class AgentOperationsUserStack extends cdk.Stack {
       {
         secretName: agentOperations.secretName,
         description:
-          `Access key for the headless ${agentOperations.userName} user. ` +
-          "Set as AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY in the headless agent env.",
+          `Vendor-neutral bootstrap bundle for the headless ${agentOperations.userName} user. ` +
+          "Set the complete SecretString as LISA_AWS_BOOTSTRAP_JSON in a remote coding environment.",
         secretObjectValue: {
           accessKeyId: cdk.SecretValue.resourceAttribute(accessKey.accessKeyId),
           secretAccessKey: accessKey.secretAccessKey,
+          externalId: cdk.SecretValue.unsafePlainText(externalId),
+          roleName: cdk.SecretValue.unsafePlainText(agentOperations.roleName),
+          profiles: cdk.SecretValue.unsafePlainText(JSON.stringify(profiles)),
         },
       }
     );
