@@ -9,8 +9,9 @@
  * ## Why the Shared Account Also Gets a Role
  *
  * Agents often need to inspect shared-account resources (pipeline state,
- * DNS, CodeConnections), so the role is deployed there too — same name,
- * same policy, so agent profiles vary only by account ID.
+ * DNS, CodeConnections), so an observer-only role is deployed there too. Role
+ * names remain stable across accounts while attached permissions vary by the
+ * environment's configured repair eligibility.
  * @see lib/stacks/agent-operations/agent-operations-stack.ts - Per-account role
  * @see lib/stacks/agent-operations/agent-operations-user-stack.ts - Shared user
  * @see config/agent-operations.ts - Names and enablement
@@ -102,27 +103,47 @@ export class AgentOperationsStage extends cdk.Stage {
       readonly region: string;
     }[] = [...stageEnvironments, sharedEnvironment];
 
-    this.roleStacks = memberEnvironments.map(
-      environment =>
-        new AgentOperationsStack(this, `AgentOperations-${environment.name}`, {
+    this.roleStacks = memberEnvironments.map(environment => {
+      const repairEnabled = agentOperations.repairEnvironmentNames.includes(
+        environment.name
+      );
+
+      return new AgentOperationsStack(
+        this,
+        `AgentOperations-${environment.name}`,
+        {
           agentOperations,
           trustedUserArn,
           externalId,
+          repairEnabled,
           env: { account: environment.accountId, region: environment.region },
           stackName: `${environment.name}-agent-operations`,
-          description: `${agentOperations.roleName} role + ${agentOperations.policyName} in ${environment.name}`,
-        })
-    );
+          description: `${agentOperations.roleName} ${repairEnabled ? "observer + repair" : "observer-only"} role in ${environment.name}`,
+        }
+      );
+    });
 
     const roleArns = memberEnvironments.map(
       environment =>
         `arn:aws:iam::${environment.accountId}:role/${agentOperations.roleName}`
     );
 
+    const profiles = Object.fromEntries(
+      memberEnvironments.map(environment => [
+        environment.name,
+        {
+          roleArn: `arn:aws:iam::${environment.accountId}:role/${agentOperations.roleName}`,
+          region: environment.region,
+        },
+      ])
+    );
+
     // The dedicated user lives in the shared account and may assume every role above.
     this.userStack = new AgentOperationsUserStack(this, "AgentOperationsUser", {
       agentOperations,
       roleArns,
+      externalId,
+      profiles,
       env: {
         account: sharedEnvironment.accountId,
         region: sharedEnvironment.region,

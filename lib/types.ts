@@ -948,7 +948,10 @@ export interface GitHubConfig {
  * assume-only IAM user in the shared account. A headless agent (for example
  * a Claude Code remote routine) authenticates with the user's access key and
  * assumes the per-account role, receiving short-lived STS credentials.
- * A leaked key grants nothing beyond "assume one scoped role".
+ * The Secrets Manager SecretString is a complete vendor-neutral bootstrap
+ * bundle suitable for Claude, Codex, Cursor, Copilot, or another remote Linux
+ * coding environment. A leaked key grants nothing beyond assuming the scoped
+ * roles enumerated by this kit.
  */
 export interface AgentOperationsConfig {
   /**
@@ -968,6 +971,18 @@ export interface AgentOperationsConfig {
    * Name of the managed policy attached to the role in each account.
    */
   readonly policyName: string;
+
+  /**
+   * Name of the repair managed policy attached only in explicitly approved
+   * non-production environments.
+   */
+  readonly repairPolicyName: string;
+
+  /**
+   * Environment names whose standing agent role receives repair permissions.
+   * Production and shared environments should not appear in this list.
+   */
+  readonly repairEnvironmentNames: readonly string[];
 
   /**
    * Name of the dedicated assume-only IAM user in the shared account.

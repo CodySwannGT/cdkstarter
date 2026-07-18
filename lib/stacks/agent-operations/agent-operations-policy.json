@@ -2,23 +2,9 @@
   "Version": "2012-10-17",
   "Statement": [
     {
+      "Sid": "ObserverReadAccess",
       "Effect": "Allow",
       "Action": [
-        "cognito-idp:AdminUpdateUserAttributes",
-        "iam:PassRole",
-        "amplify:StopJob",
-        "amplify:StartJob",
-        "amplify:DeleteBranch",
-        "ssm:StartSession",
-        "rds-db:connect",
-        "cloudformation:UpdateStack",
-        "s3:PutObject",
-        "lambda:UpdateFunctionCode",
-        "lambda:UpdateFunctionConfiguration",
-        "lambda:GetFunction",
-        "lambda:PublishVersion",
-        "lambda:UpdateAlias",
-        "cloudformation:ContinueUpdateRollback",
         "appsync:ListApis",
         "dynamodb:ListTables",
         "dynamodb:DescribeTable",
@@ -40,13 +26,12 @@
         "logs:DescribeQueryDefinitions",
         "logs:StartLiveTail",
         "lambda:ListFunctions",
+        "lambda:GetFunction",
         "lambda:GetFunctionConfiguration",
         "lambda:ListVersionsByFunction",
         "lambda:ListAliases",
         "lambda:GetPolicy",
         "lambda:ListTags",
-        "lambda:InvokeFunction",
-        "lambda:InvokeAsync",
         "cognito-idp:ListUserPools",
         "cognito-idp:DescribeUserPool",
         "cognito-idp:ListUserPoolClients",
@@ -85,7 +70,6 @@
         "appsync:GetType",
         "appsync:GetSchemaCreationStatus",
         "appsync:GetIntrospectionSchema",
-        "appsync:GraphQL",
         "ssm:GetParameters",
         "ssm:GetParameter",
         "ssm:DescribeParameters",
@@ -94,13 +78,16 @@
       "Resource": "*"
     },
     {
-      "Sid": "BedrockInvokeAnthropic",
+      "Sid": "AppSyncQueryAccess",
       "Effect": "Allow",
-      "Action": ["bedrock:InvokeModel", "bedrock:InvokeModelWithResponseStream"],
-      "Resource": [
-        "arn:aws:bedrock:*::foundation-model/anthropic.*",
-        "arn:aws:bedrock:*:*:inference-profile/*anthropic.*"
-      ]
+      "Action": "appsync:GraphQL",
+      "Resource": "arn:aws:appsync:*:*:apis/*/types/Query/fields/*"
+    },
+    {
+      "Sid": "DenyPassRole",
+      "Effect": "Deny",
+      "Action": "iam:PassRole",
+      "Resource": "*"
     }
   ]
 }
