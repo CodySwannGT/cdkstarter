@@ -29,7 +29,11 @@
  * @module lib/stacks/support/pipeline-stack
  */
 import * as cdk from "aws-cdk-lib";
-import { BuildSpec, LinuxBuildImage } from "aws-cdk-lib/aws-codebuild";
+import {
+  BuildEnvironmentVariableType,
+  BuildSpec,
+  LinuxBuildImage,
+} from "aws-cdk-lib/aws-codebuild";
 import {
   PipelineNotificationEvents,
   PipelineType,
@@ -182,6 +186,33 @@ export class PipelineStack extends cdk.Stack {
       synthCodeBuildDefaults: {
         buildEnvironment: {
           buildImage: LinuxBuildImage.STANDARD_7_0,
+          // The ExternalId has to exist at SYNTH time, and synthesis happens
+          // here — inside CodeBuild — not on the workstation that deployed
+          // this stack. Exporting AGENT_OPERATIONS_EXTERNAL_ID locally sets it
+          // for the local `cdk deploy` of this pipeline and for nothing the
+          // pipeline subsequently synthesizes, so without this the guard in
+          // bin/app.ts is false on every self-mutation and the agent-operations
+          // stage is dropped. Silently: a missing optional value is not an
+          // error, which is why the stage can appear to deploy and never do so.
+          //
+          // Keyed off `enabled` alone, deliberately NOT off the local presence
+          // of the value. Requiring it locally would reintroduce the same
+          // bootstrap problem one level up.
+          ...(props.agentOperations?.enabled
+            ? {
+                environmentVariables: {
+                  AGENT_OPERATIONS_EXTERNAL_ID: {
+                    // SECRETS_MANAGER resolves in the build container at build
+                    // time. A plain value, or a SecretValue rendered into the
+                    // template, would place the ExternalId in the CodeBuild
+                    // project definition, readable by anyone with
+                    // codebuild:BatchGetProjects.
+                    type: BuildEnvironmentVariableType.SECRETS_MANAGER,
+                    value: props.agentOperations.externalIdSecretName,
+                  },
+                },
+              }
+            : {}),
         },
         partialBuildSpec: BuildSpec.fromObject({
           phases: {
@@ -295,6 +326,46 @@ export class PipelineStack extends cdk.Stack {
       {
         events: [PipelineNotificationEvents.PIPELINE_EXECUTION_FAILED],
       }
+    );
+    this.grantSynthExternalIdAccess(props.agentOperations);
+  }
+
+  /**
+   * Lets the synth project read the agent-operations ExternalId.
+   *
+   * CodeBuild resolves a SECRETS_MANAGER environment variable using the
+   * project's own role, and CDK grants nothing on its own for a secret
+   * referenced by name alone — the name is a literal here, not a Secret
+   * construct it can trace. Without this the build fails before the first
+   * command runs, with an AccessDenied naming the variable rather than the
+   * role.
+   *
+   * Must run after `buildPipeline()`, since `synthProject` does not exist
+   * until the pipeline is built.
+   * @param agentOperations Agent operations settings, when configured
+   */
+  private grantSynthExternalIdAccess(
+    agentOperations: AgentOperationsConfig | undefined
+  ): void {
+    if (!agentOperations?.enabled) {
+      return;
+    }
+    this.pipeline.synthProject.addToRolePolicy(
+      new iam.PolicyStatement({
+        actions: ["secretsmanager:GetSecretValue"],
+        // Secrets Manager appends a six-character suffix to every ARN, so the
+        // name alone does not identify the resource. Wildcarding exactly that
+        // suffix keeps the grant to this one secret rather than widening to
+        // every secret in the account.
+        resources: [
+          cdk.Stack.of(this).formatArn({
+            service: "secretsmanager",
+            resource: "secret",
+            resourceName: `${agentOperations.externalIdSecretName}-??????`,
+            arnFormat: cdk.ArnFormat.COLON_RESOURCE_NAME,
+          }),
+        ],
+      })
     );
   }
 }
