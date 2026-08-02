@@ -20,6 +20,7 @@ describe("AgentOperationsStage", () => {
     repairEnvironmentNames: ["dev", "staging"],
     userName: "remote-agent",
     secretName: "remote-agent-credentials",
+    profilePrefix: "agent-",
   };
 
   const devEnvironment: StageEnvironment = {
@@ -177,15 +178,50 @@ describe("AgentOperationsStage", () => {
     });
     const template = cdk.assertions.Template.fromStack(stage.userStack);
     expect(parseBootstrapProfiles(template)).toEqual({
-      dev: {
+      "agent-dev": {
         roleArn: "arn:aws:iam::111111111111:role/RemoteAgent",
         region: "us-east-1",
       },
-      shared: {
+      "agent-shared": {
         roleArn: "arn:aws:iam::999999999999:role/RemoteAgent",
         region: "us-east-1",
       },
     });
+  });
+
+  it("should never emit a bare environment name as a profile", () => {
+    // These names are written into a human's ~/.aws/config. A bare `dev` would
+    // sit beside, and could overwrite, their own SSO profile for the same
+    // environment — which would silently hand agent commands a human identity.
+    const app = new cdk.App();
+    const stage = new AgentOperationsStage(app, "TestStage", {
+      agentOperations,
+      externalId: "test-external-id",
+      stageEnvironments: [devEnvironment],
+      sharedEnvironment,
+    });
+    const template = cdk.assertions.Template.fromStack(stage.userStack);
+    const names = Object.keys(parseBootstrapProfiles(template));
+
+    expect(names).not.toContain("dev");
+    expect(names).not.toContain("shared");
+    expect(names.every(name => name.startsWith("agent-"))).toBe(true);
+  });
+
+  it("should honour a configured prefix rather than hardcoding one", () => {
+    const app = new cdk.App();
+    const stage = new AgentOperationsStage(app, "TestStage", {
+      agentOperations: { ...agentOperations, profilePrefix: "bot_" },
+      externalId: "test-external-id",
+      stageEnvironments: [devEnvironment],
+      sharedEnvironment,
+    });
+    const template = cdk.assertions.Template.fromStack(stage.userStack);
+
+    expect(Object.keys(parseBootstrapProfiles(template))).toEqual([
+      "bot_dev",
+      "bot_shared",
+    ]);
   });
 
   it("should throw without an ExternalId", () => {

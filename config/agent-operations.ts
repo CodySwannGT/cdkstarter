@@ -25,6 +25,19 @@
  * `lib/stacks/agent-operations/agent-operations-policy.json`. Direct repair
  * permissions live separately in `agent-operations-repair-policy.json` and
  * are attached only to the environments listed in `repairEnvironmentNames`.
+ *
+ * ## Profile Names
+ *
+ * Generated profiles are prefixed (`agent-dev`, `agent-staging`, …) because
+ * they are written into a human operator's own `~/.aws/config`. A bare `dev`
+ * would sit beside — and could overwrite — that person's SSO profile for the
+ * same environment, which would silently hand every unqualified agent command
+ * a human identity carrying human permissions.
+ *
+ * Keeping the sets disjoint makes the agent's scoped role the default and
+ * escalation an explicit `--profile <human>`. It also makes the boundary
+ * legible in CloudTrail: an `agent-*` session is attributable to the agent
+ * role, not to whoever happened to be logged in.
  * @see lib/stacks/agent-operations/agent-operations-stack.ts - Per-account role
  * @see lib/stacks/agent-operations/agent-operations-user-stack.ts - Shared user
  * @module config/agent-operations
@@ -45,4 +58,5 @@ export const agentOperationsConfig: AgentOperationsConfig = {
   repairEnvironmentNames: ["dev", "staging"],
   userName: "remote-agent",
   secretName: "remote-agent-credentials",
+  profilePrefix: "agent-",
 } as const;

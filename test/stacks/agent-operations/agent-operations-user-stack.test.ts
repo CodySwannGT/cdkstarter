@@ -17,6 +17,7 @@ describe("AgentOperationsUserStack", () => {
     repairEnvironmentNames: ["dev", "staging"],
     userName: "remote-agent",
     secretName: "remote-agent-credentials",
+    profilePrefix: "agent-",
   };
 
   const roleArns = [
