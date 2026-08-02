@@ -994,6 +994,20 @@ export interface AgentOperationsConfig {
    * shared account.
    */
   readonly secretName: string;
+
+  /**
+   * Prefix applied to every generated AWS CLI profile name.
+   *
+   * Profiles are written into the operator's own `~/.aws/config`, where a bare
+   * environment name would sit alongside — and can silently overwrite — a
+   * human's SSO profile of the same name. Prefixing keeps the two sets
+   * disjoint, so escalating from the agent's scoped role to a human identity
+   * stays an explicit `--profile <human>` rather than an accident of ordering.
+   *
+   * It also makes the split legible: anything `agent-*` in an AWS config came
+   * from this bundle and carries only the permissions the role grants.
+   */
+  readonly profilePrefix: string;
 }
 
 /**

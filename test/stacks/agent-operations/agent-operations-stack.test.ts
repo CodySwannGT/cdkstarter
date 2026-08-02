@@ -19,6 +19,7 @@ describe("AgentOperationsStack", () => {
     repairEnvironmentNames: ["dev", "staging"],
     userName: "remote-agent",
     secretName: "remote-agent-credentials",
+    profilePrefix: "agent-",
   };
 
   const createTemplate = (repairEnabled = false): Template => {

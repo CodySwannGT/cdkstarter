@@ -128,9 +128,13 @@ export class AgentOperationsStage extends cdk.Stage {
         `arn:aws:iam::${environment.accountId}:role/${agentOperations.roleName}`
     );
 
+    // Prefixed, not bare. These names land in a human's ~/.aws/config, where a
+    // bare `dev` would sit beside — and could overwrite — their own SSO profile
+    // for the same environment. Keeping the two sets disjoint is what makes
+    // escalating to a human identity an explicit `--profile`, never an accident.
     const profiles = Object.fromEntries(
       memberEnvironments.map(environment => [
-        environment.name,
+        `${agentOperations.profilePrefix}${environment.name}`,
         {
           roleArn: `arn:aws:iam::${environment.accountId}:role/${agentOperations.roleName}`,
           region: environment.region,
