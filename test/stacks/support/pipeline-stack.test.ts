@@ -6,6 +6,7 @@
 import * as cdk from "aws-cdk-lib";
 import { Match, Template } from "aws-cdk-lib/assertions";
 import type {
+  AgentOperationsConfig,
   AlarmThresholds,
   DomainConfig,
   GitHubConfig,
@@ -124,6 +125,9 @@ describe("PipelineStack", () => {
     bootstrapQualifier: "hnb659fds",
     executionPolicyArn: "arn:aws:iam::aws:policy/AdministratorAccess",
     env: { account: "999999999999", region: "us-east-1" },
+    // Typed rather than omitted so `Partial<typeof defaultProps>` carries the
+    // property, letting a case override it without widening createStack.
+    agentOperations: undefined as AgentOperationsConfig | undefined,
   };
 
   const createStack = (props: Partial<typeof defaultProps> = {}): Template => {
@@ -325,6 +329,122 @@ describe("PipelineStack", () => {
 
     it("should export a stable approval step name", () => {
       expect(MANUAL_APPROVAL_STEP_NAME).toBe("approval");
+    });
+  });
+  describe("Agent Operations ExternalId", () => {
+    const agentOperations = {
+      enabled: true,
+      roleName: "RemoteAgent",
+      policyName: "AgentOperationsPolicy",
+      repairPolicyName: "AgentOperationsRepairPolicy",
+      repairEnvironmentNames: ["dev"],
+      userName: "remote-agent",
+      secretName: "remote-agent-credentials",
+      externalIdSecretName: "agent-operations-external-id",
+      profilePrefix: "agent-",
+    };
+
+    /**
+     * Find the synth project's AGENT_OPERATIONS_EXTERNAL_ID variable.
+     * @param template Synthesized pipeline template
+     * @returns The environment variable definition, if wired
+     */
+    const findExternalIdVariable = (
+      template: Template
+    ): Record<string, unknown> | undefined => {
+      const projects = template.findResources("AWS::CodeBuild::Project");
+      for (const project of Object.values(projects)) {
+        const variables =
+          project.Properties?.Environment?.EnvironmentVariables ?? [];
+        const match = variables.find(
+          (variable: { Name?: string }) =>
+            variable.Name === "AGENT_OPERATIONS_EXTERNAL_ID"
+        );
+        if (match) {
+          return match;
+        }
+      }
+      return undefined;
+    };
+
+    // The bug this guards: synthesis happens inside the pipeline's CodeBuild
+    // project, not on the workstation that deploys this stack. With no wiring
+    // here, `bin/app.ts` saw an undefined ExternalId on every self-mutation and
+    // silently dropped the agent-operations stage — no error, nothing deployed.
+    it("wires the ExternalId into the synth environment", () => {
+      const template = createStack({ agentOperations });
+
+      expect(findExternalIdVariable(template)).toEqual({
+        Name: "AGENT_OPERATIONS_EXTERNAL_ID",
+        Type: "SECRETS_MANAGER",
+        Value: "agent-operations-external-id",
+      });
+    });
+
+    // Keyed off `enabled` alone, NOT off a locally-present value. Requiring the
+    // value here would recreate the same bootstrap problem one level up: the
+    // wiring could never be deployed by a pipeline that lacks it.
+    it("wires it without the value being present locally", () => {
+      const previous = process.env.AGENT_OPERATIONS_EXTERNAL_ID;
+      delete process.env.AGENT_OPERATIONS_EXTERNAL_ID;
+      try {
+        expect(
+          findExternalIdVariable(createStack({ agentOperations }))
+        ).toBeDefined();
+      } finally {
+        if (previous !== undefined) {
+          process.env.AGENT_OPERATIONS_EXTERNAL_ID = previous;
+        }
+      }
+    });
+
+    it("resolves at build time rather than embedding the value", () => {
+      const template = createStack({ agentOperations });
+
+      // SECRETS_MANAGER makes CodeBuild fetch it in the container. A PLAINTEXT
+      // variable would place the ExternalId in the project definition, readable
+      // by anyone holding codebuild:BatchGetProjects.
+      expect(findExternalIdVariable(template)?.Type).toBe("SECRETS_MANAGER");
+    });
+
+    it("grants the synth role read access, scoped to that one secret", () => {
+      const template = createStack({ agentOperations });
+
+      // hasResourceProperties throws on mismatch and is an assertion in
+      // substance, but SonarCloud's static analysis does not recognise a bare
+      // call as one and reports the test as assertion-free.
+      expect(() =>
+        template.hasResourceProperties("AWS::IAM::Policy", {
+          PolicyDocument: {
+            Statement: Match.arrayWith([
+              Match.objectLike({
+                Action: "secretsmanager:GetSecretValue",
+                Resource: {
+                  "Fn::Join": Match.arrayWith([
+                    Match.arrayWith([
+                      Match.stringLikeRegexp(
+                        "secret:agent-operations-external-id-\\?{6}$"
+                      ),
+                    ]),
+                  ]),
+                },
+              }),
+            ]),
+          },
+        })
+      ).not.toThrow();
+    });
+
+    it("wires nothing when agent operations are disabled", () => {
+      const template = createStack({
+        agentOperations: { ...agentOperations, enabled: false },
+      });
+
+      expect(findExternalIdVariable(template)).toBeUndefined();
+    });
+
+    it("wires nothing when agent operations are unconfigured", () => {
+      expect(findExternalIdVariable(createStack())).toBeUndefined();
     });
   });
 });

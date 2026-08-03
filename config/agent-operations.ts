@@ -16,10 +16,35 @@
  * ## Enabling
  *
  * 1. Set `enabled: true` below
- * 2. Export `AGENT_OPERATIONS_EXTERNAL_ID` with a random string (for example
- *    `openssl rand -hex 16`) — this ExternalId is required on every
- *    `sts:AssumeRole` call (confused-deputy protection)
- * 3. Deploy; the complete bootstrap bundle lands in Secrets Manager in shared
+ * 2. Create the ExternalId secret in the SHARED account, under the name in
+ *    `externalIdSecretName`. This is required on every `sts:AssumeRole` call
+ *    (confused-deputy protection), and it must exist before deployment because
+ *    deployment reads it:
+ *
+ *      aws secretsmanager create-secret \
+ *        --name agent-operations-external-id \
+ *        --secret-string "$(openssl rand -hex 16)" --profile <shared>
+ *
+ * 3. Deploy; the complete bootstrap bundle lands in Secrets Manager in the
+ *    shared account, under the name in `secretName`. Copy it from there into
+ *    whichever store the project actually reads — see lisa-setup-remote-aws.
+ *
+ * ### Where the ExternalId has to be readable
+ *
+ * In DIRECT mode, `cdk synth` runs on your workstation, so exporting
+ * `AGENT_OPERATIONS_EXTERNAL_ID` is enough.
+ *
+ * In PIPELINE mode it is not, and exporting it locally is actively misleading:
+ * synthesis happens inside the pipeline's CodeBuild project, so a local export
+ * governs only your own deploy of the pipeline and nothing the pipeline then
+ * synthesizes. The pipeline reads the secret named above directly at build
+ * time, which is why the secret — not the environment variable — is the real
+ * prerequisite.
+ *
+ * Pipeline mode also takes TWO runs: the first self-mutates to add the
+ * variable to the synth project, the second synthesizes with the ExternalId in
+ * scope and deploys the agent-operations stacks. Seeing no agent-operations
+ * resources after the first run is expected.
  *
  * Standing observer permissions live in
  * `lib/stacks/agent-operations/agent-operations-policy.json`. Direct repair
@@ -58,5 +83,6 @@ export const agentOperationsConfig: AgentOperationsConfig = {
   repairEnvironmentNames: ["dev", "staging"],
   userName: "remote-agent",
   secretName: "remote-agent-credentials",
+  externalIdSecretName: "agent-operations-external-id",
   profilePrefix: "agent-",
 } as const;

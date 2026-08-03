@@ -29,7 +29,11 @@
  * @module lib/stacks/support/pipeline-stack
  */
 import * as cdk from "aws-cdk-lib";
-import { BuildSpec, LinuxBuildImage } from "aws-cdk-lib/aws-codebuild";
+import {
+  BuildEnvironmentVariableType,
+  BuildSpec,
+  LinuxBuildImage,
+} from "aws-cdk-lib/aws-codebuild";
 import {
   PipelineNotificationEvents,
   PipelineType,
@@ -182,6 +186,33 @@ export class PipelineStack extends cdk.Stack {
       synthCodeBuildDefaults: {
         buildEnvironment: {
           buildImage: LinuxBuildImage.STANDARD_7_0,
+          // The ExternalId has to exist at SYNTH time, and synthesis happens
+          // here — inside CodeBuild — not on the workstation that deployed
+          // this stack. Exporting AGENT_OPERATIONS_EXTERNAL_ID locally sets it
+          // for the local `cdk deploy` of this pipeline and for nothing the
+          // pipeline subsequently synthesizes, so without this the guard in
+          // bin/app.ts is false on every self-mutation and the agent-operations
+          // stage is dropped. Silently: a missing optional value is not an
+          // error, which is why the stage can appear to deploy and never do so.
+          //
+          // Keyed off `enabled` alone, deliberately NOT off the local presence
+          // of the value. Requiring it locally would reintroduce the same
+          // bootstrap problem one level up.
+          ...(props.agentOperations?.enabled
+            ? {
+                environmentVariables: {
+                  AGENT_OPERATIONS_EXTERNAL_ID: {
+                    // SECRETS_MANAGER resolves in the build container at build
+                    // time. A plain value, or a SecretValue rendered into the
+                    // template, would place the ExternalId in the CodeBuild
+                    // project definition, readable by anyone with
+                    // codebuild:BatchGetProjects.
+                    type: BuildEnvironmentVariableType.SECRETS_MANAGER,
+                    value: props.agentOperations.externalIdSecretName,
+                  },
+                },
+              }
+            : {}),
         },
         partialBuildSpec: BuildSpec.fromObject({
           phases: {

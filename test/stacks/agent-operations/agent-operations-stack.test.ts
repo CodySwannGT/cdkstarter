@@ -19,6 +19,7 @@ describe("AgentOperationsStack", () => {
     repairEnvironmentNames: ["dev", "staging"],
     userName: "remote-agent",
     secretName: "remote-agent-credentials",
+    externalIdSecretName: "agent-operations-external-id",
     profilePrefix: "agent-",
   };
 

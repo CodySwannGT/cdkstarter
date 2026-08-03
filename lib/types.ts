@@ -996,6 +996,22 @@ export interface AgentOperationsConfig {
   readonly secretName: string;
 
   /**
+   * Secrets Manager secret name, in the shared account, holding the
+   * ExternalId.
+   *
+   * This is an *input* to deployment, unlike `secretName`, which is an output
+   * of it. The distinction matters because of where synthesis happens: in
+   * pipeline mode `cdk synth` runs inside the pipeline's CodeBuild project,
+   * not on an operator's workstation, so an ExternalId exported into a local
+   * shell is invisible to the synthesis that actually produces the template.
+   *
+   * Naming the secret here lets the pipeline read it directly at build time,
+   * which is the only point where both the value and the synthesis exist
+   * together.
+   */
+  readonly externalIdSecretName: string;
+
+  /**
    * Prefix applied to every generated AWS CLI profile name.
    *
    * Profiles are written into the operator's own `~/.aws/config`, where a bare
