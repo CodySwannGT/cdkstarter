@@ -25,7 +25,9 @@
  *        --name agent-operations-external-id \
  *        --secret-string "$(openssl rand -hex 16)" --profile <shared>
  *
- * 3. Deploy; the complete bootstrap bundle lands in Secrets Manager in shared
+ * 3. Deploy; the complete bootstrap bundle lands in Secrets Manager in the
+ *    shared account, under the name in `secretName`. Copy it from there into
+ *    whichever store the project actually reads — see lisa-setup-remote-aws.
  *
  * ### Where the ExternalId has to be readable
  *

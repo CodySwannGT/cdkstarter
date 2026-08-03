@@ -327,45 +327,5 @@ export class PipelineStack extends cdk.Stack {
         events: [PipelineNotificationEvents.PIPELINE_EXECUTION_FAILED],
       }
     );
-    this.grantSynthExternalIdAccess(props.agentOperations);
-  }
-
-  /**
-   * Lets the synth project read the agent-operations ExternalId.
-   *
-   * CodeBuild resolves a SECRETS_MANAGER environment variable using the
-   * project's own role, and CDK grants nothing on its own for a secret
-   * referenced by name alone — the name is a literal here, not a Secret
-   * construct it can trace. Without this the build fails before the first
-   * command runs, with an AccessDenied naming the variable rather than the
-   * role.
-   *
-   * Must run after `buildPipeline()`, since `synthProject` does not exist
-   * until the pipeline is built.
-   * @param agentOperations Agent operations settings, when configured
-   */
-  private grantSynthExternalIdAccess(
-    agentOperations: AgentOperationsConfig | undefined
-  ): void {
-    if (!agentOperations?.enabled) {
-      return;
-    }
-    this.pipeline.synthProject.addToRolePolicy(
-      new iam.PolicyStatement({
-        actions: ["secretsmanager:GetSecretValue"],
-        // Secrets Manager appends a six-character suffix to every ARN, so the
-        // name alone does not identify the resource. Wildcarding exactly that
-        // suffix keeps the grant to this one secret rather than widening to
-        // every secret in the account.
-        resources: [
-          cdk.Stack.of(this).formatArn({
-            service: "secretsmanager",
-            resource: "secret",
-            resourceName: `${agentOperations.externalIdSecretName}-??????`,
-            arnFormat: cdk.ArnFormat.COLON_RESOURCE_NAME,
-          }),
-        ],
-      })
-    );
   }
 }
