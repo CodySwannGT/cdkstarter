@@ -410,24 +410,29 @@ describe("PipelineStack", () => {
     it("grants the synth role read access, scoped to that one secret", () => {
       const template = createStack({ agentOperations });
 
-      template.hasResourceProperties("AWS::IAM::Policy", {
-        PolicyDocument: {
-          Statement: Match.arrayWith([
-            Match.objectLike({
-              Action: "secretsmanager:GetSecretValue",
-              Resource: {
-                "Fn::Join": Match.arrayWith([
-                  Match.arrayWith([
-                    Match.stringLikeRegexp(
-                      "secret:agent-operations-external-id-\\?{6}$"
-                    ),
+      // hasResourceProperties throws on mismatch and is an assertion in
+      // substance, but SonarCloud's static analysis does not recognise a bare
+      // call as one and reports the test as assertion-free.
+      expect(() =>
+        template.hasResourceProperties("AWS::IAM::Policy", {
+          PolicyDocument: {
+            Statement: Match.arrayWith([
+              Match.objectLike({
+                Action: "secretsmanager:GetSecretValue",
+                Resource: {
+                  "Fn::Join": Match.arrayWith([
+                    Match.arrayWith([
+                      Match.stringLikeRegexp(
+                        "secret:agent-operations-external-id-\\?{6}$"
+                      ),
+                    ]),
                   ]),
-                ]),
-              },
-            }),
-          ]),
-        },
-      });
+                },
+              }),
+            ]),
+          },
+        })
+      ).not.toThrow();
     });
 
     it("wires nothing when agent operations are disabled", () => {
