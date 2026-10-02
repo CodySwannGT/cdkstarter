@@ -1,0 +1,84 @@
+{
+  "task_ids": ["T2", "T3"],
+  "mistakes": [
+    {
+      "task": "T3",
+      "description": "First leaf configuration retained a global forced major, then nested minimatch selectors produced a later npm graph validation conflict. Both attempts were rejected as final proof.",
+      "correction": "Replaced the inherited global override with version-qualified brace-expansion leaf selectors and checked npm ls again after both raw audits."
+    },
+    {
+      "task": "T3",
+      "description": "Initial exception expiry used November 1 instead of the accepted October 16 timestamp.",
+      "correction": "Rechecked the accepted body and corrected all three reasons, security documentation and metadata to 2026-10-16T23:59:59Z. No executable expectations changed."
+    }
+  ],
+  "learnings": [
+    {
+      "task": "T2",
+      "description": "The same security assertions fail before the update while actual pipeline/frontend-only CLI modes already pass. Direct no-pipeline failure remains #30."
+    },
+    {
+      "task": "T3",
+      "description": "Available CDK 2.272 fixes rgw5 but still bundles 5.0.9; successful external pins cannot prove the bundle patched."
+    },
+    {
+      "task": "T3",
+      "description": "npm graph validation must run after audit as well as install; installed versions alone missed the nested override conflict."
+    }
+  ],
+  "documentation": [
+    {
+      "task": "T3",
+      "path": "docs/security/cdk-bundled-advisories.md",
+      "description": "Exact advisory/caller/asset assessment, expiry/owner/tracking and raw-versus-filtered audit truth."
+    }
+  ],
+  "no_project_learning_or_durable_skill_update": "Parent learner owns canonical promotion after independent review.",
+  "learner_disposition": {
+    "contract": "/Users/cody/workspace/lisa/plugins/src/base/agents/learner.md",
+    "captured_completed_tasks": ["T1", "T2", "T3", "T4"],
+    "telemetry": "Completed task metadata uses kind/note/evidence; no recurring class invented",
+    "canonical_export_probe": "mise exec node@22.21.1 -- node -e import(\"@codyswann/lisa/learnings\")",
+    "terminal_disposition": "capture-unavailable-nonblocking",
+    "error_code": "ERR_PACKAGE_PATH_NOT_EXPORTED",
+    "reason": "Retained installed Lisa 2.217.1 does not export the executable learnings contract; no hand-written or stub ledger permitted. Tooling adoption remains #29.",
+    "ledger_written": false,
+    "codex_memory_written": false,
+    "upstream_or_tracker_writes": false,
+    "recurrence_claim": "none",
+    "no_new_source_policy": true
+  },
+  "tagged_task_telemetry": {
+    "T1": [],
+    "T2": [
+      {
+        "kind": "learning",
+        "note": "The same security assertions fail before the update while actual pipeline/frontend-only CLI modes already pass. Direct no-pipeline failure remains #30.",
+        "evidence": "/tmp/cdkstarter-48-evidence/implementation-handoff.json"
+      }
+    ],
+    "T3": [
+      {
+        "kind": "learning",
+        "note": "Available CDK 2.272 fixes rgw5 but still bundles 5.0.9; successful external pins cannot prove the bundle patched.",
+        "evidence": "/tmp/cdkstarter-48-evidence/implementation-handoff.json"
+      },
+      {
+        "kind": "learning",
+        "note": "npm graph validation must run after audit as well as install; installed versions alone missed the nested override conflict.",
+        "evidence": "/tmp/cdkstarter-48-evidence/implementation-handoff.json"
+      },
+      {
+        "kind": "mistake",
+        "note": "Initial brace override configurations produced a later npm graph conflict; version-qualified leaf pins fixed it.",
+        "evidence": "/tmp/cdkstarter-48-evidence/updated-package-graph.log"
+      },
+      {
+        "kind": "mistake",
+        "note": "Initial exception expiry differed from the accepted body; corrected all entries to 2026-10-16T23:59:59Z.",
+        "evidence": "/tmp/cdkstarter-48-evidence/expiry-scoped-format.log"
+      }
+    ],
+    "T4": []
+  }
+}

@@ -31,9 +31,9 @@
     "node": "22.21.1"
   },
   "dependencies": {
-    "@aws-cdk/aws-amplify-alpha": "^2.263.0-alpha.0",
+    "@aws-cdk/aws-amplify-alpha": "2.272.0-alpha.0",
     "aws-cdk-github-oidc": "^2.4.1",
-    "aws-cdk-lib": "2.263.0",
+    "aws-cdk-lib": "2.272.0",
     "constructs": "^10.4.5",
     "source-map-support": "^0.5.21",
     "zod": "^4.3.6"
@@ -108,7 +108,10 @@
     "form-data": ">=4.0.6",
     "aws-cdk-lib": "$aws-cdk-lib",
     "multer": ">=2.2.0",
-    "undici": ">=6.27.0"
+    "undici": ">=6.27.0",
+    "brace-expansion@^1.0.0": "1.1.21",
+    "brace-expansion@^2.0.0": "2.1.7",
+    "brace-expansion@^5.0.0": "5.0.12"
   },
   "overrides": {
     "@isaacs/brace-expansion": "^5.0.1",
@@ -123,9 +126,11 @@
     "multer": ">=2.2.0",
     "undici": ">=6.27.0",
     "postcss": "^8.5.25",
-    "brace-expansion": ">=5.0.9",
     "fast-uri": ">=4.1.1",
-    "js-yaml": ">=4.3.0"
+    "js-yaml": ">=4.3.0",
+    "brace-expansion@^1.0.0": "1.1.21",
+    "brace-expansion@^2.0.0": "2.1.7",
+    "brace-expansion@^5.0.0": "5.0.12"
   },
   "bin": {
     "infrastructure": "bin/infrastructure.js"

@@ -21,6 +21,8 @@ brew install claude-code
 
 ## Step 3: Verify the Infrastructure
 
+See the [CDK bundled advisory disposition](docs/security/cdk-bundled-advisories.md) for the pinned dependency update, offline CLI regression commands, remaining exact exceptions and their expiry.
+
 > Ask Claude: "How do I synthesize the CDK stacks and verify the templates are valid?"
 
 ## Step 4: Work on a Feature
