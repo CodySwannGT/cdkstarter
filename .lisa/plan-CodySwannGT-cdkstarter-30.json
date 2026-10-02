@@ -1,0 +1,678 @@
+{
+  "schema_version": 1,
+  "name": "Unify starter direct deployment under EnvironmentStage",
+  "flow": "Implement",
+  "work_type": "Build",
+  "work_item_ref": "CodySwannGT/cdkstarter#30",
+  "tracker_provider": "github",
+  "worktree": "/tmp/cdkstarter-30-implementation",
+  "work_item_context": "/tmp/cdkstarter-30-implementation/.lisa/work-item-context.md",
+  "context_sha256": "e0799beaab0555f541a658e4b1afe355dbb894eaeb906d24f9715b42f88899fe",
+  "roster": "/tmp/cdkstarter-30-implementation/.lisa/roster/CodySwannGT-cdkstarter-30.md",
+  "branch": "codex/30-unify-direct-stage",
+  "target_environment": "Assumption: production \u2014 remote default branch main",
+  "base_branch": "main",
+  "target_branch": "main",
+  "base_sha": "1111fbe6d1f0d56de3c0adb19b9aceee34271a4d",
+  "branch_plan_reconciliation": "match",
+  "binding_cli": "/Users/cody/workspace/lisa/scripts/lisa-work-item.mjs",
+  "binding_verified": true,
+  "preflight_status": "pass",
+  "required_access": [
+    {
+      "tool": "GitHub tracker and origin \u2014 CodySwannGT/cdkstarter",
+      "probe": "gh repo view CodySwannGT/cdkstarter --json defaultBranchRef,viewerPermission; gh issue view 30 --repo CodySwannGT/cdkstarter; git ls-remote --heads origin main",
+      "status": "pass",
+      "evidence": "ADMIN; default main; issue open/in-progress assignedCodySwannGT; remote main1111fbe6d1f0d56de3c0adb19b9aceee34271a4d."
+    },
+    {
+      "tool": "npm registry locked runtime/synth/test packages",
+      "probe": "GET registry.npmjs.org/aws-cdk-lib/2.263.0; aws-cdk/2.1132.0; tsx/4.22.4; vitest/4.1.8",
+      "status": "pass",
+      "evidence": "All package-lock target versions accessible and dist.tarball present; dependency upgrade is separate scope."
+    },
+    {
+      "tool": "Official AWS CDK Stage and synth documentation",
+      "probe": "GET https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.Stage.html; GET https://docs.aws.amazon.com/cdk/v2/guide/ref-cli-cmd-synth.html",
+      "status": "pass",
+      "evidence": "Both HTTP200; no live AWS service calls required."
+    },
+    {
+      "tool": "GitHub Actions and protected-check surfaces",
+      "probe": "gh api repos/CodySwannGT/cdkstarter/actions/workflows; gh api repos/CodySwannGT/cdkstarter/actions/runs; gh api repos/CodySwannGT/cdkstarter/rulesets/18805277; gh api repos/CodySwannGT/cdkstarter/rulesets/18805429",
+      "status": "pass",
+      "evidence": "Readable CI/deploy surfaces; actual protected check set is7 quality contexts plusCodeRabbit/GitGuardian (9 total), not13. Existing Claude workflow failures are baseline defects, not proof of missing access or a passing ship."
+    }
+  ],
+  "required_remote_checks": [
+    "\ud83d\udd0d Quality Checks / \ud83e\uddf9 Lint",
+    "\ud83d\udd0d Quality Checks / \ud83d\udd0d Type Check",
+    "\ud83d\udd0d Quality Checks / \ud83c\udfd7\ufe0f Build",
+    "\ud83d\udd0d Quality Checks / \ud83d\udcd0 Check Formatting",
+    "\ud83d\udd0d Quality Checks / \ud83d\udd12 Security Scan",
+    "\ud83d\udd0d Quality Checks / \ud83e\uddea Run Unit Tests",
+    "\ud83d\udd0d Quality Checks / \ud83e\uddea Run Integration Tests",
+    "CodeRabbit",
+    "GitGuardian Security Checks"
+  ],
+  "local_tool_versions": {
+    "node": "22.22.0",
+    "npm": "10.9.4"
+  },
+  "research_status": "complete \u2014 explorer supplied exact source ownership and native CLI contract",
+  "research": [
+    "Full canonical issue context, all primary/parent/source comments, graph and Validation Journey.",
+    "bin/app.ts direct branch is source owner: replace NetworkStage/AppStage/ObservabilityStage composition with EnvironmentStage; preserve CicdStage/createSharedStages.",
+    "lib/stages/environment-stage.ts pipeline-exclusive description must be corrected; README or focused migration documentation must describe direct usage and identity differences.",
+    "Pipeline EnvironmentStage IDs remain exactly Env-${environment.name}; explicit CFN stackName values such asdev-vpc/security-groups/aurora remain stable.",
+    "Actual entrypoint fixture must require config/environments.ts, domains.ts, github.ts, agent-operations.ts, then bin/app.ts last in a fresh process. TS readonly arrays/objects are not frozen, so fixture-local runtime mutation can supply fake configuration without changing production config.",
+    "No generated Lisa source changes are needed for composition itself. New integration suite path is test/integration/starter-composition.integration.test.ts; optional helper fixture path test/fixtures/starter-entrypoint.cjs.",
+    "Current npm test:integration selects wrong tests/integration path and passWithNoTests; default unit excludes integration. Exact new suite must run explicitly locally and be proven executed in CI before closure. Broader runner/profile repair belongs#38/#29; coordinate required suite lane rather than accepting skipped CI.",
+    "cdk.json app is npx tsx bin/app.ts; installed CDK CLI isnode node_modules/aws-cdk/bin/cdk.",
+    "Quality prerequisites npm run typecheck, lint, lint:slow, format:check, test:cov and explicit integration suite. npm CI install must useCI=1 to avoid legacy postinstall Lisa template apply.",
+    "CDK stage artifact paths, generated export/import expressions and CDK metadata may change with unified stage; explicit physical stack/resource names, explicit exportName strings, pipeline wiring and IAM/default-off behaviors require comparison and documented exceptions.",
+    "Fresh-worktree checkout hook alias side effects preserved under/tmp/cdkstarter-30-worktree-hook-output and restored to exact baseline only in this worktree.",
+    "No live AWS credentials, deployments, existing-consumer updates, scheduler enablement, dependency refresh, or tracked identity configuration edits are part of this leaf.",
+    "Actual CI route verified: shared quality jobtest_integration invokesnpm run test:integration; current Lisa CDK adoption table recognizes vitest run test/integration and migrates it to owned public/:lisa composition."
+  ],
+  "fixture_contract": {
+    "path": "test/fixtures/starter-entrypoint.cjs",
+    "entrypoint": "require(../../bin/app.ts) LAST",
+    "shared": "Only stageEnvironments[0]; devaccount111111111111, regionus-east-1; domains empty; agentOperationsConfig.enabledfalse; supportaccount999999999999 withdns/codeConnections/flowLogsfalse.",
+    "direct": "support purpose.pipelinefalse; github.codeConnectionArnPLACEHOLDER; retain default full-stack flags andCicd.",
+    "pipeline": "support purpose.pipelinetrue; fixtureCodeConnectionArn arn:aws:codestar-connections:us-east-1:999999999999:connection/00000000-0000-0000-0000-000000000000.",
+    "frontend-only": "shared accountPLACEHOLDER; network/observability/aurora/valkey/cognito/ssmRelay/githubOidcDeploy/migrationRunner/xray/waf/shieldAdvanced/backupfalse; amplifyHostingtrue withownerexample,repositoryfrontend,branchdev,oauthTokenSecretNamefixture/amplify/token.",
+    "lookups": "Merge existingCDK_CONTEXT_JSON with availability-zones:account=111111111111:region=us-east-1 and same999999999999, bothARRAY[us-east-1a,us-east-1b]; retain --no-lookups; any genuine missing context fails.",
+    "credentials": "StripAWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_SESSION_TOKEN,AWS_PROFILE,AWS_DEFAULT_PROFILE; setAWS_EC2_METADATA_DISABLED=true."
+  },
+  "synth_commands": {
+    "direct": "node node_modules/aws-cdk/bin/cdk synth --no-lookups --app 'node --import tsx test/fixtures/starter-entrypoint.cjs direct' --output /tmp/starter-composition-direct",
+    "pipeline": "node node_modules/aws-cdk/bin/cdk synth --no-lookups --app 'node --import tsx test/fixtures/starter-entrypoint.cjs pipeline' --output /tmp/starter-composition-pipeline",
+    "frontend-only": "node node_modules/aws-cdk/bin/cdk synth --no-lookups --app 'node --import tsx test/fixtures/starter-entrypoint.cjs frontend-only' --output /tmp/starter-composition-frontend-only"
+  },
+  "proof_command": "Run all three exact native CDK CLI synth commands below in credential-free fresh subprocesses against the reviewed branch fixture/actual entrypoint; recursively enumerate nested Stage assemblies and *.template.json; require nonzero templates/resources for each mode and no manifest.missing; compare direct and pipeline inventory/resource identities against baseline where synthesis exists. Commands: node node_modules/aws-cdk/bin/cdk synth --no-lookups --app 'node --import tsx test/fixtures/starter-entrypoint.cjs direct' --output /tmp/starter-composition-direct; node node_modules/aws-cdk/bin/cdk synth --no-lookups --app 'node --import tsx test/fixtures/starter-entrypoint.cjs pipeline' --output /tmp/starter-composition-pipeline; node node_modules/aws-cdk/bin/cdk synth --no-lookups --app 'node --import tsx test/fixtures/starter-entrypoint.cjs frontend-only' --output /tmp/starter-composition-frontend-only",
+  "effective_completion_condition": "All three credential-free actual-entrypoint CDK CLI synthesizers conclude exit0 with nonempty nested CloudFormation templates/resources and no missing context. Direct network/app stacks share one Env-dev Stage; pipeline retains Env-dev identity/wiring and explicit physical stack/resource names; frontend-only still emits intended hosting templates. Every generated cross-stack export/import/CDK metadata difference is explained, IAM/default-off feature behavior is unchanged, and the new focused regression is observed red before source change and green afterward, including actual CI execution on the shipped PR head. Required local quality and9 protected remote checks pass; PR into derived main is merged; source evidence/backlinks/usage are visible; then issue is native terminal with configured status:done, rollup runs, binding/context cleared. No deployed AWS/consumer claim is made.",
+  "comment_inventory": [
+    {
+      "id": 5960671421,
+      "author": "CodySwannGT",
+      "author_id": 292923,
+      "date": "2026-10-02T20:11:17Z",
+      "flags": [
+        "decision"
+      ],
+      "gist": "Accepted single-repository leaf with native parent and named evidence requirements; no secrets."
+    },
+    {
+      "id": 5961005829,
+      "author": "CodySwannGT",
+      "author_id": 292923,
+      "date": "2026-10-02T20:33:36Z",
+      "flags": [
+        "decision"
+      ],
+      "gist": "Managed implementation claim; preserve binding until terminal completion; no secrets."
+    }
+  ],
+  "comment_obligations": [
+    "5960671421: accepted single-repo child scope, full scenarios, native parent26 and three named evidence artifacts remain mandatory.",
+    "5961005829: preserve attributable claimed binding until genuine terminal closeout."
+  ],
+  "ci_regression_execution_gap": {
+    "observed": "test:integration uses tests/integration --passWithNoTests; suite lives test/integration and unit excludes it",
+    "required_resolution": "Authorized minimal source-leaf change: package.json scripts.test:integration = vitest run test/integration; npm run test:integration must execute new suite locally; fetch exact PR-head required integration job logs and require named suite/test counts, not merely green status.",
+    "implementation_access_gate": "pass \u2014 existing CI surfaces accessible, this is runnable-lane correction not missing system access"
+  },
+  "tasks": [
+    {
+      "id": "T1",
+      "title": "Branch derivation, binding and target-specific preflight",
+      "owner": "planning-specialist",
+      "metadata_owner": "planning-specialist",
+      "status": "completed",
+      "blockedBy": [],
+      "description": "Read /tmp/cdkstarter-30-implementation/.lisa/work-item-context.md in full before acting. Comment inventory: [{\"id\": 5960671421, \"author\": \"CodySwannGT\", \"author_id\": 292923, \"date\": \"2026-10-02T20:11:17Z\", \"flags\": [\"decision\"], \"gist\": \"Accepted single-repository leaf with native parent and named evidence requirements; no secrets.\"}, {\"id\": 5961005829, \"author\": \"CodySwannGT\", \"author_id\": 292923, \"date\": \"2026-10-02T20:33:36Z\", \"flags\": [\"decision\"], \"gist\": \"Managed implementation claim; preserve binding until terminal completion; no secrets.\"}]. Preserve others\u2019 changes. Every primary comment obligation is explicit in acceptance criteria and evidence.",
+      "metadata": {
+        "plan": "Unify starter direct deployment under EnvironmentStage",
+        "type": "task",
+        "acceptance_criteria": [
+          "Production/default assumption maps to remote main; rendered Branch Plan agrees.",
+          "codex/30-unify-direct-stage is conflict-free at current origin/main; upstream absolute linker attaches correct host-local binding.",
+          "GitHub/npm/source docs/CI required access proven; original checkout preserved."
+        ],
+        "relevant_documentation": "Full canonical issue context, all primary/parent/source comments, graph and Validation Journey.\nbin/app.ts direct branch is source owner: replace NetworkStage/AppStage/ObservabilityStage composition with EnvironmentStage; preserve CicdStage/createSharedStages.\nlib/stages/environment-stage.ts pipeline-exclusive description must be corrected; README or focused migration documentation must describe direct usage and identity differences.\nPipeline EnvironmentStage IDs remain exactly Env-${environment.name}; explicit CFN stackName values such asdev-vpc/security-groups/aurora remain stable.\nActual entrypoint fixture must require config/environments.ts, domains.ts, github.ts, agent-operations.ts, then bin/app.ts last in a fresh process. TS readonly arrays/objects are not frozen, so fixture-local runtime mutation can supply fake configuration without changing production config.\nNo generated Lisa source changes are needed for composition itself. New integration suite path is test/integration/starter-composition.integration.test.ts; optional helper fixture path test/fixtures/starter-entrypoint.cjs.\nCurrent npm test:integration selects wrong tests/integration path and passWithNoTests; default unit excludes integration. Exact new suite must run explicitly locally and be proven executed in CI before closure. Broader runner/profile repair belongs#38/#29; coordinate required suite lane rather than accepting skipped CI.\ncdk.json app is npx tsx bin/app.ts; installed CDK CLI isnode node_modules/aws-cdk/bin/cdk.\nQuality prerequisites npm run typecheck, lint, lint:slow, format:check, test:cov and explicit integration suite. npm CI install must useCI=1 to avoid legacy postinstall Lisa template apply.\nCDK stage artifact paths, generated export/import expressions and CDK metadata may change with unified stage; explicit physical stack/resource names, explicit exportName strings, pipeline wiring and IAM/default-off behaviors require comparison and documented exceptions.\nFresh-worktree checkout hook alias side effects preserved under/tmp/cdkstarter-30-worktree-hook-output and restored to exact baseline only in this worktree.\nNo live AWS credentials, deployments, existing-consumer updates, scheduler enablement, dependency refresh, or tracked identity configuration edits are part of this leaf.\nActual CI route verified: shared quality jobtest_integration invokesnpm run test:integration; current Lisa CDK adoption table recognizes vitest run test/integration and migrates it to owned public/:lisa composition.",
+        "work_item_context": "/tmp/cdkstarter-30-implementation/.lisa/work-item-context.md",
+        "comment_inventory": [
+          {
+            "id": 5960671421,
+            "author": "CodySwannGT",
+            "author_id": 292923,
+            "date": "2026-10-02T20:11:17Z",
+            "flags": [
+              "decision"
+            ],
+            "gist": "Accepted single-repository leaf with native parent and named evidence requirements; no secrets."
+          },
+          {
+            "id": 5961005829,
+            "author": "CodySwannGT",
+            "author_id": 292923,
+            "date": "2026-10-02T20:33:36Z",
+            "flags": [
+              "decision"
+            ],
+            "gist": "Managed implementation claim; preserve binding until terminal completion; no secrets."
+          }
+        ],
+        "testing_requirements": [
+          "Runtime local config overrides only ignored identity placeholders."
+        ],
+        "skills": [
+          "lisa-implement",
+          "lisa-track"
+        ],
+        "learnings": [],
+        "required_access": [
+          {
+            "tool": "GitHub tracker and origin \u2014 CodySwannGT/cdkstarter",
+            "probe": "gh repo view CodySwannGT/cdkstarter --json defaultBranchRef,viewerPermission; gh issue view 30 --repo CodySwannGT/cdkstarter; git ls-remote --heads origin main",
+            "status": "pass",
+            "evidence": "ADMIN; default main; issue open/in-progress assignedCodySwannGT; remote main1111fbe6d1f0d56de3c0adb19b9aceee34271a4d."
+          },
+          {
+            "tool": "npm registry locked runtime/synth/test packages",
+            "probe": "GET registry.npmjs.org/aws-cdk-lib/2.263.0; aws-cdk/2.1132.0; tsx/4.22.4; vitest/4.1.8",
+            "status": "pass",
+            "evidence": "All package-lock target versions accessible and dist.tarball present; dependency upgrade is separate scope."
+          },
+          {
+            "tool": "Official AWS CDK Stage and synth documentation",
+            "probe": "GET https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.Stage.html; GET https://docs.aws.amazon.com/cdk/v2/guide/ref-cli-cmd-synth.html",
+            "status": "pass",
+            "evidence": "Both HTTP200; no live AWS service calls required."
+          },
+          {
+            "tool": "GitHub Actions and protected-check surfaces",
+            "probe": "gh api repos/CodySwannGT/cdkstarter/actions/workflows; gh api repos/CodySwannGT/cdkstarter/actions/runs; gh api repos/CodySwannGT/cdkstarter/rulesets/18805277; gh api repos/CodySwannGT/cdkstarter/rulesets/18805429",
+            "status": "pass",
+            "evidence": "Readable CI/deploy surfaces; actual protected check set is7 quality contexts plusCodeRabbit/GitGuardian (9 total), not13. Existing Claude workflow failures are baseline defects, not proof of missing access or a passing ship."
+          }
+        ],
+        "verification": {
+          "type": "cli-test",
+          "command": "git rev-parse HEAD origin/main; node /Users/cody/workspace/lisa/scripts/lisa-work-item.mjs current; gh issue view 30 --repo CodySwannGT/cdkstarter --json state,assignees,labels",
+          "expected": "Equal1111fbe main/head SHA; attached github/ref30 branch; live open claimed issue."
+        },
+        "owner": "planning-specialist"
+      }
+    },
+    {
+      "id": "T2",
+      "title": "Add actual-entrypoint integration fixture and capture RED",
+      "owner": "implementation-worker",
+      "metadata_owner": "implementation-worker",
+      "status": "completed",
+      "blockedBy": [
+        "T1"
+      ],
+      "description": "Read /tmp/cdkstarter-30-implementation/.lisa/work-item-context.md in full before acting. Comment inventory: [{\"id\": 5960671421, \"author\": \"CodySwannGT\", \"author_id\": 292923, \"date\": \"2026-10-02T20:11:17Z\", \"flags\": [\"decision\"], \"gist\": \"Accepted single-repository leaf with native parent and named evidence requirements; no secrets.\"}, {\"id\": 5961005829, \"author\": \"CodySwannGT\", \"author_id\": 292923, \"date\": \"2026-10-02T20:33:36Z\", \"flags\": [\"decision\"], \"gist\": \"Managed implementation claim; preserve binding until terminal completion; no secrets.\"}]. Preserve others\u2019 changes. Every primary comment obligation is explicit in acceptance criteria and evidence.",
+      "metadata": {
+        "plan": "Unify starter direct deployment under EnvironmentStage",
+        "type": "task",
+        "acceptance_criteria": [
+          "Create mandated focused suite and fresh-process actual entrypoint fixture with fake accounts and no lookup/service calls.",
+          "Direct baseline reproduces CannotDependency; pipeline/frontend-only controls produce nonzero nested templates.",
+          "Fixture supplies arrays for AZ context, disables shared DNS/agent operations and strips all credential/profile inputs."
+        ],
+        "relevant_documentation": "Full canonical issue context, all primary/parent/source comments, graph and Validation Journey.\nbin/app.ts direct branch is source owner: replace NetworkStage/AppStage/ObservabilityStage composition with EnvironmentStage; preserve CicdStage/createSharedStages.\nlib/stages/environment-stage.ts pipeline-exclusive description must be corrected; README or focused migration documentation must describe direct usage and identity differences.\nPipeline EnvironmentStage IDs remain exactly Env-${environment.name}; explicit CFN stackName values such asdev-vpc/security-groups/aurora remain stable.\nActual entrypoint fixture must require config/environments.ts, domains.ts, github.ts, agent-operations.ts, then bin/app.ts last in a fresh process. TS readonly arrays/objects are not frozen, so fixture-local runtime mutation can supply fake configuration without changing production config.\nNo generated Lisa source changes are needed for composition itself. New integration suite path is test/integration/starter-composition.integration.test.ts; optional helper fixture path test/fixtures/starter-entrypoint.cjs.\nCurrent npm test:integration selects wrong tests/integration path and passWithNoTests; default unit excludes integration. Exact new suite must run explicitly locally and be proven executed in CI before closure. Broader runner/profile repair belongs#38/#29; coordinate required suite lane rather than accepting skipped CI.\ncdk.json app is npx tsx bin/app.ts; installed CDK CLI isnode node_modules/aws-cdk/bin/cdk.\nQuality prerequisites npm run typecheck, lint, lint:slow, format:check, test:cov and explicit integration suite. npm CI install must useCI=1 to avoid legacy postinstall Lisa template apply.\nCDK stage artifact paths, generated export/import expressions and CDK metadata may change with unified stage; explicit physical stack/resource names, explicit exportName strings, pipeline wiring and IAM/default-off behaviors require comparison and documented exceptions.\nFresh-worktree checkout hook alias side effects preserved under/tmp/cdkstarter-30-worktree-hook-output and restored to exact baseline only in this worktree.\nNo live AWS credentials, deployments, existing-consumer updates, scheduler enablement, dependency refresh, or tracked identity configuration edits are part of this leaf.\nActual CI route verified: shared quality jobtest_integration invokesnpm run test:integration; current Lisa CDK adoption table recognizes vitest run test/integration and migrates it to owned public/:lisa composition.",
+        "work_item_context": "/tmp/cdkstarter-30-implementation/.lisa/work-item-context.md",
+        "comment_inventory": [
+          {
+            "id": 5960671421,
+            "author": "CodySwannGT",
+            "author_id": 292923,
+            "date": "2026-10-02T20:11:17Z",
+            "flags": [
+              "decision"
+            ],
+            "gist": "Accepted single-repository leaf with native parent and named evidence requirements; no secrets."
+          },
+          {
+            "id": 5961005829,
+            "author": "CodySwannGT",
+            "author_id": 292923,
+            "date": "2026-10-02T20:33:36Z",
+            "flags": [
+              "decision"
+            ],
+            "gist": "Managed implementation claim; preserve binding until terminal completion; no secrets."
+          }
+        ],
+        "testing_requirements": [
+          "npx vitest run test/integration/starter-composition.integration.test.ts baseline must fail intended direct assertion.",
+          "Run direct native CLI and record concrete baseline-regression output; zero tests or zero templates never pass."
+        ],
+        "skills": [
+          "lisa-test-strategy"
+        ],
+        "learnings": [
+          {
+            "kind": "mistake",
+            "note": "Initial CLI recipe assumed cdk.js and --all; inspected installed CLI and corrected to extensionless cdk synth with no selector.",
+            "evidence": "test/integration/starter-composition.integration.test.ts"
+          },
+          {
+            "kind": "learning",
+            "note": "Actual nested pipeline artifact display names include PipelineStack/Env-dev; direct names start Env-dev.",
+            "evidence": "/tmp/cdkstarter-30-evidence/identity-comparison.json"
+          },
+          {
+            "kind": "learning",
+            "note": "Installed Lisa2 CDK test:cov includes test/integration despite test:unit excluding it; explicit named cases prove collection.",
+            "evidence": "/tmp/cdkstarter-30-evidence/test-cov.log"
+          },
+          {
+            "kind": "mistake",
+            "note": "import.meta.dirname violated this host CommonJS TypeScript config; changed fixture cwd resolution to __dirname and typecheck passed.",
+            "evidence": "test/integration/starter-composition.integration.test.ts"
+          }
+        ],
+        "required_access": [
+          {
+            "tool": "GitHub tracker and origin \u2014 CodySwannGT/cdkstarter",
+            "probe": "gh repo view CodySwannGT/cdkstarter --json defaultBranchRef,viewerPermission; gh issue view 30 --repo CodySwannGT/cdkstarter; git ls-remote --heads origin main",
+            "status": "pass",
+            "evidence": "ADMIN; default main; issue open/in-progress assignedCodySwannGT; remote main1111fbe6d1f0d56de3c0adb19b9aceee34271a4d."
+          },
+          {
+            "tool": "npm registry locked runtime/synth/test packages",
+            "probe": "GET registry.npmjs.org/aws-cdk-lib/2.263.0; aws-cdk/2.1132.0; tsx/4.22.4; vitest/4.1.8",
+            "status": "pass",
+            "evidence": "All package-lock target versions accessible and dist.tarball present; dependency upgrade is separate scope."
+          },
+          {
+            "tool": "Official AWS CDK Stage and synth documentation",
+            "probe": "GET https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.Stage.html; GET https://docs.aws.amazon.com/cdk/v2/guide/ref-cli-cmd-synth.html",
+            "status": "pass",
+            "evidence": "Both HTTP200; no live AWS service calls required."
+          },
+          {
+            "tool": "GitHub Actions and protected-check surfaces",
+            "probe": "gh api repos/CodySwannGT/cdkstarter/actions/workflows; gh api repos/CodySwannGT/cdkstarter/actions/runs; gh api repos/CodySwannGT/cdkstarter/rulesets/18805277; gh api repos/CodySwannGT/cdkstarter/rulesets/18805429",
+            "status": "pass",
+            "evidence": "Readable CI/deploy surfaces; actual protected check set is7 quality contexts plusCodeRabbit/GitGuardian (9 total), not13. Existing Claude workflow failures are baseline defects, not proof of missing access or a passing ship."
+          }
+        ],
+        "verification": {
+          "type": "cli-test",
+          "command": "node node_modules/aws-cdk/bin/cdk synth --no-lookups --app 'node --import tsx test/fixtures/starter-entrypoint.cjs direct' --output /tmp/starter-composition-direct",
+          "expected": "Baseline direct CLI exitsnonzero with cross-stage CannotDependency; control modes prove harness reachability, not mocked Stage composition."
+        },
+        "owner": "implementation-worker"
+      },
+      "completion_evidence": "Exactbaseline1fail2pass vsfinal3pass actualCLI suite;40files426tests; realdirect13templates114resources,pipeline14/140,frontend1/4;allqualitygate commands exit0. Full logs and identities in /tmp/cdkstarter-30-evidence."
+    },
+    {
+      "id": "T3",
+      "title": "Unify direct EnvironmentStage and document identity migration",
+      "owner": "implementation-worker",
+      "metadata_owner": "implementation-worker",
+      "status": "completed",
+      "blockedBy": [
+        "T2"
+      ],
+      "description": "Read /tmp/cdkstarter-30-implementation/.lisa/work-item-context.md in full before acting. Comment inventory: [{\"id\": 5960671421, \"author\": \"CodySwannGT\", \"author_id\": 292923, \"date\": \"2026-10-02T20:11:17Z\", \"flags\": [\"decision\"], \"gist\": \"Accepted single-repository leaf with native parent and named evidence requirements; no secrets.\"}, {\"id\": 5961005829, \"author\": \"CodySwannGT\", \"author_id\": 292923, \"date\": \"2026-10-02T20:33:36Z\", \"flags\": [\"decision\"], \"gist\": \"Managed implementation claim; preserve binding until terminal completion; no secrets.\"}]. Preserve others\u2019 changes. Every primary comment obligation is explicit in acceptance criteria and evidence.",
+      "metadata": {
+        "plan": "Unify starter direct deployment under EnvironmentStage",
+        "type": "task",
+        "acceptance_criteria": [
+          "Direct bin/app.ts uses EnvironmentStage with environment/alarmThresholds/github/domainConfig/env contract; remove obsolete split-stage/alarm imports.",
+          "Retain CicdStage and createSharedStages wiring, exact pipeline Env-* IDs and explicit stack names.",
+          "Update EnvironmentStage documentation and direct setup/migration guidance; explain unavoidable stage artifact/export/import/CDK metadata changes.",
+          "No unrelated resource/IAM/default changes or generated Lisa edits.",
+          "Minimal package.json test:integration path correction enables this new required CI regression; no generated Lisa scripts/profile or tracked config are changed."
+        ],
+        "relevant_documentation": "Full canonical issue context, all primary/parent/source comments, graph and Validation Journey.\nbin/app.ts direct branch is source owner: replace NetworkStage/AppStage/ObservabilityStage composition with EnvironmentStage; preserve CicdStage/createSharedStages.\nlib/stages/environment-stage.ts pipeline-exclusive description must be corrected; README or focused migration documentation must describe direct usage and identity differences.\nPipeline EnvironmentStage IDs remain exactly Env-${environment.name}; explicit CFN stackName values such asdev-vpc/security-groups/aurora remain stable.\nActual entrypoint fixture must require config/environments.ts, domains.ts, github.ts, agent-operations.ts, then bin/app.ts last in a fresh process. TS readonly arrays/objects are not frozen, so fixture-local runtime mutation can supply fake configuration without changing production config.\nNo generated Lisa source changes are needed for composition itself. New integration suite path is test/integration/starter-composition.integration.test.ts; optional helper fixture path test/fixtures/starter-entrypoint.cjs.\nCurrent npm test:integration selects wrong tests/integration path and passWithNoTests; default unit excludes integration. Exact new suite must run explicitly locally and be proven executed in CI before closure. Broader runner/profile repair belongs#38/#29; coordinate required suite lane rather than accepting skipped CI.\ncdk.json app is npx tsx bin/app.ts; installed CDK CLI isnode node_modules/aws-cdk/bin/cdk.\nQuality prerequisites npm run typecheck, lint, lint:slow, format:check, test:cov and explicit integration suite. npm CI install must useCI=1 to avoid legacy postinstall Lisa template apply.\nCDK stage artifact paths, generated export/import expressions and CDK metadata may change with unified stage; explicit physical stack/resource names, explicit exportName strings, pipeline wiring and IAM/default-off behaviors require comparison and documented exceptions.\nFresh-worktree checkout hook alias side effects preserved under/tmp/cdkstarter-30-worktree-hook-output and restored to exact baseline only in this worktree.\nNo live AWS credentials, deployments, existing-consumer updates, scheduler enablement, dependency refresh, or tracked identity configuration edits are part of this leaf.\nActual CI route verified: shared quality jobtest_integration invokesnpm run test:integration; current Lisa CDK adoption table recognizes vitest run test/integration and migrates it to owned public/:lisa composition.",
+        "work_item_context": "/tmp/cdkstarter-30-implementation/.lisa/work-item-context.md",
+        "comment_inventory": [
+          {
+            "id": 5960671421,
+            "author": "CodySwannGT",
+            "author_id": 292923,
+            "date": "2026-10-02T20:11:17Z",
+            "flags": [
+              "decision"
+            ],
+            "gist": "Accepted single-repository leaf with native parent and named evidence requirements; no secrets."
+          },
+          {
+            "id": 5961005829,
+            "author": "CodySwannGT",
+            "author_id": 292923,
+            "date": "2026-10-02T20:33:36Z",
+            "flags": [
+              "decision"
+            ],
+            "gist": "Managed implementation claim; preserve binding until terminal completion; no secrets."
+          }
+        ],
+        "testing_requirements": [
+          "Focused integration suite green without assertion weakening.",
+          "All three actual CLI modes succeed with resource inventory assertions.",
+          "Compare pipeline before/after and frontend-only before/after exact resources; direct identity comparison uses previously synthesizable unified-stage fixture plus physical name contracts."
+        ],
+        "skills": [
+          "lisa-implement",
+          "lisa-test-strategy"
+        ],
+        "learnings": [],
+        "required_access": [
+          {
+            "tool": "GitHub tracker and origin \u2014 CodySwannGT/cdkstarter",
+            "probe": "gh repo view CodySwannGT/cdkstarter --json defaultBranchRef,viewerPermission; gh issue view 30 --repo CodySwannGT/cdkstarter; git ls-remote --heads origin main",
+            "status": "pass",
+            "evidence": "ADMIN; default main; issue open/in-progress assignedCodySwannGT; remote main1111fbe6d1f0d56de3c0adb19b9aceee34271a4d."
+          },
+          {
+            "tool": "npm registry locked runtime/synth/test packages",
+            "probe": "GET registry.npmjs.org/aws-cdk-lib/2.263.0; aws-cdk/2.1132.0; tsx/4.22.4; vitest/4.1.8",
+            "status": "pass",
+            "evidence": "All package-lock target versions accessible and dist.tarball present; dependency upgrade is separate scope."
+          },
+          {
+            "tool": "Official AWS CDK Stage and synth documentation",
+            "probe": "GET https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.Stage.html; GET https://docs.aws.amazon.com/cdk/v2/guide/ref-cli-cmd-synth.html",
+            "status": "pass",
+            "evidence": "Both HTTP200; no live AWS service calls required."
+          },
+          {
+            "tool": "GitHub Actions and protected-check surfaces",
+            "probe": "gh api repos/CodySwannGT/cdkstarter/actions/workflows; gh api repos/CodySwannGT/cdkstarter/actions/runs; gh api repos/CodySwannGT/cdkstarter/rulesets/18805277; gh api repos/CodySwannGT/cdkstarter/rulesets/18805429",
+            "status": "pass",
+            "evidence": "Readable CI/deploy surfaces; actual protected check set is7 quality contexts plusCodeRabbit/GitGuardian (9 total), not13. Existing Claude workflow failures are baseline defects, not proof of missing access or a passing ship."
+          }
+        ],
+        "verification": {
+          "type": "cli-test",
+          "command": "Run all three exact native CDK CLI synth commands below in credential-free fresh subprocesses against the reviewed branch fixture/actual entrypoint; recursively enumerate nested Stage assemblies and *.template.json; require nonzero templates/resources for each mode and no manifest.missing; compare direct and pipeline inventory/resource identities against baseline where synthesis exists. Commands: node node_modules/aws-cdk/bin/cdk synth --no-lookups --app 'node --import tsx test/fixtures/starter-entrypoint.cjs direct' --output /tmp/starter-composition-direct; node node_modules/aws-cdk/bin/cdk synth --no-lookups --app 'node --import tsx test/fixtures/starter-entrypoint.cjs pipeline' --output /tmp/starter-composition-pipeline; node node_modules/aws-cdk/bin/cdk synth --no-lookups --app 'node --import tsx test/fixtures/starter-entrypoint.cjs frontend-only' --output /tmp/starter-composition-frontend-only",
+          "expected": "Three CLI assemblies are nonempty/no-missing-context; direct unified Stage and unchanged pipeline/frontend-only rendered contracts."
+        },
+        "owner": "implementation-worker"
+      },
+      "completion_evidence": "Exactbaseline1fail2pass vsfinal3pass actualCLI suite;40files426tests; realdirect13templates114resources,pipeline14/140,frontend1/4;allqualitygate commands exit0. Full logs and identities in /tmp/cdkstarter-30-evidence."
+    },
+    {
+      "id": "T4",
+      "title": "Independently review resource identities and quality gates",
+      "owner": "independent-quality-specialist",
+      "metadata_owner": "independent-quality-specialist",
+      "status": "completed",
+      "blockedBy": [
+        "T3"
+      ],
+      "description": "Read /tmp/cdkstarter-30-implementation/.lisa/work-item-context.md in full before acting. Comment inventory: [{\"id\": 5960671421, \"author\": \"CodySwannGT\", \"author_id\": 292923, \"date\": \"2026-10-02T20:11:17Z\", \"flags\": [\"decision\"], \"gist\": \"Accepted single-repository leaf with native parent and named evidence requirements; no secrets.\"}, {\"id\": 5961005829, \"author\": \"CodySwannGT\", \"author_id\": 292923, \"date\": \"2026-10-02T20:33:36Z\", \"flags\": [\"decision\"], \"gist\": \"Managed implementation claim; preserve binding until terminal completion; no secrets.\"}]. Preserve others\u2019 changes. Every primary comment obligation is explicit in acceptance criteria and evidence.",
+      "metadata": {
+        "plan": "Unify starter direct deployment under EnvironmentStage",
+        "type": "task",
+        "acceptance_criteria": [
+          "Review ownership, real fixture reachability and migration differences; catch credential leaks or fake proof.",
+          "Run supported typecheck/lint/slow/format/unit+coverage/integration gates with no new SonarJS violations.",
+          "Ensure actual regression CI lane executes new suite; do not accept current integration-script empty pass. Set existing public test:integration selector to vitest run test/integration, dropping passWithNoTests; this is recognized by current Lisa CDK adopt table and keeps migration ownership intact. Coordinate broader work with#38/#29."
+        ],
+        "relevant_documentation": "Full canonical issue context, all primary/parent/source comments, graph and Validation Journey.\nbin/app.ts direct branch is source owner: replace NetworkStage/AppStage/ObservabilityStage composition with EnvironmentStage; preserve CicdStage/createSharedStages.\nlib/stages/environment-stage.ts pipeline-exclusive description must be corrected; README or focused migration documentation must describe direct usage and identity differences.\nPipeline EnvironmentStage IDs remain exactly Env-${environment.name}; explicit CFN stackName values such asdev-vpc/security-groups/aurora remain stable.\nActual entrypoint fixture must require config/environments.ts, domains.ts, github.ts, agent-operations.ts, then bin/app.ts last in a fresh process. TS readonly arrays/objects are not frozen, so fixture-local runtime mutation can supply fake configuration without changing production config.\nNo generated Lisa source changes are needed for composition itself. New integration suite path is test/integration/starter-composition.integration.test.ts; optional helper fixture path test/fixtures/starter-entrypoint.cjs.\nCurrent npm test:integration selects wrong tests/integration path and passWithNoTests; default unit excludes integration. Exact new suite must run explicitly locally and be proven executed in CI before closure. Broader runner/profile repair belongs#38/#29; coordinate required suite lane rather than accepting skipped CI.\ncdk.json app is npx tsx bin/app.ts; installed CDK CLI isnode node_modules/aws-cdk/bin/cdk.\nQuality prerequisites npm run typecheck, lint, lint:slow, format:check, test:cov and explicit integration suite. npm CI install must useCI=1 to avoid legacy postinstall Lisa template apply.\nCDK stage artifact paths, generated export/import expressions and CDK metadata may change with unified stage; explicit physical stack/resource names, explicit exportName strings, pipeline wiring and IAM/default-off behaviors require comparison and documented exceptions.\nFresh-worktree checkout hook alias side effects preserved under/tmp/cdkstarter-30-worktree-hook-output and restored to exact baseline only in this worktree.\nNo live AWS credentials, deployments, existing-consumer updates, scheduler enablement, dependency refresh, or tracked identity configuration edits are part of this leaf.\nActual CI route verified: shared quality jobtest_integration invokesnpm run test:integration; current Lisa CDK adoption table recognizes vitest run test/integration and migrates it to owned public/:lisa composition.",
+        "work_item_context": "/tmp/cdkstarter-30-implementation/.lisa/work-item-context.md",
+        "comment_inventory": [
+          {
+            "id": 5960671421,
+            "author": "CodySwannGT",
+            "author_id": 292923,
+            "date": "2026-10-02T20:11:17Z",
+            "flags": [
+              "decision"
+            ],
+            "gist": "Accepted single-repository leaf with native parent and named evidence requirements; no secrets."
+          },
+          {
+            "id": 5961005829,
+            "author": "CodySwannGT",
+            "author_id": 292923,
+            "date": "2026-10-02T20:33:36Z",
+            "flags": [
+              "decision"
+            ],
+            "gist": "Managed implementation claim; preserve binding until terminal completion; no secrets."
+          }
+        ],
+        "testing_requirements": [
+          "UseCI=1 npm ci for real clean install without legacy template side effects.",
+          "Record fixed-success-and-edge and quality-and-template-review logs.",
+          "SonarCloud token absent; no cloud-scan claim. Required configured security/review checks remain mandatory."
+        ],
+        "skills": [
+          "lisa-review-implementation",
+          "lisa-quality-review"
+        ],
+        "learnings": [],
+        "required_access": [
+          {
+            "tool": "GitHub tracker and origin \u2014 CodySwannGT/cdkstarter",
+            "probe": "gh repo view CodySwannGT/cdkstarter --json defaultBranchRef,viewerPermission; gh issue view 30 --repo CodySwannGT/cdkstarter; git ls-remote --heads origin main",
+            "status": "pass",
+            "evidence": "ADMIN; default main; issue open/in-progress assignedCodySwannGT; remote main1111fbe6d1f0d56de3c0adb19b9aceee34271a4d."
+          },
+          {
+            "tool": "npm registry locked runtime/synth/test packages",
+            "probe": "GET registry.npmjs.org/aws-cdk-lib/2.263.0; aws-cdk/2.1132.0; tsx/4.22.4; vitest/4.1.8",
+            "status": "pass",
+            "evidence": "All package-lock target versions accessible and dist.tarball present; dependency upgrade is separate scope."
+          },
+          {
+            "tool": "Official AWS CDK Stage and synth documentation",
+            "probe": "GET https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.Stage.html; GET https://docs.aws.amazon.com/cdk/v2/guide/ref-cli-cmd-synth.html",
+            "status": "pass",
+            "evidence": "Both HTTP200; no live AWS service calls required."
+          },
+          {
+            "tool": "GitHub Actions and protected-check surfaces",
+            "probe": "gh api repos/CodySwannGT/cdkstarter/actions/workflows; gh api repos/CodySwannGT/cdkstarter/actions/runs; gh api repos/CodySwannGT/cdkstarter/rulesets/18805277; gh api repos/CodySwannGT/cdkstarter/rulesets/18805429",
+            "status": "pass",
+            "evidence": "Readable CI/deploy surfaces; actual protected check set is7 quality contexts plusCodeRabbit/GitGuardian (9 total), not13. Existing Claude workflow failures are baseline defects, not proof of missing access or a passing ship."
+          }
+        ],
+        "verification": {
+          "type": "cli-test",
+          "command": "npm run test:integration; Run all three exact native CDK CLI synth commands below in credential-free fresh subprocesses against the reviewed branch fixture/actual entrypoint; recursively enumerate nested Stage assemblies and *.template.json; require nonzero templates/resources for each mode and no manifest.missing; compare direct and pipeline inventory/resource identities against baseline where synthesis exists. Commands: node node_modules/aws-cdk/bin/cdk synth --no-lookups --app 'node --import tsx test/fixtures/starter-entrypoint.cjs direct' --output /tmp/starter-composition-direct; node node_modules/aws-cdk/bin/cdk synth --no-lookups --app 'node --import tsx test/fixtures/starter-entrypoint.cjs pipeline' --output /tmp/starter-composition-pipeline; node node_modules/aws-cdk/bin/cdk synth --no-lookups --app 'node --import tsx test/fixtures/starter-entrypoint.cjs frontend-only' --output /tmp/starter-composition-frontend-only",
+          "expected": "Independent assembly/resource comparison passes all identity and no-lookup obligations; named regression actually executes locally/CI, plus quality prerequisites pass."
+        },
+        "owner": "independent-quality-specialist"
+      },
+      "completion_evidence": "Independent plan_quality approved final sixsourcebytes, all14pipeline templates exactbaseline-equal, frontendmetadata-only, directinventory/IAM/exportparity; independentlyranfocused3testspassed. Full40files426testcov and qualitygatespassed; reviewlog /tmp/cdkstarter-30-evidence/independent-review.log."
+    },
+    {
+      "id": "T5",
+      "title": "Independent empirical verification and schema-v2 verdict",
+      "owner": "independent-verification-specialist",
+      "metadata_owner": "independent-verification-specialist",
+      "status": "in_progress",
+      "blockedBy": [
+        "T4"
+      ],
+      "description": "Read /tmp/cdkstarter-30-implementation/.lisa/work-item-context.md in full before acting. Comment inventory: [{\"id\": 5960671421, \"author\": \"CodySwannGT\", \"author_id\": 292923, \"date\": \"2026-10-02T20:11:17Z\", \"flags\": [\"decision\"], \"gist\": \"Accepted single-repository leaf with native parent and named evidence requirements; no secrets.\"}, {\"id\": 5961005829, \"author\": \"CodySwannGT\", \"author_id\": 292923, \"date\": \"2026-10-02T20:33:36Z\", \"flags\": [\"decision\"], \"gist\": \"Managed implementation claim; preserve binding until terminal completion; no secrets.\"}]. Preserve others\u2019 changes. Every primary comment obligation is explicit in acceptance criteria and evidence.",
+      "metadata": {
+        "plan": "Unify starter direct deployment under EnvironmentStage",
+        "type": "task",
+        "acceptance_criteria": [
+          "All three credential-free actual-entrypoint CDK CLI synthesizers conclude exit0 with nonempty nested CloudFormation templates/resources and no missing context. Direct network/app stacks share one Env-dev Stage; pipeline retains Env-dev identity/wiring and explicit physical stack/resource names; frontend-only still emits intended hosting templates. Every generated cross-stack export/import/CDK metadata difference is explained, IAM/default-off feature behavior is unchanged, and the new focused regression is observed red before source change and green afterward, including actual CI execution on the shipped PR head. Required local quality and9 protected remote checks pass; PR into derived main is merged; source evidence/backlinks/usage are visible; then issue is native terminal with configured status:done, rollup runs, binding/context cleared. No deployed AWS/consumer claim is made.",
+          "Attach named baseline-regression, fixed-success-and-edge and quality-and-template-review evidence to source item before closure.",
+          "Verdict code-unit/cli-runtime/source-merge boundaries match evidence and artifacthead; no unit test is presented as deployment proof."
+        ],
+        "relevant_documentation": "Full canonical issue context, all primary/parent/source comments, graph and Validation Journey.\nbin/app.ts direct branch is source owner: replace NetworkStage/AppStage/ObservabilityStage composition with EnvironmentStage; preserve CicdStage/createSharedStages.\nlib/stages/environment-stage.ts pipeline-exclusive description must be corrected; README or focused migration documentation must describe direct usage and identity differences.\nPipeline EnvironmentStage IDs remain exactly Env-${environment.name}; explicit CFN stackName values such asdev-vpc/security-groups/aurora remain stable.\nActual entrypoint fixture must require config/environments.ts, domains.ts, github.ts, agent-operations.ts, then bin/app.ts last in a fresh process. TS readonly arrays/objects are not frozen, so fixture-local runtime mutation can supply fake configuration without changing production config.\nNo generated Lisa source changes are needed for composition itself. New integration suite path is test/integration/starter-composition.integration.test.ts; optional helper fixture path test/fixtures/starter-entrypoint.cjs.\nCurrent npm test:integration selects wrong tests/integration path and passWithNoTests; default unit excludes integration. Exact new suite must run explicitly locally and be proven executed in CI before closure. Broader runner/profile repair belongs#38/#29; coordinate required suite lane rather than accepting skipped CI.\ncdk.json app is npx tsx bin/app.ts; installed CDK CLI isnode node_modules/aws-cdk/bin/cdk.\nQuality prerequisites npm run typecheck, lint, lint:slow, format:check, test:cov and explicit integration suite. npm CI install must useCI=1 to avoid legacy postinstall Lisa template apply.\nCDK stage artifact paths, generated export/import expressions and CDK metadata may change with unified stage; explicit physical stack/resource names, explicit exportName strings, pipeline wiring and IAM/default-off behaviors require comparison and documented exceptions.\nFresh-worktree checkout hook alias side effects preserved under/tmp/cdkstarter-30-worktree-hook-output and restored to exact baseline only in this worktree.\nNo live AWS credentials, deployments, existing-consumer updates, scheduler enablement, dependency refresh, or tracked identity configuration edits are part of this leaf.\nActual CI route verified: shared quality jobtest_integration invokesnpm run test:integration; current Lisa CDK adoption table recognizes vitest run test/integration and migrates it to owned public/:lisa composition.",
+        "work_item_context": "/tmp/cdkstarter-30-implementation/.lisa/work-item-context.md",
+        "comment_inventory": [
+          {
+            "id": 5960671421,
+            "author": "CodySwannGT",
+            "author_id": 292923,
+            "date": "2026-10-02T20:11:17Z",
+            "flags": [
+              "decision"
+            ],
+            "gist": "Accepted single-repository leaf with native parent and named evidence requirements; no secrets."
+          },
+          {
+            "id": 5961005829,
+            "author": "CodySwannGT",
+            "author_id": 292923,
+            "date": "2026-10-02T20:33:36Z",
+            "flags": [
+              "decision"
+            ],
+            "gist": "Managed implementation claim; preserve binding until terminal completion; no secrets."
+          }
+        ],
+        "testing_requirements": [
+          "Run native CDK CLI fresh processes at exact branch artifact, inspect nested manifests/templates/resource counts, compare expected identities.",
+          "Verify all comment decisions and accepted source scope explicitly.",
+          "No browser/device/deploy surface is implicated; highest practical regression is native actual-entrypoint CLI synthesis.",
+          "npm run test:integration must execute new suite locally; fetch exact PR-head required integration job logs and require named suite/test counts, not merely green status."
+        ],
+        "skills": [
+          "lisa-verify"
+        ],
+        "learnings": [],
+        "required_access": [
+          {
+            "tool": "GitHub tracker and origin \u2014 CodySwannGT/cdkstarter",
+            "probe": "gh repo view CodySwannGT/cdkstarter --json defaultBranchRef,viewerPermission; gh issue view 30 --repo CodySwannGT/cdkstarter; git ls-remote --heads origin main",
+            "status": "pass",
+            "evidence": "ADMIN; default main; issue open/in-progress assignedCodySwannGT; remote main1111fbe6d1f0d56de3c0adb19b9aceee34271a4d."
+          },
+          {
+            "tool": "npm registry locked runtime/synth/test packages",
+            "probe": "GET registry.npmjs.org/aws-cdk-lib/2.263.0; aws-cdk/2.1132.0; tsx/4.22.4; vitest/4.1.8",
+            "status": "pass",
+            "evidence": "All package-lock target versions accessible and dist.tarball present; dependency upgrade is separate scope."
+          },
+          {
+            "tool": "Official AWS CDK Stage and synth documentation",
+            "probe": "GET https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.Stage.html; GET https://docs.aws.amazon.com/cdk/v2/guide/ref-cli-cmd-synth.html",
+            "status": "pass",
+            "evidence": "Both HTTP200; no live AWS service calls required."
+          },
+          {
+            "tool": "GitHub Actions and protected-check surfaces",
+            "probe": "gh api repos/CodySwannGT/cdkstarter/actions/workflows; gh api repos/CodySwannGT/cdkstarter/actions/runs; gh api repos/CodySwannGT/cdkstarter/rulesets/18805277; gh api repos/CodySwannGT/cdkstarter/rulesets/18805429",
+            "status": "pass",
+            "evidence": "Readable CI/deploy surfaces; actual protected check set is7 quality contexts plusCodeRabbit/GitGuardian (9 total), not13. Existing Claude workflow failures are baseline defects, not proof of missing access or a passing ship."
+          }
+        ],
+        "verification": {
+          "type": "cli-test",
+          "command": "Run all three exact native CDK CLI synth commands below in credential-free fresh subprocesses against the reviewed branch fixture/actual entrypoint; recursively enumerate nested Stage assemblies and *.template.json; require nonzero templates/resources for each mode and no manifest.missing; compare direct and pipeline inventory/resource identities against baseline where synthesis exists. Commands: node node_modules/aws-cdk/bin/cdk synth --no-lookups --app 'node --import tsx test/fixtures/starter-entrypoint.cjs direct' --output /tmp/starter-composition-direct; node node_modules/aws-cdk/bin/cdk synth --no-lookups --app 'node --import tsx test/fixtures/starter-entrypoint.cjs pipeline' --output /tmp/starter-composition-pipeline; node node_modules/aws-cdk/bin/cdk synth --no-lookups --app 'node --import tsx test/fixtures/starter-entrypoint.cjs frontend-only' --output /tmp/starter-composition-frontend-only",
+          "expected": "All three credential-free actual-entrypoint CDK CLI synthesizers conclude exit0 with nonempty nested CloudFormation templates/resources and no missing context. Direct network/app stacks share one Env-dev Stage; pipeline retains Env-dev identity/wiring and explicit physical stack/resource names; frontend-only still emits intended hosting templates. Every generated cross-stack export/import/CDK metadata difference is explained, IAM/default-off feature behavior is unchanged, and the new focused regression is observed red before source change and green afterward, including actual CI execution on the shipped PR head. Required local quality and9 protected remote checks pass; PR into derived main is merged; source evidence/backlinks/usage are visible; then issue is native terminal with configured status:done, rollup runs, binding/context cleared. No deployed AWS/consumer claim is made."
+        },
+        "owner": "independent-verification-specialist"
+      }
+    },
+    {
+      "id": "T6",
+      "title": "Ship configured PR/CI, source evidence and terminal rollup",
+      "owner": "lifecycle-specialist",
+      "metadata_owner": "lifecycle-specialist",
+      "status": "pending",
+      "blockedBy": [
+        "T5"
+      ],
+      "description": "Read /tmp/cdkstarter-30-implementation/.lisa/work-item-context.md in full before acting. Comment inventory: [{\"id\": 5960671421, \"author\": \"CodySwannGT\", \"author_id\": 292923, \"date\": \"2026-10-02T20:11:17Z\", \"flags\": [\"decision\"], \"gist\": \"Accepted single-repository leaf with native parent and named evidence requirements; no secrets.\"}, {\"id\": 5961005829, \"author\": \"CodySwannGT\", \"author_id\": 292923, \"date\": \"2026-10-02T20:33:36Z\", \"flags\": [\"decision\"], \"gist\": \"Managed implementation claim; preserve binding until terminal completion; no secrets.\"}]. Preserve others\u2019 changes. Every primary comment obligation is explicit in acceptance criteria and evidence.",
+      "metadata": {
+        "plan": "Unify starter direct deployment under EnvironmentStage",
+        "type": "task",
+        "acceptance_criteria": [
+          "PR targets derived main with non-closing work-item ref and verified reciprocal backlink.",
+          "All9 protected checks and unresolved-review gates pass on final head; actual regression CI log proves suite execution.",
+          "Merge is verified and origin/main contains shipped SHA; no live CloudFormation/deploy required by source-only issue.",
+          "Post source evidence and usage, configured status:done and native closure, parent rollup; clear binding/context only after true terminal completion."
+        ],
+        "relevant_documentation": "Full canonical issue context, all primary/parent/source comments, graph and Validation Journey.\nbin/app.ts direct branch is source owner: replace NetworkStage/AppStage/ObservabilityStage composition with EnvironmentStage; preserve CicdStage/createSharedStages.\nlib/stages/environment-stage.ts pipeline-exclusive description must be corrected; README or focused migration documentation must describe direct usage and identity differences.\nPipeline EnvironmentStage IDs remain exactly Env-${environment.name}; explicit CFN stackName values such asdev-vpc/security-groups/aurora remain stable.\nActual entrypoint fixture must require config/environments.ts, domains.ts, github.ts, agent-operations.ts, then bin/app.ts last in a fresh process. TS readonly arrays/objects are not frozen, so fixture-local runtime mutation can supply fake configuration without changing production config.\nNo generated Lisa source changes are needed for composition itself. New integration suite path is test/integration/starter-composition.integration.test.ts; optional helper fixture path test/fixtures/starter-entrypoint.cjs.\nCurrent npm test:integration selects wrong tests/integration path and passWithNoTests; default unit excludes integration. Exact new suite must run explicitly locally and be proven executed in CI before closure. Broader runner/profile repair belongs#38/#29; coordinate required suite lane rather than accepting skipped CI.\ncdk.json app is npx tsx bin/app.ts; installed CDK CLI isnode node_modules/aws-cdk/bin/cdk.\nQuality prerequisites npm run typecheck, lint, lint:slow, format:check, test:cov and explicit integration suite. npm CI install must useCI=1 to avoid legacy postinstall Lisa template apply.\nCDK stage artifact paths, generated export/import expressions and CDK metadata may change with unified stage; explicit physical stack/resource names, explicit exportName strings, pipeline wiring and IAM/default-off behaviors require comparison and documented exceptions.\nFresh-worktree checkout hook alias side effects preserved under/tmp/cdkstarter-30-worktree-hook-output and restored to exact baseline only in this worktree.\nNo live AWS credentials, deployments, existing-consumer updates, scheduler enablement, dependency refresh, or tracked identity configuration edits are part of this leaf.\nActual CI route verified: shared quality jobtest_integration invokesnpm run test:integration; current Lisa CDK adoption table recognizes vitest run test/integration and migrates it to owned public/:lisa composition.",
+        "work_item_context": "/tmp/cdkstarter-30-implementation/.lisa/work-item-context.md",
+        "comment_inventory": [
+          {
+            "id": 5960671421,
+            "author": "CodySwannGT",
+            "author_id": 292923,
+            "date": "2026-10-02T20:11:17Z",
+            "flags": [
+              "decision"
+            ],
+            "gist": "Accepted single-repository leaf with native parent and named evidence requirements; no secrets."
+          },
+          {
+            "id": 5961005829,
+            "author": "CodySwannGT",
+            "author_id": 292923,
+            "date": "2026-10-02T20:33:36Z",
+            "flags": [
+              "decision"
+            ],
+            "gist": "Managed implementation claim; preserve binding until terminal completion; no secrets."
+          }
+        ],
+        "testing_requirements": [
+          "Read live PR merge/check conclusion, not only running status.",
+          "Skip no required checks and keep existing #23 human hold untouched.",
+          "Actual GitHub workflow failures outside composition remain separate backlog/owner work, not a claimed source/deployment success."
+        ],
+        "skills": [
+          "lisa-git-submit-pr",
+          "lisa-tracker-sync",
+          "lisa-tracker-evidence",
+          "lisa-usage-accounting"
+        ],
+        "learnings": [],
+        "required_access": [
+          {
+            "tool": "GitHub tracker and origin \u2014 CodySwannGT/cdkstarter",
+            "probe": "gh repo view CodySwannGT/cdkstarter --json defaultBranchRef,viewerPermission; gh issue view 30 --repo CodySwannGT/cdkstarter; git ls-remote --heads origin main",
+            "status": "pass",
+            "evidence": "ADMIN; default main; issue open/in-progress assignedCodySwannGT; remote main1111fbe6d1f0d56de3c0adb19b9aceee34271a4d."
+          },
+          {
+            "tool": "npm registry locked runtime/synth/test packages",
+            "probe": "GET registry.npmjs.org/aws-cdk-lib/2.263.0; aws-cdk/2.1132.0; tsx/4.22.4; vitest/4.1.8",
+            "status": "pass",
+            "evidence": "All package-lock target versions accessible and dist.tarball present; dependency upgrade is separate scope."
+          },
+          {
+            "tool": "Official AWS CDK Stage and synth documentation",
+            "probe": "GET https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.Stage.html; GET https://docs.aws.amazon.com/cdk/v2/guide/ref-cli-cmd-synth.html",
+            "status": "pass",
+            "evidence": "Both HTTP200; no live AWS service calls required."
+          },
+          {
+            "tool": "GitHub Actions and protected-check surfaces",
+            "probe": "gh api repos/CodySwannGT/cdkstarter/actions/workflows; gh api repos/CodySwannGT/cdkstarter/actions/runs; gh api repos/CodySwannGT/cdkstarter/rulesets/18805277; gh api repos/CodySwannGT/cdkstarter/rulesets/18805429",
+            "status": "pass",
+            "evidence": "Readable CI/deploy surfaces; actual protected check set is7 quality contexts plusCodeRabbit/GitGuardian (9 total), not13. Existing Claude workflow failures are baseline defects, not proof of missing access or a passing ship."
+          }
+        ],
+        "verification": {
+          "type": "cli-test",
+          "command": "gh pr view <created-pr> --repo CodySwannGT/cdkstarter --json state,mergedAt,mergeCommit,baseRefName,statusCheckRollup; git merge-base --is-ancestor <merge-sha> origin/main; gh issue view 30 --repo CodySwannGT/cdkstarter --json state,labels,comments; node /Users/cody/workspace/lisa/scripts/lisa-work-item.mjs current",
+          "expected": "Verified merged/main source, final required successful checks/regression execution, visible evidence/usage/backlinks, native terminal issue and no binding/context aftercleanup."
+        },
+        "owner": "lifecycle-specialist"
+      }
+    }
+  ],
+  "created_at": "2026-10-02T20:43:01.706343+00:00",
+  "ci_execution_route": {
+    "minimal_owned_change": "package.json scripts.test:integration = vitest run test/integration",
+    "ci_surface": ".github/workflows/ci.yml passes skip_jobs empty and package_managernpm to CodySwannGT/lisa/.github/workflows/quality.yml@main",
+    "required_job": "test_integration / \ud83e\uddea Run Integration Tests",
+    "actual_execution": "Shared quality workflow jobtest_integration checks script present then executes npm run test:integration. Corrected selector discovers test/integration/starter-composition.integration.test.ts; no passWithNoTests.",
+    "future_lisa_ownership": "Current upstream cdk/package-lisa/package.lisa.json force owns test:integration:lisa, public script defaults compose it; adopt.scripts.test:integration explicitly recognizes vitest run test/integration. The minimal corrected legacy script therefore remains an adoptable managed base during #29 migration, not a permanent host bypass.",
+    "coordination": "#38 broader coverage/CI truth and #29 Lisa adoption; #37 not runner owner. No updater/template/profile migration in#30.",
+    "proof": "npm run test:integration must execute new suite locally; fetch exact PR-head required integration job logs and require named suite/test counts, not merely green status."
+  },
+  "learning_capture": "Capture-only learner attempted canonical resolution. Current upstream readProjectConfig ignores ignored localoverride and defaults.lisa/PROJECT_LEARNINGS.md, conflicting with host startup canonical.claude/rules/PROJECT_LEARNINGS.md. No wrongledger ortrackedconfig write made; capturefailure reported per never-blocklearner, MLD preserved in taskmetadata; existing#29 owns configurationmigration."
+}

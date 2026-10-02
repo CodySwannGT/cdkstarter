@@ -70,6 +70,34 @@ Coverage and mutation target the actual `lib`, `util`, `bin`, `config`, and Java
 
 > Ask Claude: "Run CDK synth and verify the CloudFormation templates are generated correctly."
 
+Configure a valid account ID in `config/environments.ts`, then run:
+
+```sh
+npx cdk list
+npx cdk synth
+npm run test:integration
+```
+
+Direct deployment composes networking, application and observability stacks in
+one `Env-<environment>` stage, matching the pipeline composition. This keeps VPC
+and security-group references inside one cloud assembly. CI/CD and shared-account
+stages stay separate. Frontend-only environments use the same composition with
+their backend features disabled.
+
+For existing direct consumers, assembly selections change from
+`<environment>-network`, `<environment>-app` and `<environment>-observability` to
+`Env-<environment>`. Explicit CloudFormation stack names remain the same. Review
+`cdk list` and `cdk diff` before adopting this change: CDK paths/metadata,
+scope-derived Name tags (including VPCs, subnets and SSM launch templates),
+generated logical IDs (including security-group ingress rules and an Aurora
+secret) and cross-stack imports/exports can differ even when physical stack names
+match. This starter change does not deploy existing consumers.
+
+The integration suite synthesizes the real entrypoint in direct, pipeline and
+frontend-only modes with fake account IDs, supplied availability-zone context and
+`--no-lookups`. It requires nonempty templates and runs through the CI integration
+job; it does not establish deployed AWS behavior.
+
 ### Frontend-only Environments
 
 The application infrastructure is composable. A stage can host only a static

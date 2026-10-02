@@ -40,16 +40,10 @@ import { githubConfig } from "../config/github";
 import { alarmThresholds } from "../config/observability";
 import { PipelineStack } from "../lib/stacks/support/pipeline-stack";
 import { AgentOperationsStage } from "../lib/stages/agent-operations-stage";
-import { AppStage } from "../lib/stages/app-stage";
 import { CicdStage } from "../lib/stages/cicd-stage";
-import { NetworkStage } from "../lib/stages/network-stage";
-import { ObservabilityStage } from "../lib/stages/observability-stage";
+import { EnvironmentStage } from "../lib/stages/environment-stage";
 import { SupportStage } from "../lib/stages/support-stage";
 import type { StageEnvironment, SupportEnvironment } from "../lib/types";
-import {
-  toAuroraAlarmsThresholds,
-  toValkeyAlarmsThresholds,
-} from "../util/alarm-threshold-mapping";
 import {
   isCodeConnectionConfigured,
   isDeployableAccountId,
@@ -80,8 +74,7 @@ const pipelineMode =
   isCodeConnectionConfigured();
 
 /**
- * Creates the direct-mode stages for one environment
- * (network, app, observability, and optional CI/CD).
+ * Creates one complete environment stage and optional separate CI/CD stage.
  * @param environment - Stage environment configuration
  */
 const createDirectStages = (environment: StageEnvironment): void => {
@@ -91,45 +84,14 @@ const createDirectStages = (environment: StageEnvironment): void => {
     region: environment.region,
   };
 
-  // Network stage - optional for frontend-only environments
-  const networkStage =
-    environment.features.network !== false
-      ? new NetworkStage(app, `${stageName}-network`, {
-          environment,
-          github: githubConfig,
-          env: stageEnv,
-        })
-      : undefined;
-
-  // App stage - databases, cache, auth, backup
-  new AppStage(app, `${stageName}-app`, {
+  // Keep VPC/security-group references within the environment's cloud assembly.
+  new EnvironmentStage(app, `Env-${stageName}`, {
     environment,
-    vpc: networkStage?.vpcStack.vpc,
-    auroraSecurityGroup: networkStage?.securityGroupsStack.auroraSecurityGroup,
-    valkeySecurityGroup: networkStage?.securityGroupsStack.valkeySecurityGroup,
+    alarmThresholds,
+    github: githubConfig,
     domainConfig,
     env: stageEnv,
   });
-
-  // Observability stage - optional for stages without backend resources
-  if (environment.features.observability !== false) {
-    new ObservabilityStage(app, `${stageName}-observability`, {
-      environment,
-      auroraClusterId: environment.features.aurora
-        ? `${stageName}-aurora-cluster`
-        : undefined,
-      valkeyReplicationGroupId: environment.features.valkey
-        ? `${stageName}-valkey`
-        : undefined,
-      auroraThresholds: environment.features.aurora
-        ? toAuroraAlarmsThresholds(alarmThresholds)
-        : undefined,
-      valkeyThresholds: environment.features.valkey
-        ? toValkeyAlarmsThresholds(alarmThresholds)
-        : undefined,
-      env: stageEnv,
-    });
-  }
 
   // CI/CD stage - GitHub Actions OIDC deploy role + bootstrap trust
   if (environment.features.githubOidcDeploy && supportDeployable) {
