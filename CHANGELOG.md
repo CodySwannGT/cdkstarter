@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.2](https://github.com/CodySwannGT/cdkstarter/compare/v0.0.1...v0.0.2) (2026-10-04)
+
+
+### Bug Fixes
+
+* attach application deployment permission ceilings ([4b882e6](https://github.com/CodySwannGT/cdkstarter/commit/4b882e66be2ca6f2671ae8995409de32c22aa63d)), closes [CodySwannGT/cdkstarter#33](https://github.com/CodySwannGT/cdkstarter/issues/33)
+* clarify direct selectors and verify frontend stage ([f75de18](https://github.com/CodySwannGT/cdkstarter/commit/f75de186db037cd78f15e552fc32056970daad23)), closes [CodySwannGT/cdkstarter#30](https://github.com/CodySwannGT/cdkstarter/issues/30)
+* compose direct deployments under one environment stage ([905130c](https://github.com/CodySwannGT/cdkstarter/commit/905130c7729f2292417f3fb5598673c3ac567305)), closes [CodySwannGT/cdkstarter#30](https://github.com/CodySwannGT/cdkstarter/issues/30)
+* **config:** reject reserved Aurora runtime role ([289ebe3](https://github.com/CodySwannGT/cdkstarter/commit/289ebe3b83c6f1d9ed9fe61259a59c0b3c228d80)), closes [CodySwannGT/cdkstarter#37](https://github.com/CodySwannGT/cdkstarter/issues/37) [CodySwannGT/cdkstarter#37](https://github.com/CodySwannGT/cdkstarter/issues/37)
+* **config:** validate database usernames before synthesis ([57a76cb](https://github.com/CodySwannGT/cdkstarter/commit/57a76cb4cb0689505e1ffec7fb737220ca29c165)), closes [CodySwannGT/cdkstarter#37](https://github.com/CodySwannGT/cdkstarter/issues/37)
+* **config:** validate supported environment and Aurora settings ([387a0a4](https://github.com/CodySwannGT/cdkstarter/commit/387a0a4bd18e11ff93523320df8641a7a5402ed6)), closes [CodySwannGT/cdkstarter#37](https://github.com/CodySwannGT/cdkstarter/issues/37)
+* constrain GitHub OIDC trust to immutable repositories ([6cac544](https://github.com/CodySwannGT/cdkstarter/commit/6cac5449bffc5d6339d2313b054cd355e1e5b16e)), closes [CodySwannGT/cdkstarter#32](https://github.com/CodySwannGT/cdkstarter/issues/32)
+* correct Aurora capacity saturation alarms ([afd6393](https://github.com/CodySwannGT/cdkstarter/commit/afd6393256580f6b89b53e235be0de85a14af85c)), closes [#34](https://github.com/CodySwannGT/cdkstarter/issues/34) [CodySwannGT/cdkstarter#34](https://github.com/CodySwannGT/cdkstarter/issues/34)
+* **database:** grant proxy access to dedicated IAM users ([b2be2eb](https://github.com/CodySwannGT/cdkstarter/commit/b2be2eb23a3b318a645e3642245744b9fe45c2f9)), closes [CodySwannGT/cdkstarter#31](https://github.com/CodySwannGT/cdkstarter/issues/31) [CodySwannGT/cdkstarter#31](https://github.com/CodySwannGT/cdkstarter/issues/31)
+* **database:** reject unsafe inherited default privileges ([bb590bd](https://github.com/CodySwannGT/cdkstarter/commit/bb590bdef224b68d758a6acb890529171501a2e2)), closes [CodySwannGT/cdkstarter#31](https://github.com/CodySwannGT/cdkstarter/issues/31)
+* enroll Aurora backups and filter failure alerts ([ace7d18](https://github.com/CodySwannGT/cdkstarter/commit/ace7d18c554f86392a3ac3e6331f19779f558d56)), closes [#36](https://github.com/CodySwannGT/cdkstarter/issues/36) [CodySwannGT/cdkstarter#36](https://github.com/CodySwannGT/cdkstarter/issues/36)
+* honor configured private service endpoints ([6047e1d](https://github.com/CodySwannGT/cdkstarter/commit/6047e1d5cbd92308d71257554b4c992b5c047214)), closes [#35](https://github.com/CodySwannGT/cdkstarter/issues/35) [CodySwannGT/cdkstarter#35](https://github.com/CodySwannGT/cdkstarter/issues/35)
+* **iam:** use owning partition in application deploy policy ([dabbf11](https://github.com/CodySwannGT/cdkstarter/commit/dabbf117b9fc4b249c44266667ed88edd174f297)), closes [CodySwannGT/cdkstarter#33](https://github.com/CodySwannGT/cdkstarter/issues/33)
+
+
+### Documentation
+
+* **oidc:** retain the legacy provider before native migration ([001c808](https://github.com/CodySwannGT/cdkstarter/commit/001c808e343f5ba7dd01fbebe414260875d9a83d)), closes [CodySwannGT/cdkstarter#32](https://github.com/CodySwannGT/cdkstarter/issues/32)
+
 ### 0.0.1 (2026-10-04)
 
 
