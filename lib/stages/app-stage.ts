@@ -183,6 +183,8 @@ export class AppStage extends cdk.Stage {
     // Create tag-driven AWS Backup plan if enabled. Resources tagged
     // backup=yes anywhere in this account are included.
     if (features.backup) {
+      if (this.auroraStack)
+        cdk.Tags.of(this.auroraStack.cluster).add("backup", "yes");
       this.backupStack = new BackupStack(this, "BackupStack", {
         stageName,
         stackName: `${stageName}-backup`,

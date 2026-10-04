@@ -202,3 +202,28 @@ and [interface prerequisites](https://docs.aws.amazon.com/vpc/latest/privatelink
 
 Application and optional read-only database users have separate credentials and
 least-privilege proxy grants. Read the [operator bootstrap and migration runbook](docs/database/application-users.md) before adopting these IAM-only users on an existing database.
+
+### AWS Backup enrollment and failure notifications
+
+When `features.backup` is enabled, unified and legacy application stages apply
+`backup=yes` to the actual Aurora cluster and create the matching tag-driven
+AWS Backup plan. Disabling the flag creates neither that enrollment tag nor the
+plan; Aurora native `backupRetentionDays` remains independent and unchanged.
+`BackupStack.selectionTags` defaults to `backup=yes`; explicit selectors must
+be a nonempty list of nonblank valid key/value pairs (OR selection). Empty,
+malformed or reserved `aws:` keys fail synthesis. Other resources need an
+explicit matching tag to enroll.
+
+With `observability.backupFailureAlerts` and `sentryDsn`, the existing single
+EventBridge target forwards FAILED/EXPIRED/ABORTED jobs to the existing Sentry
+forwarder as critical errors. SNS-wrapped Backup events preserve warning or
+critical routing. Each input event emits one Sentry request; successful and
+in-progress states emit none even if the handler is invoked directly. No
+second notification target is added. AWS delivery/retry semantics remain
+at-least-once: this does not claim durable duplicate suppression.
+
+Offline enrollment and mocked notification evidence do not establish a
+successful live backup, recovery point or restore. Review the cluster tag,
+selection, IAM and alert changes before consumer deployment; validate real
+backups/restores separately. See AWS [resource selection](https://docs.aws.amazon.com/aws-backup/latest/devguide/assigning-resources.html)
+and [state-change events](https://docs.aws.amazon.com/aws-backup/latest/devguide/eventbridge.html).

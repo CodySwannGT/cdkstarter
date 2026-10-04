@@ -283,6 +283,7 @@ export class EnvironmentStage extends cdk.Stage {
     }
 
     if (features.backup) {
+      if (auroraStack) cdk.Tags.of(auroraStack.cluster).add("backup", "yes");
       new BackupStack(this, "BackupStack", {
         stageName,
         stackName: `${stageName}-backup`,
