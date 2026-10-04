@@ -321,3 +321,6 @@ Sources: [Aurora capacity settings](https://docs.aws.amazon.com/AmazonRDS/latest
 and [DBCluster engine configuration](https://docs.aws.amazon.com/AWSCloudFormation/latest/TemplateReference/aws-resource-rds-dbcluster.html).
 
 Optional cross-account DNS delegation is configured in `domainConfig.dnsDelegation`. See [setup and retained-record cleanup](docs/setup/dns-delegation.md) before enabling it.
+
+Optional Amplify routing, response headers and scoped failed-build notifications
+are documented in [Amplify hosting](docs/amplify-hosting.md). These additions default off.

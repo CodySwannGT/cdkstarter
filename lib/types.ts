@@ -431,6 +431,26 @@ export interface WafOptions {
   readonly countOnly?: boolean;
 }
 
+/** An ordered Amplify redirect/rewrite, rendered without changing caller precedence. */
+export interface AmplifyCustomRule {
+  /** Amplify source path, wildcard or regular expression. */
+  readonly source: string;
+  /** Explicit destination. */
+  readonly target: string;
+  /** Amplify-supported status; no implicit redirect status. */
+  readonly status: "200" | "301" | "302" | "404" | "404-200";
+  /** Optional country condition. */
+  readonly condition?: string;
+}
+
+/** Explicit response headers for matching paths. */
+export interface AmplifyCustomHeaders {
+  /** Amplify path pattern. */
+  readonly pattern: string;
+  /** Header names and single-line values. */
+  readonly headers: Readonly<Record<string, string>>;
+}
+
 /**
  * Configuration for a static frontend hosted by AWS Amplify Hosting.
  *
@@ -465,6 +485,22 @@ export interface AmplifyHostingConfig {
 
   /** Environment variables attached to the Amplify branch. */
   readonly environmentVariables?: Readonly<Record<string, string>>;
+
+  /** Default-off SPA fallback after explicit rules, excluding static extensions. */
+  readonly spaFallback?: { readonly enabled: boolean };
+  /** Ordered explicit rules; honored independently of SPA fallback. */
+  readonly customRules?: readonly AmplifyCustomRule[];
+  /** Explicit response headers, separate from the build specification. */
+  readonly customHeaders?: readonly AmplifyCustomHeaders[];
+  /** Default-off failed-deployment routing to an existing standard SNS topic. */
+  readonly buildFailureNotifications?: {
+    /** Create a rule only when true. */
+    readonly enabled: boolean;
+    /** Existing topic ARN, mandatory when enabled. */
+    readonly topicArn?: string;
+    /** Exact branch names; defaults to the configured source branch. */
+    readonly branches?: readonly string[];
+  };
 }
 
 /**

@@ -29,6 +29,7 @@
  * @module util/config-loader
  */
 import { getDnsDelegations } from "./dns-delegation";
+import { validateAmplifyHosting } from "./amplify-hosting";
 import { validateAuroraConfig } from "./aurora-config";
 import { agentOperationsConfig } from "../config/agent-operations";
 import { domainConfig } from "../config/domains";
@@ -206,6 +207,9 @@ export const validateConfiguration = (
   validateEdgeRegions(input.stages);
   validateNetworkDependencies(input.stages);
   validateAmplifyHostingFlag(input.stages);
+  input.stages.forEach(stage => {
+    if (stage.amplifyHosting) validateAmplifyHosting(stage.amplifyHosting);
+  });
   validateObservabilityExtras(input.stages);
 };
 
