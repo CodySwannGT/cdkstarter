@@ -2,7 +2,7 @@
 
 Completion requires second adoption to have zero deterministic managed delta and preserves sentinels. Every immutable workflow callee exists at R. Populated suites execute and intentional failures propagate; empty integration is explicit skip. All48 security scenarios and raw audit dispositions pass fresh assessment. Required normal hooks, complete relevant CI, nine required checks, review, merged-main identity and applicable source release succeed. Both leaves carry their own three artifacts, usage/backlinks and native terminal readbacks. No raw-audit-clear or mutation score inferred.
 
-Context: /private/tmp/cdkstarter-29-implementation/.lisa/work-item-context.md
+Context: /private/tmp/cdkstarter-29-release-fix/.lisa/work-item-context.md
 
 Read full live29/48 context, complete strategy and actual4.69.1 updater retirement amendment. PublicR995f533b is terminally verified. Use ownership-aware full apply, preserve source-only CI/customizations and nine live required checks. Retain exact48 CDK/alpha/CLI and scoped brace/security dispositions. Deliberately coordinate hostNode22.23.3, Vitest/coverage4.1.11 and Vite8.3.2. No PAT/updater replacement, scheduler, AWS deployment, consumer writes,39 dependency batch or23 hold change.
 
@@ -11,10 +11,12 @@ Proof: Run verified public Lisa dist/index.js apply <isolated starter fixture> -
 - T1: Resolve, claim, bind and prove access (completed)
 - T2: Capture RED and implement owned migration (completed)
 - T3: Review and independently verify exact combined commit (in progress)
-- T4: Deliver and close both leaves with native proof (pending)
+- T4: Deliver and close both leaves with native proof (in progress)
 
 Progress checkpoint (2026-10-04 08:14 UTC): full official adoption and six native prover cases passed locally. Dependency installation is still failing in npm peer/reference resolution, so no final installed-graph or CI claim is made. The supported host traceability composition is being implemented with generic starter defaults preserved. PR49 remains open and leased until the atomic replacement exists and both work-item backlinks are read back.
 
 Progress checkpoint (2026-10-04 08:32 UTC): ordinary npm11 resolver install and fresh CI-paired Node22.23.3/npm10.9.9 ci both succeeded. Thirteen native controls passed in the working tree and independent draft review accepted the baseline-policy correction. One AST documentation refresh raced npm ci and rolled back; its failed receipt is retained and only that scoped refresh is being rerun sequentially. Audit assessment, full tests, final commit and remote delivery remain pending.
 
 Progress checkpoint (2026-10-04 13:29 UTC): b3620c7 passed normal commit hooks and independent exact-commit source review. The owner explicitly accepted the starter braces exception and requested review, CI, merge, release and ticket closeout. Native acceptance is recorded on #29 and #39. October 16 is a manual follow-up date, with no delivery waiting period. The acceptance commit, qualified audits and combined PR are being prepared; remote proof remains pending.
+
+Progress checkpoint (2026-10-04 14:05 UTC): PR #50 merged after the full CI Quality run and nine required contexts passed. The actual release failed at startup due to missing caller contents:write and pull-requests:read grants. A narrow #29-only follow-up starts from merged c7a3f73, with a fresh install and canonical binding; it preserves #48 already in the base. Both issues remain open pending successful source release and their full terminal proof.

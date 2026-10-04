@@ -42,6 +42,9 @@ jobs:
 
   release:
     name: 📦 Release
+    permissions:
+      contents: write
+      pull-requests: read
     # Reference to the quality checks workflow
     uses: CodySwannGT/lisa/.github/workflows/release.yml@995f533b00d9b8a60256096bf6d28940164cd893 # v4.69.1
     needs: [determine_environment]
