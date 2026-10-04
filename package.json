@@ -98,7 +98,8 @@
     "test:unit:lisa": "node scripts/lib/worktree-dependencies.mjs && lisa-test-run --profile cdk --adapter vitest -- vitest run --exclude='**/integration/**'",
     "test:watch:lisa": "node scripts/lib/worktree-dependencies.mjs && lisa-test-run --profile cdk --adapter vitest -- vitest",
     "typecheck:lisa": "node scripts/lib/worktree-dependencies.mjs && tsc --noEmit",
-    "check:work-item:pr": "node scripts/check-starter-pr-traceability.mjs"
+    "check:work-item:pr": "node scripts/check-starter-pr-traceability.mjs",
+    "smoke:generated": "node scripts/smoke-generated-project.mjs"
   },
   "engines": {
     "npm": ">= 10.9.4",
@@ -171,8 +172,5 @@
     "eslint-plugin-functional": {
       "deepmerge-ts": "^8.0.1"
     }
-  },
-  "bin": {
-    "infrastructure": "bin/infrastructure.js"
   }
 }

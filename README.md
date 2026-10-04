@@ -4,26 +4,89 @@ Developers write specs and answer questions. Agents implement, test, verify, que
 
 ## About This Project
 
-> Ask Claude: "What is the purpose of this project and how does it work?"
+This is a source starter for AWS CDK infrastructure, not a published executable.
+The deterministic entrypoint is `bin/app.ts`, loaded by `npx tsx` through
+`cdk.json`; `npm run build` typechecks without emitting JavaScript.
 
 This repo has a git-native LLM Wiki at [`wiki/`](wiki/start-here.md), maintained by the `lisa-wiki` kernel. New here? Run `/onboard-me` (Codex: `$lisa-wiki-onboard-me`) for a guided tour, or `/query "<question>"` for cited answers from the wiki.
 
-## Step 1: Install Claude Code
+## Step 1: Create and install your project
 
-```bash
-brew install claude-code
-# Or: npm install -g @anthropic-ai/claude-code
+Use Node **22.23.3** and npm **10.9.4 or newer**. Clone into a new project:
+
+```sh
+git clone https://github.com/CodySwannGT/cdkstarter.git my-infrastructure
+cd my-infrastructure
+npm ci
 ```
 
-## Step 2: Set Up This Project
+Alternatively copy tracked source into a new directory, excluding `.git`,
+`node_modules`, `.lisa` private state, local configuration, caches and outputs
+(retain the public `.lisa/lisa-oxlint` configuration),
+then initialize your own repository and run `npm ci`. Keep `package-lock.json`.
+Do not copy a prior dependency installation or private tracker context. Replace
+the project name and repository placeholders in `package.json`, `.lisa.config.json`
+and `config/github.ts`, and point Git at your own remote.
 
-> Ask Claude: "I just cloned this repo. Walk me through the full setup including installing dependencies, environment variables, and any other configuration."
+Normal npm lifecycle scripts remain enabled. Explicit `lisa apply .` updates
+templates; installation alone does not apply them. See the [Lisa commands](#lisa-commands)
+for optional agent workflows. No chat agent is required for these setup steps.
+
+## Step 2: Configure the infrastructure
+
+Set account IDs and regions in `config/environments.ts`. `PLACEHOLDER` entries
+are synth-only and cannot deploy. Preserve the selected feature defaults unless
+you intend to enable their resources and costs; configure real GitHub repository
+IDs/ref allowlists before using OIDC roles. Choose direct deployment by leaving
+the shared pipeline purpose off and its CodeConnections ARN as `PLACEHOLDER`,
+or enable the shared pipeline with a real connection and its prerequisites.
+
+Domain configuration is optional. For an offline/default smoke, omit domains.
+For a real production domain, follow the [CloudFront/WAF edge runbook](specs/cloudfront-waf-edge.md):
+production activation is automatic, the edge requires `us-east-1`, the stage
+zone needs parent DNS delegation, and the consuming backend must adopt origin
+verification before claiming bypass protection.
+
+Before any authorized live deployment, authenticate separately to the intended
+AWS accounts, confirm CDK bootstrap roles/trust for every account/region, and
+review generated templates and `cdk diff`. Bootstrap and deployment are live
+AWS operations, not part of the offline smoke below. See [CDK bootstrapping](https://docs.aws.amazon.com/cdk/v2/guide/bootstrapping.html).
 
 ## Step 3: Verify the Infrastructure
 
 See the [CDK bundled advisory disposition](docs/security/cdk-bundled-advisories.md) for the pinned dependency update, offline CLI regression commands, remaining exact exceptions and their expiry.
 
-> Ask Claude: "How do I synthesize the CDK stacks and verify the templates are valid?"
+Run the generated-project verification from the source checkout:
+
+```sh
+npm run smoke:generated
+```
+
+It copies current tracked source bytes (including staged new files) into an
+owned temporary project, then uses a **fresh `npm ci` with lifecycle scripts**.
+It runs typecheck/build, lint/slow lint, formatting, dead-code/structural checks,
+coverage, populated integration and native prover commands. It also invokes the
+installed CDK CLI in direct, pipeline and frontend-only modes using the existing
+fake-account fixture, no domains, supplied AZ context and `--no-lookups`.
+Each mode must contain real stack artifacts/resources and no unresolved lookups.
+
+The command rejects copied symlinks and borrowed `node_modules`, filters live
+AWS/CDK context and inherited `NODE_PATH`, preserves HOME/CODEX_HOME, observes
+declared global Codex/Claude settings before/after, and removes its own scratch
+on success or failure. It does not run `lisa apply`, modify the caller checkout,
+or provide a full filesystem/network sandbox. A failed command aborts the smoke.
+Global path/hash observations are diagnostic: other active applications may write
+those shared files. Unattributed drift is reported without restoration or a claim
+of global preservation. The controlled helper regression rejects a real owned
+child changing its settings fixture. No settings contents are printed.
+Install/gate commands have a ten-minute deadline each; standalone synth retains
+the existing fixture's sixty-second deadline. Tests exercise the helper's
+failure/isolation contracts without recursively launching the full smoke.
+
+Re-run this command on the final dependency graph after updating packages and
+before generating a new starter. It establishes offline source/install behavior,
+not AWS credentials, deployed resources, backend enforcement or downstream
+adoption. Never treat a successful filtered audit as a clean raw audit.
 
 ## Step 4: Work on a Feature
 
