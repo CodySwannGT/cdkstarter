@@ -15,8 +15,8 @@
  *
  * ## Dashboard Widget Configuration
  *
- * Dashboard widgets are grouped by resource type. Each widget type corresponds
- * to a specific CloudWatch metric visualization in the environment dashboard.
+ * DashboardStack provides built-in metrics. Custom widget selection is not
+ * implemented and must remain empty.
  * @see lib/stacks/observability/alarms-stack.ts - Alarm creation
  * @see lib/stacks/observability/dashboard-stack.ts - Dashboard creation
  * @module config/observability
@@ -76,22 +76,12 @@ export const alarmThresholds: AlarmThresholds = {
 } as const;
 
 /**
- * CloudWatch dashboard widget configuration by resource type.
- *
- * Each array specifies which metric widgets to display on the environment
- * dashboard. Widget identifiers map to specific CloudWatch metric visualizations
- * created by the DashboardStack.
- *
- * ## Widget Types
- *
- * - **Aurora**: Database performance metrics (connections, CPU, memory, IOPS, latency)
- * - **Valkey**: Cache performance metrics (hit rate, connections, memory, CPU)
- * - **Cognito**: Authentication flow metrics (sign-ins, sign-ups, token refreshes)
- * - **VPC**: Network metrics (NAT gateway throughput, data transfer)
+ * Custom widget selection is currently unsupported. Keep these lists empty.
+ * DashboardStack renders its built-in metrics when dashboardEnabled is true.
  */
 export const dashboardWidgets: DashboardWidgets = {
-  aurora: ["connections", "cpu", "memory", "iops", "latency"],
-  valkey: ["hitRate", "connections", "memory", "cpu"],
-  cognito: ["signIns", "signUps", "tokenRefreshes"],
-  vpc: ["natGateway", "dataTransfer"],
+  aurora: [],
+  valkey: [],
+  cognito: [],
+  vpc: [],
 } as const;

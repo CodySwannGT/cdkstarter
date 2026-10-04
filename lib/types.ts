@@ -67,8 +67,8 @@ export interface StageFeatures {
   readonly cognito: boolean;
 
   /**
-   * Enable X-Ray tracing for distributed tracing.
-   * Helps diagnose performance issues and request flows.
+   * Permit X-Ray trace submission from the application execution role.
+   * Requires Aurora and Cognito. Consumers must also enable runtime tracing.
    */
   readonly xray: boolean;
 
@@ -93,10 +93,7 @@ export interface StageFeatures {
   readonly waf: boolean;
 
   /**
-   * Enable AWS Shield Advanced for DDoS protection.
-   * Provides enhanced DDoS protection beyond Shield Standard.
-   * Note: Significant cost ($3,000/month + data transfer). Disabled by default.
-   * Shield Standard is always enabled at no cost.
+   * Reserved for Shield Advanced. Unsupported: validation rejects true.
    */
   readonly shieldAdvanced: boolean;
 
@@ -154,6 +151,8 @@ export interface StageFeatures {
  * - Production: min=2, max=64 (performance optimized, always warm)
  */
 export interface AuroraConfig {
+  /** Aurora PostgreSQL major.minor engine version. Defaults to 16.4. Verify regional support before deployment. */
+  readonly engineVersion?: string;
   /** Dedicated runtime database user; never the administrative cluster user. */
   readonly applicationUsername?: string;
   /** Optional separate read-only user; this creates no observer IAM role. */
@@ -342,27 +341,11 @@ export interface DeploymentConfig {
  * be enabled when business requirements justify the expense.
  */
 export interface DisasterRecoveryConfig {
-  /**
-   * Enable Aurora Global Database for cross-region read replicas.
-   * Provides RPO of ~1 second and RTO of ~1 minute for regional failover.
-   * Cost: Additional Aurora instance in secondary region + data transfer.
-   * Disabled by default due to cost.
-   */
+  /** Reserved for cross-region replicas. Unsupported: validation rejects true. */
   readonly enableCrossRegionReplica: boolean;
-
-  /**
-   * Secondary region for cross-region replication.
-   * Only used if enableCrossRegionReplica is true.
-   * Example: "us-west-2" for us-east-1 primary
-   */
+  /** Reserved secondary region, inactive while cross-region features are disabled. */
   readonly secondaryRegion?: string;
-
-  /**
-   * Enable cross-region automated backups for Aurora.
-   * Copies automated backups to a secondary region.
-   * Cost: Storage costs in secondary region + data transfer.
-   * Disabled by default due to cost.
-   */
+  /** Reserved for cross-region backups. Unsupported: validation rejects true. */
   readonly enableCrossRegionBackup: boolean;
 }
 
@@ -808,28 +791,17 @@ export interface AlarmThresholds {
 /**
  * CloudWatch dashboard widget configuration.
  *
- * Specifies which metrics to display on the environment dashboard.
- * Each array contains metric identifiers for that resource type.
+ * Reserved custom widget selections. Nonempty arrays are rejected until implemented.
+ * Built-in dashboard metrics are controlled by observability.dashboardEnabled.
  */
 export interface DashboardWidgets {
-  /**
-   * Aurora metrics to display (e.g., "connections", "cpu", "memory", "iops", "latency").
-   */
+  /** Reserved custom Aurora widgets. Unsupported: keep empty. */
   readonly aurora: readonly string[];
-
-  /**
-   * Valkey metrics to display (e.g., "hitRate", "connections", "memory", "cpu").
-   */
+  /** Reserved custom Valkey widgets. Unsupported: keep empty. */
   readonly valkey: readonly string[];
-
-  /**
-   * Cognito metrics to display (e.g., "signIns", "signUps", "tokenRefreshes").
-   */
+  /** Reserved custom Cognito widgets. Unsupported: keep empty. */
   readonly cognito: readonly string[];
-
-  /**
-   * VPC metrics to display (e.g., "natGateway", "dataTransfer").
-   */
+  /** Reserved custom VPC widgets. Unsupported: keep empty. */
   readonly vpc: readonly string[];
 }
 

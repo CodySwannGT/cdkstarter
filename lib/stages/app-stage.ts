@@ -168,6 +168,7 @@ export class AppStage extends cdk.Stage {
     // Create IAM stack only if we have the required resources
     if (this.auroraStack && this.cognitoStack) {
       this.iamStack = new IamStack(this, "IamStack", {
+        enableXray: environment.features.xray,
         stageName,
         databaseProxy: this.auroraStack.proxy,
         applicationUsername: this.auroraStack.applicationUsername,

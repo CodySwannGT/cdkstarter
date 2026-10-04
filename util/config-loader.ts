@@ -28,6 +28,7 @@
  * @see config/observability.ts - Alarm thresholds and dashboard widgets
  * @module util/config-loader
  */
+import { validateAuroraConfig } from "./aurora-config";
 import { agentOperationsConfig } from "../config/agent-operations";
 import { domainConfig } from "../config/domains";
 import { stageEnvironments, supportEnvironments } from "../config/environments";
@@ -65,14 +66,14 @@ export class ConfigurationError extends Error {
 /**
  * Checks if an account ID is deployable (not a placeholder).
  *
- * A deployable account ID is a non-empty string that is not "PLACEHOLDER".
+ * A deployable account ID contains exactly 12 decimal digits.
  * This is used to filter environments for actual deployment while allowing
  * PLACEHOLDER values during synth for template validation.
  * @param accountId - The account ID to check
  * @returns True if the account ID is deployable
  */
 export const isDeployableAccountId = (accountId: string): boolean =>
-  accountId !== "PLACEHOLDER" && accountId.length > 0;
+  /^\d{12}$/.test(accountId);
 
 /**
  * Returns all stage environments including those with PLACEHOLDER account IDs.
@@ -176,15 +177,33 @@ export const getDashboardWidgets = (): DashboardWidgets => dashboardWidgets;
  *    canary URLs, and a Sentry DSN must be a valid URL
  *
  * Call this function at CDK app startup to fail fast on configuration errors.
+ * @param input - Complete configuration, defaulting to the checked-in files
+ * @param input.stages - Stage environments to validate
+ * @param input.supports - Shared environments to validate
+ * @param input.dashboardWidgets - Reserved custom widget selections
  * @throws ConfigurationError if validation fails
  */
-export const validateConfiguration = (): void => {
-  validateUniqueCidrs();
+export const validateConfiguration = (
+  input: {
+    stages: readonly StageEnvironment[];
+    supports: readonly SupportEnvironment[];
+    dashboardWidgets: DashboardWidgets;
+  } = {
+    stages: stageEnvironments,
+    supports: supportEnvironments,
+    dashboardWidgets,
+  }
+): void => {
+  validateEnvironmentContracts(
+    input.stages,
+    input.supports,
+    input.dashboardWidgets
+  );
   validatePrimaryDomain();
-  validateWafFlag();
-  validateNetworkDependencies();
-  validateAmplifyHostingFlag();
-  validateObservabilityExtras();
+  validateWafFlag(input.stages);
+  validateNetworkDependencies(input.stages);
+  validateAmplifyHostingFlag(input.stages);
+  validateObservabilityExtras(input.stages);
 };
 
 /**
@@ -239,10 +258,13 @@ export const findObservabilityConfigErrors = (
 
 /**
  * Validates the optional observability fields on each stage environment.
+ * @param stages - Stage environments to inspect
  * @throws ConfigurationError if an observability field is incoherent
  */
-const validateObservabilityExtras = (): void => {
-  const errors = findObservabilityConfigErrors(stageEnvironments);
+const validateObservabilityExtras = (
+  stages: readonly StageEnvironment[]
+): void => {
+  const errors = findObservabilityConfigErrors(stages);
   if (errors.length > 0) {
     throw new ConfigurationError(errors.join(" "));
   }
@@ -260,22 +282,114 @@ export const loadDeployableEnvironments = (config: {
   config.stages.filter(env => isDeployableAccountId(env.accountId));
 
 /**
- * Validates that all VPC CIDRs are unique across stage environments.
- * @throws ConfigurationError if duplicate CIDRs are found
+ * Validate the supported feature paths for one stage.
+ * @param env - Stage configuration to validate
  */
-const validateUniqueCidrs = (): void => {
-  const cidrs = stageEnvironments
-    .filter(env => env.features.network !== false)
-    .map(env => env.network.vpcCidr);
-  const uniqueCidrs = new Set(cidrs);
-
-  if (uniqueCidrs.size !== cidrs.length) {
-    const duplicates = cidrs.filter(
-      (cidr, index) => cidrs.indexOf(cidr) !== index
-    );
+const validateStageFeatures = (env: StageEnvironment): void => {
+  if (env.features.aurora) validateAuroraConfig(env.aurora);
+  if (env.features.shieldAdvanced) {
     throw new ConfigurationError(
-      `Duplicate VPC CIDRs detected: ${duplicates.join(", ")}. ` +
-        "Each environment must have a unique CIDR to enable VPC peering."
+      `Stage "${env.name}" shieldAdvanced is unsupported; disable it until Shield resources are implemented.`
+    );
+  }
+  if (
+    env.disasterRecovery?.enableCrossRegionReplica ||
+    env.disasterRecovery?.enableCrossRegionBackup
+  ) {
+    throw new ConfigurationError(
+      `Stage "${env.name}" disasterRecovery is unsupported; disable cross-region replica and backup settings.`
+    );
+  }
+  if (env.features.xray && !(env.features.aurora && env.features.cognito)) {
+    throw new ConfigurationError(
+      `Stage "${env.name}" xray requires Aurora and Cognito to create the application execution role; disable xray for this path.`
+    );
+  }
+};
+
+/**
+ * Parse an aligned IPv4 VPC range for overlap detection.
+ * @param env - Stage with networking enabled
+ * @returns Inclusive address range with its environment name
+ */
+const vpcRange = (
+  env: StageEnvironment
+): { name: string; start: number; end: number } => {
+  const match = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\/(\d{1,2})$/.exec(
+    env.network.vpcCidr
+  );
+  const octets = match?.slice(1, 5).map(Number);
+  const prefix = Number(match?.[5]);
+  const address = octets?.reduce((value, octet) => value * 256 + octet, 0);
+  const size = 2 ** (32 - prefix);
+  if (
+    !octets ||
+    octets.some(octet => octet > 255) ||
+    prefix < 16 ||
+    prefix > 28 ||
+    address === undefined ||
+    address % size !== 0
+  ) {
+    throw new ConfigurationError(
+      `Stage "${env.name}" requires a valid IPv4 VPC CIDR with an aligned network address and prefix /16 through /28.`
+    );
+  }
+  return { name: env.name, start: address, end: address + size - 1 };
+};
+
+/**
+ * Validate configuration identities, address ranges and implemented features.
+ * @param stages - All configured stage environments
+ * @param supports - All configured shared environments
+ * @param widgets - Reserved custom widget selections
+ */
+const validateEnvironmentContracts = (
+  stages: readonly StageEnvironment[],
+  supports: readonly SupportEnvironment[],
+  widgets: DashboardWidgets
+): void => {
+  if (supports.length > 1) {
+    throw new ConfigurationError(
+      "Configure at most one support environment; multiple support environments are unsupported."
+    );
+  }
+  const environments = [...stages, ...supports];
+  const names = environments.map(env => env.name);
+  for (const [index, env] of environments.entries()) {
+    if (names.indexOf(env.name) !== index) {
+      throw new ConfigurationError(
+        `Duplicate environment name "${env.name}"; use unique names.`
+      );
+    }
+    if (
+      env.accountId !== "PLACEHOLDER" &&
+      !isDeployableAccountId(env.accountId)
+    ) {
+      throw new ConfigurationError(
+        `Environment "${env.name}" accountId must contain exactly 12 digits or the exact PLACEHOLDER sentinel.`
+      );
+    }
+  }
+  const ranges = stages
+    .filter(env => env.features.network !== false)
+    .map(vpcRange);
+  stages.forEach(validateStageFeatures);
+  for (const [index, range] of ranges.entries()) {
+    const other = ranges
+      .slice(index + 1)
+      .find(
+        candidate =>
+          range.start <= candidate.end && candidate.start <= range.end
+      );
+    if (other) {
+      throw new ConfigurationError(
+        `Stages "${other.name}" and "${range.name}" have overlapping VPC CIDRs; configure disjoint ranges for peering.`
+      );
+    }
+  }
+  if (Object.values(widgets).some(selection => selection.length > 0)) {
+    throw new ConfigurationError(
+      "Custom dashboardWidgets selections are unsupported; leave every list empty and use the built-in dashboardEnabled metrics."
     );
   }
 };
@@ -303,6 +417,7 @@ const validatePrimaryDomain = (): void => {
 
 /**
  * Validates that no non-production stage carries a decorative `features.waf`.
+ * @param stages - Stage environments to inspect
  *
  * The `waf` flag only fronts a non-prod stage with CloudFront + WAF when a
  * domain is also configured for that stage; with no domain mapping the flag
@@ -311,8 +426,8 @@ const validatePrimaryDomain = (): void => {
  * its domain and ignores the flag.
  * @throws ConfigurationError if a non-prod stage sets waf without a domain
  */
-const validateWafFlag = (): void => {
-  const dead = findDeadWafFlags(stageEnvironments, domainConfig);
+const validateWafFlag = (stages: readonly StageEnvironment[]): void => {
+  const dead = findDeadWafFlags(stages, domainConfig);
 
   if (dead.length > 0) {
     throw new ConfigurationError(
@@ -343,9 +458,14 @@ export const findNetworkDependencyViolations = (
         environment.features.migrationRunner)
   );
 
-/** Validates dependencies on the optional network layer. */
-const validateNetworkDependencies = (): void => {
-  const invalid = findNetworkDependencyViolations(stageEnvironments);
+/**
+ * Validates dependencies on the optional network layer.
+ * @param stages - Stage environments to inspect
+ */
+const validateNetworkDependencies = (
+  stages: readonly StageEnvironment[]
+): void => {
+  const invalid = findNetworkDependencyViolations(stages);
   if (invalid.length === 0) {
     return;
   }
@@ -372,9 +492,14 @@ export const findDeadAmplifyHostingFlags = (
       !environment.amplifyHosting
   );
 
-/** Validates the optional Amplify Hosting feature. */
-const validateAmplifyHostingFlag = (): void => {
-  const invalid = findDeadAmplifyHostingFlags(stageEnvironments);
+/**
+ * Validates the optional Amplify Hosting feature.
+ * @param stages - Stage environments to inspect
+ */
+const validateAmplifyHostingFlag = (
+  stages: readonly StageEnvironment[]
+): void => {
+  const invalid = findDeadAmplifyHostingFlags(stages);
   if (invalid.length === 0) {
     return;
   }

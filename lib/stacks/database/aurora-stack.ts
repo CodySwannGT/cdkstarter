@@ -41,6 +41,7 @@ import * as iam from "aws-cdk-lib/aws-iam";
 import * as rds from "aws-cdk-lib/aws-rds";
 import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager";
 import type { Construct } from "constructs";
+import { validateAuroraConfig } from "../../../util/aurora-config";
 import type { AuroraConfig } from "../../types";
 
 /**
@@ -111,6 +112,7 @@ export class AuroraStack extends cdk.Stack {
     super(scope, id, props);
 
     const { stageName, vpc, aurora } = props;
+    validateAuroraConfig(aurora);
 
     // Reference the security group by ID rather than using the construct
     // directly. The proxy (addProxy) auto-adds an ingress rule on the
@@ -206,7 +208,12 @@ export class AuroraStack extends cdk.Stack {
     return new rds.DatabaseCluster(this, "AuroraCluster", {
       clusterIdentifier,
       engine: rds.DatabaseClusterEngine.auroraPostgres({
-        version: rds.AuroraPostgresEngineVersion.VER_16_4,
+        version: aurora.engineVersion
+          ? rds.AuroraPostgresEngineVersion.of(
+              aurora.engineVersion,
+              aurora.engineVersion.split(".")[0]
+            )
+          : rds.AuroraPostgresEngineVersion.VER_16_4,
       }),
       credentials: rds.Credentials.fromGeneratedSecret("clusteradmin"),
       iamAuthentication: true,
@@ -215,11 +222,14 @@ export class AuroraStack extends cdk.Stack {
       }),
       readers: Array.from(
         { length: Math.max(0, aurora.instanceCount - 1) },
-        () =>
-          rds.ClusterInstance.serverlessV2("reader", {
-            scaleWithWriter: true,
-            enablePerformanceInsights: aurora.performanceInsights ?? false,
-          })
+        (_, index) =>
+          rds.ClusterInstance.serverlessV2(
+            index === 0 ? "reader" : `reader${index + 1}`,
+            {
+              scaleWithWriter: true,
+              enablePerformanceInsights: aurora.performanceInsights ?? false,
+            }
+          )
       ),
       // Enhanced Monitoring (OS-level metrics per instance); optional —
       // omitting the config field creates no monitoring role at all.

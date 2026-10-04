@@ -227,3 +227,30 @@ successful live backup, recovery point or restore. Review the cluster tag,
 selection, IAM and alert changes before consumer deployment; validate real
 backups/restores separately. See AWS [resource selection](https://docs.aws.amazon.com/aws-backup/latest/devguide/assigning-resources.html)
 and [state-change events](https://docs.aws.amazon.com/aws-backup/latest/devguide/eventbridge.html).
+
+## Configuration validation
+
+Account IDs must contain exactly 12 decimal digits, or use the exact
+`PLACEHOLDER` starter sentinel. Whitespace and malformed accounts fail startup
+validation. Environment names must be unique, with at most one support
+environment. Enabled VPCs require aligned IPv4 ranges with /16 through /28
+prefixes and must not overlap, so they can later be peered.
+
+Aurora requires an integer `instanceCount` of at least one, coherent capacities
+in half-ACU increments (minimum 0.5, maximum 1–128), backup retention of 1–35 days,
+and log retention of 1, 3, 7, 14, 30, 90, 180 or 365 days. Configure
+`aurora.engineVersion` with an Aurora PostgreSQL major.minor version when needed.
+The default remains 16.4. Check engine and capacity availability in the target
+region before deploying an upgrade. Additional readers have unique identities,
+while the writer and original first reader retain theirs.
+
+Shield Advanced and cross-region replica/backup flags currently fail validation
+when enabled. Custom `dashboardWidgets` lists must stay empty: the existing
+built-in dashboard uses `observability.dashboardEnabled`. The `xray` flag controls
+trace-submission permissions on the application IAM role, which requires Aurora
+and Cognito. Set it false on paths without that role. Application owners must
+also enable tracing in their runtime. It does not enable tracing on unrelated
+helper functions.
+
+Sources: [Aurora capacity settings](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/aurora-serverless-v2.setting-capacity.html)
+and [DBCluster engine configuration](https://docs.aws.amazon.com/AWSCloudFormation/latest/TemplateReference/aws-resource-rds-dbcluster.html).

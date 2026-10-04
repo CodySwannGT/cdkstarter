@@ -271,6 +271,7 @@ export class EnvironmentStage extends cdk.Stage {
 
     if (auroraStack && cognitoStack) {
       const iamStack = new IamStack(this, "IamStack", {
+        enableXray: environment.features.xray,
         stageName,
         databaseProxy: auroraStack.proxy,
         applicationUsername: auroraStack.applicationUsername,

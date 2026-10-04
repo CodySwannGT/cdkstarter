@@ -46,6 +46,9 @@ export interface IamStackProps extends cdk.StackProps {
    */
   readonly stageName: string;
 
+  /** Permit application X-Ray submissions. Defaults to true for existing direct callers. */
+  readonly enableXray?: boolean;
+
   /** Actual RDS Proxy; grantConnect derives its prx resource-ID dbuser ARN. */
   readonly databaseProxy: rds.IDatabaseProxy;
   /** Dedicated application username, never a wildcard or administrator. */
@@ -107,7 +110,9 @@ export class IamStack extends cdk.Stack {
     databaseProxy.grantConnect(this.lambdaExecutionRole, applicationUsername);
     applicationSecret.grantRead(this.lambdaExecutionRole);
     this.addCognitoPolicy(cognitoUserPoolArn);
-    this.addXRayPolicy();
+    if (props.enableXray !== false) {
+      this.addXRayPolicy();
+    }
     this.createOutputs(stageName);
   }
 
