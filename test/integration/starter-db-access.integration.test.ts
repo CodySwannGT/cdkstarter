@@ -76,6 +76,10 @@ describe("starter application database access", () => {
       ["app_user", new Set(["CREATE", "SELECT"])],
       ["reader_user", new Set(["INSERT", "SELECT"])],
     ]);
+    const membershipAdmin = new Map([
+      ["app_user", true],
+      ["reader_user", true],
+    ]);
     const log = vi.spyOn(console, "log").mockImplementation(() => {});
     const info = vi.spyOn(console, "info").mockImplementation(() => {});
     try {
@@ -94,6 +98,9 @@ describe("starter application database access", () => {
           expect(admin.password).toBe("admin-password");
           statements.push(sql);
           for (const line of sql.split("\n")) {
+            const revokeAdmin =
+              /^REVOKE ADMIN OPTION FOR rds_iam FROM "([a-z_]+)";/.exec(line);
+            if (revokeAdmin) membershipAdmin.set(revokeAdmin[1], false);
             const revoke =
               /^REVOKE ALL PRIVILEGES ON ALL TABLES .* FROM "([a-z_]+)";/.exec(
                 line
@@ -131,6 +138,7 @@ describe("starter application database access", () => {
         "DELETE",
       ]);
       expect([...permissions.get("reader_user")!]).toEqual(["SELECT"]);
+      expect([...membershipAdmin.values()]).toEqual([false, false]);
       expect(statements).toHaveLength(2);
       expect(statements[0]).toBe(statements[1]);
       expect(statements[0]).toContain("IF NOT EXISTS");
@@ -153,7 +161,11 @@ describe("starter application database access", () => {
       expect(statements[0]).not.toContain(
         'GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA "application_schema" TO "reader_user"'
       );
+      expect(statements[0]).toContain(
+        'REVOKE ADMIN OPTION FOR rds_iam FROM "app_user"'
+      );
       expect(statements[0]).toContain('GRANT rds_iam TO "app_user"');
+      expect(statements[0]).toContain("membership.admin_option");
       expect(statements[0]).toContain(
         'ALTER DEFAULT PRIVILEGES FOR ROLE "clusteradmin"'
       );
@@ -207,5 +219,177 @@ describe("starter application database access", () => {
       )
     ).rejects.toThrow(/username/);
     expect(execute).not.toHaveBeenCalled();
+  });
+
+  it("fails closed on conflicting owner global defaults before applying grants, while leaving unrelated defaults untouched", async () => {
+    const { bootstrapDatabaseUsers } = await bootstrapModule();
+    const options = {
+      database: "application_db",
+      schema: "application_schema",
+      owner: "clusteradmin",
+      adminSecret: "admin",
+      applicationSecret: "application",
+      applicationUsername: "app_user",
+      readOnlySecret: "readonly",
+      readOnlyUsername: "reader_user",
+    };
+    const secrets = {
+      admin: { username: "clusteradmin", password: "never-log-admin" },
+      application: { username: "app_user", password: "never-log-app" },
+      readonly: { username: "reader_user", password: "never-log-reader" },
+    };
+    const log = vi.spyOn(console, "info").mockImplementation(() => {});
+    try {
+      // Model owner global ACL rows separately from schema-local grants: local
+      // REVOKE cannot remove these future-object rights in PostgreSQL.
+      for (const acl of [
+        { grantee: "PUBLIC", kind: "r", privilege: "INSERT", grantable: false },
+        { grantee: "PUBLIC", kind: "S", privilege: "USAGE", grantable: false },
+        ...["INSERT", "UPDATE", "DELETE"].map(privilege => ({
+          grantee: "reader_user",
+          kind: "r",
+          privilege,
+          grantable: false,
+        })),
+        {
+          grantee: "reader_user",
+          kind: "S",
+          privilege: "SELECT",
+          grantable: false,
+        },
+        {
+          grantee: "reader_user",
+          kind: "r",
+          privilege: "SELECT",
+          grantable: true,
+        },
+        {
+          grantee: "app_user",
+          kind: "r",
+          privilege: "TRIGGER",
+          grantable: false,
+        },
+        {
+          grantee: "app_user",
+          kind: "S",
+          privilege: "UPDATE",
+          grantable: false,
+        },
+        {
+          grantee: "app_user",
+          kind: "r",
+          privilege: "SELECT",
+          grantable: true,
+        },
+      ]) {
+        const applied = vi.fn();
+        const globalDefaults = [
+          { ...acl, owner: "clusteradmin", namespace: 0 },
+        ];
+        const execute = vi.fn(async (sql: string) => {
+          // A bounded catalog model preserves global defaults independently of
+          // local REVOKE. Without the query, old code applies grants/succeeds.
+          if (
+            sql.includes("FROM pg_default_acl") &&
+            sql.includes("aclexplode") &&
+            sql.includes("defaclnamespace = 0")
+          ) {
+            expect(sql).toContain(
+              "defaclrole = (SELECT oid FROM pg_roles WHERE rolname = 'clusteradmin')"
+            );
+            expect(sql).toContain("is_grantable");
+            expect(sql).toContain("privilege_type");
+            expect(sql.indexOf("FROM pg_default_acl")).toBeLessThan(
+              sql.indexOf("REVOKE CREATE")
+            );
+            expect(sql).toContain("privileges.grantee = 0");
+            expect(sql).toContain(
+              "privilege_type NOT IN ('SELECT', 'INSERT', 'UPDATE', 'DELETE')"
+            );
+            expect(sql).toContain("privilege_type NOT IN ('USAGE', 'SELECT')");
+            expect(sql).toContain("privilege_type NOT IN ('SELECT')");
+            const conflicts = globalDefaults
+              .filter(row => row.owner === options.owner && row.namespace === 0)
+              .filter(
+                row =>
+                  row.grantee === "PUBLIC" ||
+                  row.grantable ||
+                  (row.grantee === "reader_user" &&
+                    (row.kind === "S" || row.privilege !== "SELECT")) ||
+                  (row.grantee === "app_user" &&
+                    !(
+                      row.kind === "r"
+                        ? ["SELECT", "INSERT", "UPDATE", "DELETE"]
+                        : ["USAGE", "SELECT"]
+                    ).includes(row.privilege))
+              );
+            if (conflicts.length)
+              throw new Error("global ACL conflict never-log-admin");
+          }
+          applied();
+        });
+        await expect(
+          bootstrapDatabaseUsers(options, {
+            getSecret: async (id: keyof typeof secrets) => secrets[id],
+            execute,
+          })
+        ).rejects.toThrow("Database bootstrap failed");
+        expect(applied).not.toHaveBeenCalled();
+        expect(execute).toHaveBeenCalledOnce();
+        expect(globalDefaults).toEqual([
+          { ...acl, owner: "clusteradmin", namespace: 0 },
+        ]);
+      }
+      const unrelatedDefaults = [
+        {
+          owner: "another_owner",
+          namespace: 0,
+          grantee: "PUBLIC",
+          privilege: "INSERT",
+        },
+        {
+          owner: "clusteradmin",
+          namespace: 0,
+          grantee: "unrelated_user",
+          privilege: "INSERT",
+        },
+        {
+          owner: "clusteradmin",
+          namespace: 0,
+          grantee: "app_user",
+          privilege: "INSERT",
+        },
+        {
+          owner: "clusteradmin",
+          namespace: 0,
+          grantee: "reader_user",
+          privilege: "SELECT",
+        },
+      ];
+      const originalDefaults = JSON.stringify(unrelatedDefaults);
+      const execute = vi.fn(async (sql: string) => {
+        // Unrelated owner/grantee rows and least-privilege SELECT/DML globals
+        // remain unchanged. Every generated default ACL mutation stays local.
+        expect(sql).toContain("defaclobjtype IN ('r', 'S')");
+        expect(sql).toContain("grantee.rolname = 'reader_user'");
+        expect(sql).toContain("grantee.rolname = 'app_user'");
+        for (const line of sql
+          .split("\n")
+          .filter(line => line.startsWith("ALTER DEFAULT PRIVILEGES"))) {
+          expect(line).toContain('IN SCHEMA "application_schema"');
+        }
+      });
+      await expect(
+        bootstrapDatabaseUsers(options, {
+          getSecret: async (id: keyof typeof secrets) => secrets[id],
+          execute,
+        })
+      ).resolves.toBeUndefined();
+      expect(execute).toHaveBeenCalledOnce();
+      expect(JSON.stringify(unrelatedDefaults)).toBe(originalDefaults);
+      expect(JSON.stringify(log.mock.calls)).not.toMatch(/never-log-/);
+    } finally {
+      log.mockRestore();
+    }
   });
 });

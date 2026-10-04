@@ -42,7 +42,26 @@ CONNECT/USAGE/SELECT without sequence or write grants. Matching default privileg
 apply to future objects created by the supplied owner. Bootstrap removes other
 role memberships, elevated role attributes and existing grants in this database
 and schema before applying the intended grants. Repeating it converges to the
-same privileges. Roles that already own objects fail until ownership is migrated.
+same privileges. It explicitly revokes existing `rds_iam` ADMIN OPTION before
+retaining IAM membership, using syntax supported in PostgreSQL 14 and 16. A
+catalog check aborts if another grantor's admin option remains. Review membership
+grantors and separately remediate such grants rather than granting runtime role
+administration. Roles that already own objects fail until ownership is migrated.
+
+Bootstrap first queries the supplied owner's global table/sequence default ACLs
+inside the transaction. It aborts before applying grants if PUBLIC has any such
+privileges, a runtime user has grant options, or a user has global rights beyond
+its table/sequence allowlist. Schema-local default REVOKE cannot remove global
+grants: future tables could otherwise retain read-only write access. Allowed
+application DML/sequence access and read-only table SELECT globals are compatible.
+Defaults for unrelated owners or grantees are outside this preflight scope.
+
+If preflight fails, inspect default ACLs with PostgreSQL's `\ddp` as an authorized
+operator. Review each conflicting grant and its consumers across all schemas.
+Separately authorize any global REVOKE, or choose an object owner with clean
+defaults, then rerun bootstrap. This helper never revokes global defaults or
+changes unrelated schemas. Recheck defaults before introducing another object
+owner or changing global grants after bootstrap.
 
 Review the migration before running on an existing database: bootstrap also
 removes PUBLIC CREATE on the selected database/schema and PUBLIC table/sequence
@@ -62,4 +81,5 @@ Sources: [proxy AuthFormat](https://docs.aws.amazon.com/AWSCloudFormation/latest
 [proxy default authentication](https://docs.aws.amazon.com/AWSCloudFormation/latest/TemplateReference/aws-resource-rds-dbproxy.html),
 [RDS Proxy authentication](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/rds-proxy-connecting.html),
 [database-user IAM ARNs](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/UsingWithRDS.IAMDBAuth.IAMPolicy.html),
-[PostgreSQL default privileges](https://www.postgresql.org/docs/current/sql-alterdefaultprivileges.html).
+[PostgreSQL default privileges](https://www.postgresql.org/docs/16/sql-alterdefaultprivileges.html),
+[role membership revocation](https://www.postgresql.org/docs/14/sql-revoke.html).

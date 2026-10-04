@@ -110,11 +110,53 @@ ALTER DEFAULT PRIVILEGES FOR ROLE ${owner} IN SCHEMA ${schema} REVOKE ALL ON TAB
 ALTER DEFAULT PRIVILEGES FOR ROLE ${owner} IN SCHEMA ${schema} REVOKE ALL ON SEQUENCES FROM ${name};
 ALTER DEFAULT PRIVILEGES FOR ROLE ${owner} IN SCHEMA ${schema} GRANT ${privileges} ON TABLES TO ${name};
 ${user.readonly ? "" : `ALTER DEFAULT PRIVILEGES FOR ROLE ${owner} IN SCHEMA ${schema} GRANT USAGE, SELECT ON SEQUENCES TO ${name};`}
-GRANT rds_iam TO ${name};`;
+REVOKE ADMIN OPTION FOR rds_iam FROM ${name};
+GRANT rds_iam TO ${name};
+DO $role_admin$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM pg_auth_members membership
+    JOIN pg_roles parent ON parent.oid = membership.roleid
+    JOIN pg_roles child ON child.oid = membership.member
+    WHERE parent.rolname = 'rds_iam' AND child.rolname = '${user.username}'
+      AND membership.admin_option
+  ) THEN
+    RAISE EXCEPTION 'Runtime rds_iam ADMIN OPTION remains; review membership grantors before bootstrap';
+  END IF;
+END $role_admin$;`;
     });
+    // Schema-local defaults add to global ACLs, so local REVOKE cannot undo
+    // conflicting global rights. Fail closed without mutating other schemas.
+    const globalConflicts = users.map(user => {
+      const tablePrivileges = user.readonly
+        ? "'SELECT'"
+        : "'SELECT', 'INSERT', 'UPDATE', 'DELETE'";
+      const sequenceConflict = user.readonly
+        ? "defaults.defaclobjtype = 'S'"
+        : "(defaults.defaclobjtype = 'S' AND privileges.privilege_type NOT IN ('USAGE', 'SELECT'))";
+      return `(grantee.rolname = '${user.username}' AND (
+        privileges.is_grantable
+        OR (defaults.defaclobjtype = 'r' AND privileges.privilege_type NOT IN (${tablePrivileges}))
+        OR ${sequenceConflict}
+      ))`;
+    });
+    const globalDefaultPreflight = `DO $global_defaults$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM pg_default_acl defaults
+    CROSS JOIN LATERAL aclexplode(defaults.defaclacl) privileges
+    LEFT JOIN pg_roles grantee ON grantee.oid = privileges.grantee
+    WHERE defaults.defaclrole = (SELECT oid FROM pg_roles WHERE rolname = '${options.owner}')
+      AND defaults.defaclnamespace = 0
+      AND defaults.defaclobjtype IN ('r', 'S')
+      AND (privileges.grantee = 0 OR ${globalConflicts.join(" OR ")})
+  ) THEN
+    RAISE EXCEPTION 'Conflicting owner global default ACLs; review the database-user migration runbook';
+  END IF;
+END $global_defaults$;`;
     // PUBLIC privileges can otherwise bypass per-user revocations. This script
     // operates only on the caller-selected database/schema; review the runbook.
-    const sql = `BEGIN;\nREVOKE CREATE ON DATABASE ${database} FROM PUBLIC;\nREVOKE CREATE ON SCHEMA ${schema} FROM PUBLIC;\nREVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA ${schema} FROM PUBLIC;\nREVOKE ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA ${schema} FROM PUBLIC;\nALTER DEFAULT PRIVILEGES FOR ROLE ${owner} IN SCHEMA ${schema} REVOKE ALL ON TABLES FROM PUBLIC;\nALTER DEFAULT PRIVILEGES FOR ROLE ${owner} IN SCHEMA ${schema} REVOKE ALL ON SEQUENCES FROM PUBLIC;\n${statements.join("\n")}\nCOMMIT;`;
+    const sql = `BEGIN;\n${globalDefaultPreflight}\nREVOKE CREATE ON DATABASE ${database} FROM PUBLIC;\nREVOKE CREATE ON SCHEMA ${schema} FROM PUBLIC;\nREVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA ${schema} FROM PUBLIC;\nREVOKE ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA ${schema} FROM PUBLIC;\nALTER DEFAULT PRIVILEGES FOR ROLE ${owner} IN SCHEMA ${schema} REVOKE ALL ON TABLES FROM PUBLIC;\nALTER DEFAULT PRIVILEGES FOR ROLE ${owner} IN SCHEMA ${schema} REVOKE ALL ON SEQUENCES FROM PUBLIC;\n${statements.join("\n")}\nCOMMIT;`;
     await clients.execute(sql, admin);
   } catch (error) {
     // Transport/server diagnostics can contain credentials; expose only our
