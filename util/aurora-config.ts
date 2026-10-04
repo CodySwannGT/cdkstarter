@@ -8,6 +8,7 @@ import type { AuroraConfig } from "../lib/types";
 export const isRuntimeDatabaseUsername = (username: string): boolean =>
   /^[a-z][a-z0-9_]{0,62}$/.test(username) &&
   username !== "clusteradmin" &&
+  username !== "rdsadmin" &&
   !username.startsWith("pg_") &&
   !username.startsWith("rds_");
 

@@ -59,6 +59,7 @@ describe("IamStack", () => {
     "",
     "*",
     "clusteradmin",
+    "rdsadmin",
     "pg_operator",
     "rds_operator",
     "A_user",

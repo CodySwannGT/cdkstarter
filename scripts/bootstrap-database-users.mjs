@@ -42,6 +42,7 @@ export const bootstrapDatabaseUsers = async (options, clients) => {
       user =>
         !user.secret ||
         user.secret === options.adminSecret ||
+        user.username === "rdsadmin" ||
         user.username.startsWith("pg_") ||
         user.username.startsWith("rds_")
     ) ||

@@ -225,6 +225,64 @@ describe("starter application database access", () => {
     expect(execute).not.toHaveBeenCalled();
   });
 
+  it.each(["applicationUsername", "readOnlyUsername"])(
+    "rejects reserved rdsadmin in %s before resolving credentials or executing SQL",
+    async binding => {
+      const { bootstrapDatabaseUsers } = await bootstrapModule();
+      const options = {
+        database: "application_db",
+        schema: "application_schema",
+        owner: "clusteradmin",
+        adminSecret: "admin",
+        applicationSecret: "application",
+        applicationUsername: "app_user",
+        readOnlySecret: "readonly",
+        readOnlyUsername: "reader_user",
+        [binding]: "rdsadmin",
+      };
+      const secrets: Record<string, ReturnType<typeof createFakeSecret>> = {
+        admin: createFakeSecret("clusteradmin", "reserved-admin"),
+        application: createFakeSecret(
+          options.applicationUsername,
+          "reserved-app"
+        ),
+        readonly: createFakeSecret(options.readOnlyUsername, "reserved-reader"),
+      };
+      const getSecret = vi.fn(async (id: string) => secrets[id]);
+      const execute = vi.fn();
+      await expect(
+        bootstrapDatabaseUsers(options, { getSecret, execute })
+      ).rejects.toThrow(/non-administrative/);
+      expect(getSecret).not.toHaveBeenCalled();
+      expect(execute).not.toHaveBeenCalled();
+    }
+  );
+
+  it("rejects a reserved username substituted into the runtime secret without executing SQL", async () => {
+    const { bootstrapDatabaseUsers } = await bootstrapModule();
+    const getSecret = vi.fn(async (id: string) =>
+      createFakeSecret(
+        id === "admin" ? "clusteradmin" : "rdsadmin",
+        "substituted"
+      )
+    );
+    const execute = vi.fn();
+    await expect(
+      bootstrapDatabaseUsers(
+        {
+          database: "application_db",
+          schema: "application_schema",
+          owner: "clusteradmin",
+          adminSecret: "admin",
+          applicationSecret: "application",
+          applicationUsername: "app_user",
+        },
+        { getSecret, execute }
+      )
+    ).rejects.toThrow(/Configured username does not match its secret username/);
+    expect(execute).not.toHaveBeenCalled();
+  });
+
   it("fails closed on conflicting owner global defaults before applying grants, while leaving unrelated defaults untouched", async () => {
     const { bootstrapDatabaseUsers } = await bootstrapModule();
     const options = {
