@@ -69,6 +69,13 @@ describe("DashboardStack", () => {
       });
 
       template.resourceCountIs("AWS::CloudWatch::Dashboard", 1);
+      const body = JSON.stringify(
+        template.findResources("AWS::CloudWatch::Dashboard")
+      );
+      expect(body).toContain("AWS/RDS");
+      expect(body).toContain("DatabaseConnections");
+      expect(body).toContain("AWS/ElastiCache");
+      expect(body).toContain("CacheHitRate");
     });
   });
 
