@@ -34,7 +34,7 @@ import { domainConfig } from "../config/domains";
 import { stageEnvironments, supportEnvironments } from "../config/environments";
 import { githubConfig } from "../config/github";
 import { alarmThresholds, dashboardWidgets } from "../config/observability";
-import { findDeadWafFlags } from "./cdn";
+import { findDeadWafFlags, resolveCdnForStage } from "./cdn";
 import type {
   AgentOperationsConfig,
   AlarmThresholds,
@@ -201,6 +201,7 @@ export const validateConfiguration = (
   );
   validatePrimaryDomain();
   validateWafFlag(input.stages);
+  validateEdgeRegions(input.stages);
   validateNetworkDependencies(input.stages);
   validateAmplifyHostingFlag(input.stages);
   validateObservabilityExtras(input.stages);
@@ -437,6 +438,27 @@ const validateWafFlag = (stages: readonly StageEnvironment[]): void => {
         "Configure a domain mapping for the stage (config/domains.ts) or set " +
         "waf: false."
     );
+  }
+};
+
+/**
+ * Reject effective CloudFront edges outside the region required by their WAF.
+ * Production activates from its domain even when the waf flag is false.
+ * @param stages - Stage environments to inspect
+ */
+const validateEdgeRegions = (stages: readonly StageEnvironment[]): void => {
+  for (const stage of stages) {
+    if (
+      resolveCdnForStage(stage, domainConfig) &&
+      stage.region !== "us-east-1"
+    ) {
+      throw new ConfigurationError(
+        `Stage "${stage.name}" in "${stage.region}" enables CloudFront WAF; ` +
+          "this edge requires us-east-1. Set the stage region to us-east-1 " +
+          "or remove its effective edge configuration. Regional stages " +
+          "without an edge may use other regions."
+      );
+    }
   }
 };
 
