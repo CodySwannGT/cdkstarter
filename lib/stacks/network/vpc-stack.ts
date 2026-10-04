@@ -39,6 +39,7 @@
 import * as cdk from "aws-cdk-lib";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import type { Construct } from "constructs";
+import type { VpcEndpointType } from "../../types";
 
 /**
  * Configuration properties for VpcStack.
@@ -67,6 +68,9 @@ export interface VpcStackProps extends cdk.StackProps {
    * Recommended for staging and production environments.
    */
   readonly enableFlowLogs: boolean;
+
+  /** Explicit services; gateway endpoints are free, interfaces are paid opt-in. */
+  readonly vpcEndpoints?: readonly VpcEndpointType[];
 }
 
 /**
@@ -124,7 +128,72 @@ export class VpcStack extends cdk.Stack {
       });
     }
 
+    this.createEndpoints(props.vpcEndpoints ?? []);
     this.createOutputs(stageName);
+  }
+
+  /**
+   * Create explicit private gateway/interface endpoints without public ingress.
+   * @param requested - Configured services, deduplicated before creation
+   */
+  private createEndpoints(requested: readonly VpcEndpointType[]): void {
+    const gateways = {
+      s3: ec2.GatewayVpcEndpointAwsService.S3,
+      dynamodb: ec2.GatewayVpcEndpointAwsService.DYNAMODB,
+    };
+    const interfaces = {
+      secretsmanager: ec2.InterfaceVpcEndpointAwsService.SECRETS_MANAGER,
+      ssm: ec2.InterfaceVpcEndpointAwsService.SSM,
+      ssmmessages: ec2.InterfaceVpcEndpointAwsService.SSM_MESSAGES,
+      logs: ec2.InterfaceVpcEndpointAwsService.CLOUDWATCH_LOGS,
+    };
+    const allowed = new Set([
+      ...Object.keys(gateways),
+      ...Object.keys(interfaces),
+    ]);
+    const services = [...new Set(requested)];
+    services.forEach(service => {
+      if (!allowed.has(service))
+        throw new Error(`Unsupported VPC endpoint: ${service}`);
+    });
+    const privateSubnets = [
+      ...this.vpc.privateSubnets,
+      ...this.vpc.isolatedSubnets,
+    ];
+    const securityGroup = services.some(service =>
+      Object.prototype.hasOwnProperty.call(interfaces, service)
+    )
+      ? new ec2.SecurityGroup(this, "EndpointSecurityGroup", {
+          vpc: this.vpc,
+          description: "Private subnet HTTPS access to opted-in endpoints",
+          allowAllOutbound: false,
+        })
+      : undefined;
+    if (securityGroup) {
+      privateSubnets.forEach(subnet =>
+        securityGroup.addIngressRule(
+          ec2.Peer.ipv4(subnet.ipv4CidrBlock),
+          ec2.Port.tcp(443),
+          "Private subnet HTTPS"
+        )
+      );
+    }
+    services.forEach(service => {
+      if (Object.prototype.hasOwnProperty.call(gateways, service)) {
+        this.vpc.addGatewayEndpoint(`${service}Endpoint`, {
+          service: gateways[service as keyof typeof gateways],
+          subnets: [{ subnets: privateSubnets }],
+        });
+      } else if (securityGroup) {
+        this.vpc.addInterfaceEndpoint(`${service}Endpoint`, {
+          service: interfaces[service as keyof typeof interfaces],
+          subnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
+          privateDnsEnabled: true,
+          open: false,
+          securityGroups: [securityGroup],
+        });
+      }
+    });
   }
 
   /**

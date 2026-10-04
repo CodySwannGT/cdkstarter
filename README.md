@@ -180,3 +180,20 @@ workload-specific composite alarms stay opt-in. Existing consumers should
 review the changed alarm thresholds/dimensions and additional reader alarms
 before deployment. AWS documents [capacity metrics](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Aurora.AuroraMonitoring.Metrics.html)
 and [writer/reader dimensions](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/dimensions.html).
+
+### Private AWS service endpoints
+
+`network.vpcEndpoints` is now honored in both unified and legacy network stages.
+The configured S3/DynamoDB defaults create free gateway endpoints associated
+with every private-with-egress and isolated route table, excluding public routes.
+An empty or omitted list creates no endpoints. Duplicate service names create
+one endpoint each; unsupported services fail synthesis.
+
+Only explicit `secretsmanager`, `ssm`, `ssmmessages` and `logs` entries create paid
+interface endpoints. Their ENIs use private-with-egress subnets (one per AZ),
+private DNS, and a shared security group allowing only TCP443 from the actual
+private-with-egress and isolated subnet CIDRs. Public subnet and VPC-wide ingress
+are excluded. Extra services require a separate reviewed allowlist change.
+Before adopting, review new endpoint/route-table/security-group resources and
+interface hourly/data charges. See AWS [gateway routing](https://docs.aws.amazon.com/vpc/latest/privatelink/gateway-endpoints.html)
+and [interface prerequisites](https://docs.aws.amazon.com/vpc/latest/privatelink/create-interface-endpoint.html).

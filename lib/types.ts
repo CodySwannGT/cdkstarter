@@ -372,31 +372,17 @@ export interface DisasterRecoveryConfig {
  * ## Paid Interface Endpoints (~$7/month each + data transfer)
  * Only enable if needed for security compliance or private connectivity:
  * - `secretsmanager` - Secrets Manager
- * - `rds` - RDS API
  * - `logs` - CloudWatch Logs
- * - `monitoring` - CloudWatch Metrics
- * - `ecr.api` - ECR API
- * - `ecr.dkr` - ECR Docker registry
- * - `kms` - Key Management Service
  * - `ssm` - Systems Manager
  * - `ssmmessages` - SSM Session Manager
- * - `ec2messages` - SSM EC2 messages
  */
 export type VpcEndpointType =
-  // Gateway endpoints (FREE)
   | "s3"
   | "dynamodb"
-  // Interface endpoints (PAID ~$7/month each)
   | "secretsmanager"
-  | "rds"
   | "logs"
-  | "monitoring"
-  | "ecr.api"
-  | "ecr.dkr"
-  | "kms"
   | "ssm"
-  | "ssmmessages"
-  | "ec2messages";
+  | "ssmmessages";
 
 /**
  * VPC network configuration.
@@ -426,7 +412,7 @@ export interface NetworkConfig {
    * Gateway endpoints (s3, dynamodb) are free.
    *
    * Empty array or undefined means no VPC endpoints.
-   * Recommended for production: ["s3", "secretsmanager", "logs", "kms"]
+   * Default configurations request ["s3", "dynamodb"]. Paid interfaces are explicit opt-in.
    */
   readonly vpcEndpoints?: readonly VpcEndpointType[];
 }

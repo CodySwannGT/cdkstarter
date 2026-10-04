@@ -130,6 +130,7 @@ export class EnvironmentStage extends cdk.Stage {
       this.vpcStack = new VpcStack(this, "VpcStack", {
         stageName,
         vpcCidr: environment.network.vpcCidr,
+        vpcEndpoints: environment.network.vpcEndpoints,
         natGatewayCount,
         enableFlowLogs,
         stackName: `${stageName}-vpc`,
