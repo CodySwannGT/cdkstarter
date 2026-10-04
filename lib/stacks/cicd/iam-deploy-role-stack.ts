@@ -20,7 +20,8 @@
  * Also creates the account-level API Gateway CloudWatch Logs role that
  * serverless framework deployments expect to exist.
  * @see util/policy-statements-for-deploy.ts - The role's permissions
- * @see lib/stacks/cicd/cdk-trust-policy-apply-stack.ts - Lets this role assume CDK bootstrap roles
+ * Infrastructure administrators manage CDK bootstrap separately. Application
+ * credentials cannot assume bootstrap or arbitrary roles.
  * @see config/github.ts - Owner/repo pattern configuration
  * @module lib/stacks/cicd/iam-deploy-role-stack
  */
@@ -84,15 +85,59 @@ export class IamDeployRoleStack extends cdk.Stack {
     // One OIDC provider per account; GitHub's token issuer.
     const provider = new GithubActionsIdentityProvider(this, "GithubProvider");
 
-    const policyDocument = new iam.PolicyDocument({
-      statements: policyStatementsForDeploy(this.account, this.region).map(
-        statement =>
-          new iam.PolicyStatement({
-            actions: [...statement.actions],
-            resources: [...statement.resources],
-            effect: iam.Effect.ALLOW,
-          })
-      ),
+    const prefix = `${github.infrastructureRepo}-${props.stageName}-`;
+    const deployment = github.applicationDeploy ?? {
+      stackPrefix: prefix,
+      resourcePrefix: prefix,
+      applicationRoleNames: [`${prefix}runtime`],
+    };
+    for (const value of [deployment.stackPrefix, deployment.resourcePrefix]) {
+      if (!/^[a-zA-Z][a-zA-Z0-9-]*-$/.test(value))
+        throw new Error(
+          "Application deployment prefixes must be exact names ending in a hyphen"
+        );
+    }
+    const executionName = `${deployment.resourcePrefix}CloudFormationExecution`;
+    if (
+      !deployment.applicationRoleNames.length ||
+      deployment.applicationRoleNames.some(
+        name =>
+          !/^[A-Za-z0-9-]+$/.test(name) ||
+          !name.startsWith(deployment.resourcePrefix) ||
+          [executionName, github.deployRoleName].includes(name)
+      )
+    ) {
+      throw new Error(
+        "Application role allowlist must contain exact names within the protected namespace"
+      );
+    }
+    const boundaryName = `${deployment.resourcePrefix}ApplicationBoundary`;
+    const boundaryArn = `arn:${this.partition}:iam::${this.account}:policy/${boundaryName}`;
+    const executionArn = `arn:${this.partition}:iam::${this.account}:role/${executionName}`;
+    const statements = policyStatementsForDeploy(
+      this.account,
+      this.region,
+      deployment,
+      boundaryArn,
+      executionArn,
+      `arn:${this.partition}:iam::${this.account}:role/${github.deployRoleName}`
+    );
+    const boundary = new iam.ManagedPolicy(this, "ApplicationBoundary", {
+      managedPolicyName: boundaryName,
+      statements,
+    });
+    const policyDocument = new iam.PolicyDocument({ statements });
+    const executionRole = new iam.Role(this, "ApplicationExecutionRole", {
+      roleName: executionName,
+      assumedBy: new iam.ServicePrincipal("cloudformation.amazonaws.com"),
+      permissionsBoundary: boundary,
+      inlinePolicies: { application: policyDocument },
+    });
+    new cdk.CfnOutput(this, "ApplicationExecutionRoleArn", {
+      value: executionRole.roleArn,
+    });
+    new cdk.CfnOutput(this, "ApplicationBoundaryArn", {
+      value: boundary.managedPolicyArn,
     });
 
     this.deployRole = new GithubActionsRole(this, "DeployServiceRole", {
@@ -106,6 +151,7 @@ export class IamDeployRoleStack extends cdk.Stack {
       description:
         "Deploys application repos from GitHub Actions via OIDC (no stored keys)",
       maxSessionDuration: cdk.Duration.hours(2),
+      permissionsBoundary: boundary,
       inlinePolicies: {
         policy: policyDocument,
       },

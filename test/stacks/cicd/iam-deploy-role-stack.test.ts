@@ -86,7 +86,7 @@ describe("IamDeployRoleStack", () => {
       });
     });
 
-    it("should include the CDK bootstrap asset bucket statement", () => {
+    it("should restrict assets to the application namespace", () => {
       const template = createTemplate();
 
       template.hasResourceProperties("AWS::IAM::Role", {
@@ -98,7 +98,7 @@ describe("IamDeployRoleStack", () => {
                 Match.objectLike({
                   Action: "s3:*",
                   Resource: Match.arrayWith([
-                    "arn:aws:s3:::cdk-*-assets-111111111111-us-east-1",
+                    "arn:aws:s3:::infrastructure-dev-*",
                   ]),
                 }),
               ]),

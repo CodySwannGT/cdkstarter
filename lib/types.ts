@@ -925,6 +925,13 @@ export interface GitHubConfig {
   /** Accept matching name-only subjects during a deliberate legacy transition. */
   readonly allowLegacyDeploySubjects?: boolean;
 
+  /** Application-only deployment namespace; infrastructure bootstrap stays administrative. */
+  readonly applicationDeploy?: {
+    readonly stackPrefix: string;
+    readonly resourcePrefix: string;
+    readonly applicationRoleNames: readonly string[];
+  };
+
   /** @deprecated Ignored. Replace with deployRepositories; wildcard trust is rejected. */
   readonly deployRepoPattern?: string;
 
