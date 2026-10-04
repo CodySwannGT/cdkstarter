@@ -9,10 +9,12 @@ Read full live29/48 context, complete strategy and actual4.69.1 updater retireme
 Proof: Run verified public Lisa dist/index.js apply <isolated starter fixture> --yes --no-update-check --harness=codex twice; execute actual generated integration and native provers on empty/pass/fail fixtures; run real offline CDK pipeline/frontend-only synth on final combined head.
 
 - T1: Resolve, claim, bind and prove access (completed)
-- T2: Capture RED and implement owned migration (in progress)
-- T3: Review and independently verify exact combined commit (pending)
+- T2: Capture RED and implement owned migration (completed)
+- T3: Review and independently verify exact combined commit (in progress)
 - T4: Deliver and close both leaves with native proof (pending)
 
 Progress checkpoint (2026-10-04 08:14 UTC): full official adoption and six native prover cases passed locally. Dependency installation is still failing in npm peer/reference resolution, so no final installed-graph or CI claim is made. The supported host traceability composition is being implemented with generic starter defaults preserved. PR49 remains open and leased until the atomic replacement exists and both work-item backlinks are read back.
 
 Progress checkpoint (2026-10-04 08:32 UTC): ordinary npm11 resolver install and fresh CI-paired Node22.23.3/npm10.9.9 ci both succeeded. Thirteen native controls passed in the working tree and independent draft review accepted the baseline-policy correction. One AST documentation refresh raced npm ci and rolled back; its failed receipt is retained and only that scoped refresh is being rerun sequentially. Audit assessment, full tests, final commit and remote delivery remain pending.
+
+Progress checkpoint (2026-10-04 13:29 UTC): b3620c7 passed normal commit hooks and independent exact-commit source review. The owner explicitly accepted the starter braces exception and requested review, CI, merge, release and ticket closeout. Native acceptance is recorded on #29 and #39. October 16 is a manual follow-up date, with no delivery waiting period. The acceptance commit, qualified audits and combined PR are being prepared; remote proof remains pending.
