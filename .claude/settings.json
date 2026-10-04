@@ -11,9 +11,7 @@
     "pr": "🤖 Generated with Claude Code"
   },
   "permissions": {
-    "deny": [
-      "Read(./.entire/metadata/**)"
-    ]
+    "deny": []
   },
   "hooks": {
     "WorktreeCreate": [
@@ -26,16 +24,56 @@
           }
         ]
       }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "EnterWorktree",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/scripts/lisa-hooks/worktree-binding-guard.sh"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/scripts/lisa-enforcement-fallback.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/scripts/lisa-enforcement-fallback.sh"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/scripts/lisa-hooks/worktree-binding-guard.sh"
+          }
+        ]
+      }
     ]
   },
   "enabledPlugins": {
     "typescript-lsp@claude-plugins-official": true,
-    "safety-net@cc-marketplace": true,
     "code-simplifier@claude-plugins-official": true,
     "code-review@claude-plugins-official": true,
     "playwright@claude-plugins-official": true,
     "coderabbit@claude-plugins-official": true,
-    "sentry@claude-plugins-official": true,
+    "sentry@claude-plugins-official": false,
     "skill-creator@claude-plugins-official": true,
     "atlassian@claude-plugins-official": true,
     "typescript@lisa": true,
@@ -43,7 +81,9 @@
     "lisa@lisa": true,
     "lisa-typescript@lisa": true,
     "lisa-cdk@lisa": true,
-    "lisa-wiki@lisa": true
+    "lisa-wiki@lisa": true,
+    "cc-safety-net@cc-marketplace": true,
+    "safety-net@cc-marketplace": false
   },
   "extraKnownMarketplaces": {
     "CodySwannGT/lisa": {

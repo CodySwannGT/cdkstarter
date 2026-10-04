@@ -1,8 +1,8 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
   "extends": [
-    "./node_modules/@codyswann/lisa/oxlint/cdk.json",
-    "./node_modules/@codyswann/lisa/oxlint/typescript.json"
+    "./.lisa/lisa-oxlint/cdk.json",
+    "./.lisa/lisa-oxlint/typescript.json"
   ],
   "ignorePatterns": [
     "build/**",

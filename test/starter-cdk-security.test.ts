@@ -1,6 +1,12 @@
 /** Installed dependency and real-entrypoint CDK CLI security regressions. */
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, readFileSync, readdirSync, rmSync } from "node:fs";
+import {
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
@@ -69,6 +75,10 @@ const offlineEnvironment = (output: string): NodeJS.ProcessEnv => ({
         key !== "AGENT_OPERATIONS_EXTERNAL_ID"
     )
   ),
+  TMPDIR: join(output, ".tmp"),
+  TMP: join(output, ".tmp"),
+  TEMP: join(output, ".tmp"),
+  NODE_COMPILE_CACHE: join(output, ".tmp/node-compile-cache"),
   AWS_EC2_METADATA_DISABLED: "true",
   AWS_CONFIG_FILE: join(output, "no-aws-config"),
   AWS_SHARED_CREDENTIALS_FILE: join(output, "no-aws-credentials"),
@@ -110,6 +120,8 @@ describe("starter CDK security compatibility", () => {
     mode => {
       const output = mkdtempSync(join(tmpdir(), `cdk-security-${mode}-`));
       try {
+        // tsx and Node caches belong to this already-cleaned assembly fixture.
+        mkdirSync(join(output, ".tmp"));
         const result = spawnSync(
           process.execPath,
           [

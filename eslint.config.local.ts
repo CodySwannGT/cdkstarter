@@ -33,6 +33,8 @@ export default [
     },
   },
   {
+    // Retain this host TS policy without overriding Lisa's standalone-MJS profile.
+    files: ["**/*.ts", "**/*.tsx"],
     rules: {
       // Pre-existing awaited and nested-function side effects predate Lisa
       // 2.189.18's tightened statement-order checks. Keep the published rule

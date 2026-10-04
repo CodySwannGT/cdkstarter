@@ -25,7 +25,17 @@
 import type { ViteUserConfig } from "vitest/config";
 
 const config: ViteUserConfig = {
-  // Add project-specific settings here
+  test: {
+    coverage: {
+      include: [
+        "lib/**/*.ts",
+        "util/**/*.ts",
+        "bin/**/*.ts",
+        "config/**/*.ts",
+        "resources/**/*.js",
+      ],
+    },
+  },
 };
 
 export default config;

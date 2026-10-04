@@ -42,6 +42,12 @@ Or use utility commands:
 
 > Ask Claude: "What Lisa commands are available and how do I use them? Read HUMAN.md and give me a summary."
 
+This starter adopts published Lisa 4.69.1 on Node 22.23.3. The source-only CI and release callers use its immutable release commit, rather than floating `main`. The retired PAT updater is absent. The continuous-gate and workflow-load-sweep callers are dispatch-only, so adoption enables no scheduled automation.
+
+Run `npm run test:unit`, `npm run test:cov`, `npm run test:integration`, and `npm run test:node` to execute the managed tooling through the starter's composition points. Empty integration collection prints an explicit `SKIP`; populated suites execute and failures propagate. The native lane collects the host's positive and negative CLI prover controls and fails on zero collection. The adoption regression uses project-scoped Codex fixtures with disposable temp/cache paths and repositories, preserves host defaults and sentinels, and checks a second apply for deterministic changes.
+
+Coverage and mutation target the actual `lib`, `util`, `bin`, `config`, and JavaScript `resources` roots. Coverage remains 70%; mutation thresholds remain 80/60/60. The migration retains the exact CDK/Amplify update and the finite bundled-advisory disposition linked above. A successful filtered security check does not mean the raw audit is clear.
+
 ## Common Tasks
 
 ### Code Review
