@@ -701,6 +701,10 @@ export interface DomainConfig {
  * immediate action required.
  */
 export interface AuroraAlarmThresholds {
+  /** ACU ceiling warning percentage; defaults to 80. */
+  readonly capacityWarningPercent?: number;
+  /** ACU ceiling critical percentage; defaults to 90. */
+  readonly capacityCriticalPercent?: number;
   /**
    * CPU utilization warning threshold (percentage).
    * Triggers when CPU consistently exceeds this value.

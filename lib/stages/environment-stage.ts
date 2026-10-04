@@ -352,6 +352,8 @@ export class EnvironmentStage extends cdk.Stage {
       ? new AuroraAlarmsStack(this, "AuroraAlarmsStack", {
           stageName,
           clusterIdentifier: auroraClusterId,
+          maxCapacity: environment.aurora.maxCapacity,
+          hasReaders: environment.aurora.instanceCount > 1,
           thresholds: toAuroraAlarmsThresholds(alarmThresholds),
           criticalTopic: snsStack.criticalTopic,
           warningTopic: snsStack.warningTopic,

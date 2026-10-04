@@ -27,6 +27,7 @@ describe("AuroraAlarmsStack", () => {
     const alarmsStack = new AuroraAlarmsStack(app, "AlarmsStack", {
       stageName,
       clusterIdentifier: `${stageName}-aurora-cluster`,
+      maxCapacity: 2,
       thresholds: {
         cpuCriticalPercent: 90,
         cpuWarningPercent: 70,
@@ -80,9 +81,9 @@ describe("AuroraAlarmsStack", () => {
       const template = createStack();
 
       template.hasResourceProperties("AWS::CloudWatch::Alarm", {
-        Threshold: 10,
+        Threshold: 1.8,
         MetricName: "ServerlessDatabaseCapacity",
-        ComparisonOperator: "LessThanOrEqualToThreshold",
+        ComparisonOperator: "GreaterThanOrEqualToThreshold",
       });
     });
 
@@ -90,9 +91,9 @@ describe("AuroraAlarmsStack", () => {
       const template = createStack();
 
       template.hasResourceProperties("AWS::CloudWatch::Alarm", {
-        Threshold: 20,
+        Threshold: 1.6,
         MetricName: "ServerlessDatabaseCapacity",
-        ComparisonOperator: "LessThanOrEqualToThreshold",
+        ComparisonOperator: "GreaterThanOrEqualToThreshold",
       });
     });
 

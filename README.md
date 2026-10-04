@@ -161,3 +161,22 @@ variables, and custom domain are independently configurable.
 ## Troubleshooting
 
 > Ask Claude: "I'm having an issue with [describe problem]. Help me debug it."
+
+### Aurora capacity alerts
+
+Capacity warnings/critical alarms use `aurora.maxCapacity` times
+`alarmThresholds.aurora.capacityWarningPercent`/`capacityCriticalPercent`
+(defaults 80/90%). The comparison is high-capacity `>=`; dev/staging/production
+ceilings 2/8/32 ACUs produce 1.6/1.8, 6.4/7.2 and 25.6/28.8 ACUs. Percentages
+must satisfy `0 < warning < critical <= 100`. Writer signals retain the existing
+`ServerlessWarningAlarm`/`ServerlessCriticalAlarm` construct identities. A reader
+pair is added only when `aurora.instanceCount > 1`. Each role uses Maximum over
+five minutes; missing data is not breaching, including paused/absent metrics.
+
+Legacy free-storage GB values never control ACU alerts. They remain separate
+compatibility settings and do not create a storage alarm for this Aurora
+PostgreSQL Serverless configuration. Existing CPU alarms remain independent;
+workload-specific composite alarms stay opt-in. Existing consumers should
+review the changed alarm thresholds/dimensions and additional reader alarms
+before deployment. AWS documents [capacity metrics](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Aurora.AuroraMonitoring.Metrics.html)
+and [writer/reader dimensions](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/dimensions.html).

@@ -9,12 +9,12 @@
  *
  * ### Critical (Immediate Action)
  * - CPU Utilization > 90%
- * - Storage Space < 10%
+ * - Serverless capacity >= 90% of configured maximum
  * - Connection count > 90% of max
  *
  * ### Warning (Investigation Required)
  * - CPU Utilization > 70%
- * - Storage Space < 20%
+ * - Serverless capacity >= 80% of configured maximum
  * - Replication lag > threshold
  *
  * ## Cross-Stack References
@@ -37,13 +37,17 @@ import type { Construct } from "constructs";
  * This interface uses simplified naming for the stack implementation.
  */
 export interface AuroraAlarmsThresholds {
+  /** Percentage of the configured ACU ceiling; default 80. */
+  readonly capacityWarningPercent?: number;
+  /** Percentage of the configured ACU ceiling; default 90. */
+  readonly capacityCriticalPercent?: number;
   /** CPU utilization percentage to trigger critical alarm. */
   readonly cpuCriticalPercent: number;
   /** CPU utilization percentage to trigger warning alarm. */
   readonly cpuWarningPercent: number;
-  /** Free storage in GB below which critical alarm triggers. */
+  /** Legacy storage setting, never interpreted as ACUs. */
   readonly storageCriticalGB: number;
-  /** Free storage in GB below which warning alarm triggers. */
+  /** Legacy storage setting, never interpreted as ACUs. */
   readonly storageWarningGB: number;
   /** Connection count to trigger critical alarm. */
   readonly connectionsCritical: number;
@@ -67,6 +71,11 @@ export interface AuroraAlarmsStackProps extends cdk.StackProps {
    * Aurora cluster identifier for metric dimensions.
    */
   readonly clusterIdentifier: string;
+
+  /** The actual cluster Serverless v2 maximum ACUs. */
+  readonly maxCapacity: number;
+  /** Add READER role signals only when reader instances exist. */
+  readonly hasReaders?: boolean;
 
   /**
    * Alarm thresholds for Aurora monitoring.
@@ -120,12 +129,13 @@ export class AuroraAlarmsStack extends cdk.Stack {
       criticalTopic,
       warningTopic
     );
-    this.createStorageAlarms(
-      stageName,
+    this.createCapacityAlarms(
       clusterIdentifier,
       thresholds,
       criticalTopic,
-      warningTopic
+      warningTopic,
+      props.maxCapacity,
+      props.hasReaders ?? false
     );
     this.createConnectionAlarms(
       stageName,
@@ -197,70 +207,68 @@ export class AuroraAlarmsStack extends cdk.Stack {
   }
 
   /**
-   * Creates serverless capacity alarms for Aurora Serverless v2.
-   *
-   * ServerlessDatabaseCapacity measures the Aurora capacity units (ACUs) in use.
-   * Alarms trigger when capacity drops below thresholds, indicating resource
-   * constraints or scaling issues.
-   * @param _stageName - Stage name (unused, kept for interface consistency)
-   * @param clusterIdentifier - Aurora cluster identifier for metric dimensions
-   * @param thresholds - Alarm threshold configuration
-   * @param criticalTopic - SNS topic for critical alerts
-   * @param warningTopic - SNS topic for warning alerts
+   * Observe high ACU utilization independently by WRITER/READER role.
+   * Existing writer alarm IDs stay stable; absent reader data never pages.
+   * @param clusterIdentifier - Cluster metric dimension
+   * @param thresholds - Configured percentage thresholds
+   * @param criticalTopic - Critical notification target
+   * @param warningTopic - Warning notification target
+   * @param maxCapacity - Configured maximum ACUs
+   * @param hasReaders - Whether reader role metrics can exist
    */
-  private createStorageAlarms(
-    _stageName: string,
+  private createCapacityAlarms(
     clusterIdentifier: string,
     thresholds: AuroraAlarmsThresholds,
     criticalTopic: sns.ITopic,
-    warningTopic: sns.ITopic
+    warningTopic: sns.ITopic,
+    maxCapacity: number,
+    hasReaders: boolean
   ): void {
-    // ServerlessDatabaseCapacity measures Aurora Capacity Units (ACUs) in use
-    const capacityMetric = new cloudwatch.Metric({
-      namespace: "AWS/RDS",
-      metricName: "ServerlessDatabaseCapacity",
-      dimensionsMap: {
-        DBClusterIdentifier: clusterIdentifier,
-      },
-      statistic: "Average",
-      period: cdk.Duration.minutes(5),
+    const warningPercent = thresholds.capacityWarningPercent ?? 80;
+    const criticalPercent = thresholds.capacityCriticalPercent ?? 90;
+    if (!Number.isFinite(maxCapacity) || maxCapacity <= 0) {
+      throw new Error("Aurora maxCapacity must be finite and positive");
+    }
+    if (
+      !Number.isFinite(warningPercent) ||
+      !Number.isFinite(criticalPercent) ||
+      warningPercent <= 0 ||
+      warningPercent >= criticalPercent ||
+      criticalPercent > 100
+    ) {
+      throw new Error(
+        "Aurora capacity percentages must satisfy 0 < warning < critical <= 100"
+      );
+    }
+    const roles = hasReaders ? ["WRITER", "READER"] : ["WRITER"];
+    roles.forEach(role => {
+      const metric = new cloudwatch.Metric({
+        namespace: "AWS/RDS",
+        metricName: "ServerlessDatabaseCapacity",
+        dimensionsMap: { DBClusterIdentifier: clusterIdentifier, Role: role },
+        statistic: "Maximum",
+        period: cdk.Duration.minutes(5),
+      });
+      const prefix = role === "WRITER" ? "Serverless" : "ReaderServerless";
+      (
+        [
+          ["Critical", criticalPercent, criticalTopic],
+          ["Warning", warningPercent, warningTopic],
+        ] as const
+      ).forEach(([severity, percent, topic]) => {
+        const alarm = new cloudwatch.Alarm(this, `${prefix}${severity}Alarm`, {
+          alarmDescription: `Aurora ${role} capacity reaches ${percent}% of ${maxCapacity} ACUs`,
+          metric,
+          threshold: maxCapacity * (percent / 100),
+          evaluationPeriods: 2,
+          comparisonOperator:
+            cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+          treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
+        });
+        alarm.addAlarmAction(new cloudwatchActions.SnsAction(topic));
+        this.alarms.push(alarm);
+      });
     });
-
-    const serverlessCriticalAlarm = new cloudwatch.Alarm(
-      this,
-      "ServerlessCriticalAlarm",
-      {
-        alarmDescription: `Aurora Serverless capacity below ${thresholds.storageCriticalGB} ACU`,
-        metric: capacityMetric,
-        threshold: thresholds.storageCriticalGB,
-        evaluationPeriods: 2,
-        comparisonOperator:
-          cloudwatch.ComparisonOperator.LESS_THAN_OR_EQUAL_TO_THRESHOLD,
-        treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
-      }
-    );
-    serverlessCriticalAlarm.addAlarmAction(
-      new cloudwatchActions.SnsAction(criticalTopic)
-    );
-    this.alarms.push(serverlessCriticalAlarm);
-
-    const serverlessWarningAlarm = new cloudwatch.Alarm(
-      this,
-      "ServerlessWarningAlarm",
-      {
-        alarmDescription: `Aurora Serverless capacity below ${thresholds.storageWarningGB} ACU`,
-        metric: capacityMetric,
-        threshold: thresholds.storageWarningGB,
-        evaluationPeriods: 2,
-        comparisonOperator:
-          cloudwatch.ComparisonOperator.LESS_THAN_OR_EQUAL_TO_THRESHOLD,
-        treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
-      }
-    );
-    serverlessWarningAlarm.addAlarmAction(
-      new cloudwatchActions.SnsAction(warningTopic)
-    );
-    this.alarms.push(serverlessWarningAlarm);
   }
 
   /**

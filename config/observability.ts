@@ -39,8 +39,8 @@ import type { AlarmThresholds, DashboardWidgets } from "../lib/types";
  *   connection leak or need for RDS Proxy tuning
  * - **Replication Lag**: 100ms warning acceptable for most reads; 1000ms
  *   critical indicates significant data inconsistency risk
- * - **Free Storage**: 10GB critical allows time for intervention before
- *   writes fail
+ * - **Capacity**: 80/90% of configured maximum ACUs, by writer/reader role.
+ *   Legacy free-storage GB settings are separate and do not drive capacity alarms
  *
  * ## Valkey Thresholds
  *
@@ -53,6 +53,8 @@ import type { AlarmThresholds, DashboardWidgets } from "../lib/types";
  */
 export const alarmThresholds: AlarmThresholds = {
   aurora: {
+    capacityWarningPercent: 80,
+    capacityCriticalPercent: 90,
     cpuWarning: 80,
     cpuCritical: 95,
     memoryWarningMB: 1000,
