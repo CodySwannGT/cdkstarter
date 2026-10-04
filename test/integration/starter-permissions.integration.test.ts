@@ -13,6 +13,7 @@ interface Statement {
   Condition?: Record<string, Record<string, string | string[]>>;
 }
 const account = "111111111111";
+let fixturePartition = "aws";
 const execution = `arn:aws:iam::${account}:role/example-dev-CloudFormationExecution`;
 const boundary = `arn:aws:iam::${account}:policy/example-dev-ApplicationBoundary`;
 const application = `arn:aws:iam::${account}:role/example-dev-runtime`;
@@ -82,7 +83,7 @@ const resolveFixture = (value: unknown): unknown => {
   if (Array.isArray(value)) return value.map(resolveFixture);
   if (value !== null && typeof value === "object") {
     const object = value as Record<string, unknown>;
-    if (object.Ref === "AWS::Partition") return "aws";
+    if (object.Ref === "AWS::Partition") return fixturePartition;
     if (object["Fn::Join"]) {
       const [separator, parts] = object["Fn::Join"] as [string, unknown[]];
       return parts.map(resolveFixture).join(separator);
@@ -94,19 +95,23 @@ const resolveFixture = (value: unknown): unknown => {
   return value;
 };
 let template: Template;
-beforeEach(() => {
+const synthFixture = (region: string): Template => {
   const app = new cdk.App();
   try {
-    template = Template.fromStack(
+    return Template.fromStack(
       new IamDeployRoleStack(app, "TestStack", {
         github,
         stageName: "dev",
-        env: { account, region: "us-east-1" },
+        env: { account, region },
       })
     );
   } finally {
     rmSync(app.outdir, { recursive: true, force: true });
   }
+};
+beforeEach(() => {
+  fixturePartition = "aws";
+  template = synthFixture("us-east-1");
 });
 const effective = (
   roleName: string,
@@ -148,6 +153,111 @@ const effective = (
   );
 };
 describe("starter application deployment ceiling", () => {
+  it.each([
+    ["aws-cn", "cn-north-1"],
+    ["aws-us-gov", "us-gov-west-1"],
+  ])(
+    "permits bounded deployments in %s while retaining escalation denials",
+    (partition, region) => {
+      fixturePartition = partition;
+      template = synthFixture(region);
+      const executor = `arn:${partition}:iam::${account}:role/example-dev-CloudFormationExecution`;
+      const ceiling = `arn:${partition}:iam::${account}:policy/example-dev-ApplicationBoundary`;
+      const runtime = `arn:${partition}:iam::${account}:role/example-dev-runtime`;
+      const stack = `arn:${partition}:cloudformation:${region}:${account}:stack/example-dev-api/id`;
+      const resources = [
+        [
+          "lambda:CreateFunction",
+          `arn:${partition}:lambda:${region}:${account}:function:example-dev-api`,
+        ],
+        [
+          "dynamodb:CreateTable",
+          `arn:${partition}:dynamodb:${region}:${account}:table/example-dev-data`,
+        ],
+        ["s3:CreateBucket", `arn:${partition}:s3:::example-dev-assets`],
+        ["s3:PutObject", `arn:${partition}:s3:::example-dev-assets/object`],
+        [
+          "logs:CreateLogGroup",
+          `arn:${partition}:logs:${region}:${account}:log-group:/aws/lambda/example-dev-api`,
+        ],
+        [
+          "events:PutRule",
+          `arn:${partition}:events:${region}:${account}:rule/example-dev-events`,
+        ],
+        [
+          "ssm:PutParameter",
+          `arn:${partition}:ssm:${region}:${account}:parameter/example-dev-config`,
+        ],
+      ];
+      for (const role of [
+        "DeployServiceRole",
+        "example-dev-CloudFormationExecution",
+      ]) {
+        const attached = Object.values(
+          template.findResources("AWS::IAM::Role")
+        ).find(value => value.Properties.RoleName === role)!;
+        const policyId = Object.keys(
+          template.findResources("AWS::IAM::ManagedPolicy")
+        )[0];
+        expect(attached.Properties.PermissionsBoundary).toEqual({
+          Ref: policyId,
+        });
+        for (const [action, resource] of resources) {
+          expect(effective(role, action, resource)).toBe(true);
+          expect(
+            effective(
+              role,
+              action,
+              resource.replace("example-dev-", "unrelated-")
+            )
+          ).toBe(false);
+          expect(
+            effective(
+              role,
+              action,
+              resource.replace(`arn:${partition}:`, "arn:aws:")
+            )
+          ).toBe(false);
+        }
+        expect(
+          effective(role, "iam:CreateRole", runtime, {
+            "iam:PermissionsBoundary": ceiling,
+          })
+        ).toBe(true);
+        expect(effective(role, "iam:CreateRole", runtime)).toBe(false);
+        expect(
+          effective(role, "iam:PassRole", runtime, {
+            "iam:PassedToService": "lambda.amazonaws.com",
+          })
+        ).toBe(true);
+        expect(
+          effective(role, "iam:PassRole", runtime, {
+            "iam:PassedToService": "cloudformation.amazonaws.com",
+          })
+        ).toBe(false);
+        expect(
+          effective(role, "cloudformation:CreateStack", stack, {
+            "cloudformation:RoleArn": executor,
+          })
+        ).toBe(true);
+        expect(
+          effective(role, "cloudformation:CreateStack", stack, {
+            "cloudformation:RoleArn": `arn:${partition}:iam::${account}:role/Admin`,
+          })
+        ).toBe(false);
+        expect(effective(role, "sts:AssumeRole", executor)).toBe(false);
+        expect(
+          effective(role, "iam:DeleteRolePermissionsBoundary", runtime)
+        ).toBe(false);
+        expect(effective(role, "iam:PutRolePolicy", executor)).toBe(false);
+        expect(
+          effective(role, "iam:PassRole", executor, {
+            "iam:PassedToService": "cloudformation.amazonaws.com",
+          })
+        ).toBe(true);
+      }
+    }
+  );
   it("attaches the same actual boundary to caller and protected CloudFormation execution role", () => {
     const policies = template.findResources("AWS::IAM::ManagedPolicy");
     const id = Object.keys(policies).find(

@@ -98,7 +98,16 @@ describe("IamDeployRoleStack", () => {
                 Match.objectLike({
                   Action: "s3:*",
                   Resource: Match.arrayWith([
-                    "arn:aws:s3:::infrastructure-dev-*",
+                    {
+                      "Fn::Join": [
+                        "",
+                        [
+                          "arn:",
+                          { Ref: "AWS::Partition" },
+                          ":s3:::infrastructure-dev-*",
+                        ],
+                      ],
+                    },
                   ]),
                 }),
               ]),

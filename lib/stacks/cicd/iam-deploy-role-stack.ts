@@ -117,6 +117,7 @@ export class IamDeployRoleStack extends cdk.Stack {
     const statements = policyStatementsForDeploy(
       this.account,
       this.region,
+      this.partition,
       deployment,
       boundaryArn,
       executionArn,

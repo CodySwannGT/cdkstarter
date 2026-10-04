@@ -6,6 +6,7 @@ import type { GitHubConfig } from "../lib/types";
  * Construct a least-privilege application deployment policy.
  * @param account - Deployment account
  * @param region - Deployment region
+ * @param partition - AWS partition of the owning stack
  * @param config - Exact stack/resource namespace and role allowlist
  * @param boundaryArn - Protected application permissions ceiling
  * @param executionRoleArn - Protected CloudFormation execution role
@@ -15,14 +16,15 @@ import type { GitHubConfig } from "../lib/types";
 const policyStatementsForDeploy = (
   account: string,
   region: string,
+  partition: string,
   config: NonNullable<GitHubConfig["applicationDeploy"]>,
   boundaryArn: string,
   executionRoleArn: string,
   deployRoleArn: string
 ): iam.PolicyStatement[] => {
-  const stack = `arn:aws:cloudformation:${region}:${account}:stack/${config.stackPrefix}*/*`;
+  const stack = `arn:${partition}:cloudformation:${region}:${account}:stack/${config.stackPrefix}*/*`;
   const roles = config.applicationRoleNames.map(
-    name => `arn:aws:iam::${account}:role/${name}`
+    name => `arn:${partition}:iam::${account}:role/${name}`
   );
   const allow = (
     actions: string[],
@@ -102,29 +104,35 @@ const policyStatementsForDeploy = (
     ),
     allow(
       ["lambda:*"],
-      [`arn:aws:lambda:${region}:${account}:function:${config.resourcePrefix}*`]
+      [
+        `arn:${partition}:lambda:${region}:${account}:function:${config.resourcePrefix}*`,
+      ]
     ),
     allow(
       ["dynamodb:*"],
-      [`arn:aws:dynamodb:${region}:${account}:table/${config.resourcePrefix}*`]
+      [
+        `arn:${partition}:dynamodb:${region}:${account}:table/${config.resourcePrefix}*`,
+      ]
     ),
     allow(
       ["s3:*"],
       [
-        `arn:aws:s3:::${config.resourcePrefix}*`,
-        `arn:aws:s3:::${config.resourcePrefix}*/*`,
+        `arn:${partition}:s3:::${config.resourcePrefix}*`,
+        `arn:${partition}:s3:::${config.resourcePrefix}*/*`,
       ]
     ),
     allow(
       ["logs:*"],
       [
-        `arn:aws:logs:${region}:${account}:log-group:/aws/lambda/${config.resourcePrefix}*`,
-        `arn:aws:logs:${region}:${account}:log-group:${config.resourcePrefix}*`,
+        `arn:${partition}:logs:${region}:${account}:log-group:/aws/lambda/${config.resourcePrefix}*`,
+        `arn:${partition}:logs:${region}:${account}:log-group:${config.resourcePrefix}*`,
       ]
     ),
     allow(
       ["events:*"],
-      [`arn:aws:events:${region}:${account}:rule/${config.resourcePrefix}*`]
+      [
+        `arn:${partition}:events:${region}:${account}:rule/${config.resourcePrefix}*`,
+      ]
     ),
     allow(
       [
@@ -133,7 +141,9 @@ const policyStatementsForDeploy = (
         "ssm:DeleteParameter",
         "ssm:AddTagsToResource",
       ],
-      [`arn:aws:ssm:${region}:${account}:parameter/${config.resourcePrefix}*`]
+      [
+        `arn:${partition}:ssm:${region}:${account}:parameter/${config.resourcePrefix}*`,
+      ]
     ),
     deny(
       [

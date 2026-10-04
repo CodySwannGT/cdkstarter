@@ -37,3 +37,18 @@ Local prerequisite #32 commit 662d02e is an ordinary cherry-pick of ee550aa (roo
 Focused GREEN: 3 effective-permission scenarios plus all 8 OIDC cases and 6 IAM stack cases pass (17 total), `/tmp/cdkstarter-33-evidence/fixed-success-and-edge-3.log`. The evaluator resolves actual fixture CloudFormation partition joins, intersects actual role inline statements with its attached managed boundary, enforces explicit denies and condition absence, and tests approved deployment plus arbitrary STS, unrelated IAM/PassRole/stack, admin executor, unbounded CreateRole, boundary removal/replacement and protected policy/executor writes. Typecheck passes.
 
 The protected ceiling and CloudFormation execution role are new resources. The deploy-role identity/output name remains unchanged, but its former account administrator policy is intentionally replaced with the configurable application ceiling. Direct Create/Update/DeleteStack requests require the exact executor. Change-set creation/execution is denied because execution cannot carry a required RoleArn request. Setup documentation names this workflow restriction and administrator-controlled migration of any existing allowlisted roles into the boundary. No live AWS, downstream, legacy observer or bootstrap-administrator mutation.
+
+
+PR52 review follow-up at batch ancestor a15f22c: the deploy-policy factory used
+hardcoded `arn:aws` resources while its caller/executor condition ARNs used the
+stack partition. Two actual attached-policy evaluation cases reproduced denied
+approved deployments in aws-cn and aws-us-gov. Pass the owning stack partition
+to every factory ARN (IAM, CloudFormation, Lambda, DynamoDB, S3, logs, EventBridge
+and SSM), preserving all namespace and escalation restrictions. Focused proof:
+`/tmp/cdkstarter-33-partition-evidence/partition-red.log` (2 failed, 3 passed),
+`/tmp/cdkstarter-33-partition-evidence/partition-green-final.log` (5 permission
+scenarios plus 8 OIDC and 6 IAM cases). Noncommercial cases evaluate scoped
+positive operations on caller and executor, unrelated namespace/wrong partition,
+unbounded roles, admin executor, arbitrary STS and protected-role/boundary writes.
+Existing commercial S3 assertion now verifies the actual AWS::Partition join.
+No claims of live China/GovCloud deployment or OIDC service availability.
