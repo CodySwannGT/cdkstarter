@@ -30,10 +30,9 @@ import type { GitHubConfig } from "../lib/types";
 /**
  * GitHub integration settings.
  *
- * Replace the placeholder owner/repo values with your organization and
- * repository names. `deployRepoPattern: "*"` lets every repo in the
- * organization assume the deploy role; narrow it to a single repo name
- * for stricter control.
+ * Replace owner/repository names and immutable IDs before enabling OIDC.
+ * Obtain IDs with `gh api repos/OWNER/REPO --jq '{ownerId: .owner.id, repoId: .id}'`.
+ * OIDC stacks fail closed until non-placeholder IDs and exact filters are supplied.
  */
 export const githubConfig: GitHubConfig = {
   owner: "your-org",
@@ -41,6 +40,10 @@ export const githubConfig: GitHubConfig = {
   branch: "main",
   codeConnectionArn: "PLACEHOLDER",
   deployRoleName: "DeployServiceRole",
-  deployRepoPattern: "*",
+  ownerId: "PLACEHOLDER",
+  deployRepositories: [
+    { name: "your-project", id: "PLACEHOLDER", refs: ["refs/heads/main"] },
+  ],
+  allowLegacyDeploySubjects: false,
   migrationRunnerRepo: "your-project",
 } as const;

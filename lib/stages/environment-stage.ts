@@ -1,9 +1,9 @@
 /**
- * Environment Stage - Complete Per-Environment Composition for the Pipeline
+ * Environment Stage - Complete Per-Environment Composition
  *
  * Composes EVERYTHING one environment needs — network, application, and
- * observability stacks — inside a single `cdk.Stage`. Used exclusively by
- * the CDK Pipeline (lib/stacks/support/pipeline-stack.ts).
+ * observability stacks — inside a single `cdk.Stage`. Both the direct entrypoint
+ * and the CDK Pipeline use this composition.
  *
  * ## Why One Stage Per Environment
  *
@@ -14,8 +14,8 @@
  * approval, permissions-broadening checks) attach at the environment
  * boundary by construction.
  *
- * The direct-deploy entry point (bin/app.ts) instead uses the finer-grained
- * NetworkStage/AppStage/ObservabilityStage split.
+ * The direct entrypoint names this stage `Env-<environment>`, matching the
+ * pipeline. Separate CI/CD and shared-account stages retain their wiring.
  *
  * ## Stack Order
  *
@@ -130,6 +130,7 @@ export class EnvironmentStage extends cdk.Stage {
       this.vpcStack = new VpcStack(this, "VpcStack", {
         stageName,
         vpcCidr: environment.network.vpcCidr,
+        vpcEndpoints: environment.network.vpcEndpoints,
         natGatewayCount,
         enableFlowLogs,
         stackName: `${stageName}-vpc`,
@@ -270,9 +271,11 @@ export class EnvironmentStage extends cdk.Stage {
 
     if (auroraStack && cognitoStack) {
       const iamStack = new IamStack(this, "IamStack", {
+        enableXray: environment.features.xray,
         stageName,
-        auroraClusterArn: auroraStack.cluster.clusterArn,
-        auroraSecretArn: auroraStack.secret.secretArn,
+        databaseProxy: auroraStack.proxy,
+        applicationUsername: auroraStack.applicationUsername,
+        applicationSecret: auroraStack.applicationSecret,
         cognitoUserPoolArn: cognitoStack.userPool.userPoolArn,
         stackName: `${stageName}-iam`,
       });
@@ -281,6 +284,7 @@ export class EnvironmentStage extends cdk.Stage {
     }
 
     if (features.backup) {
+      if (auroraStack) cdk.Tags.of(auroraStack.cluster).add("backup", "yes");
       new BackupStack(this, "BackupStack", {
         stageName,
         stackName: `${stageName}-backup`,
@@ -352,6 +356,8 @@ export class EnvironmentStage extends cdk.Stage {
       ? new AuroraAlarmsStack(this, "AuroraAlarmsStack", {
           stageName,
           clusterIdentifier: auroraClusterId,
+          maxCapacity: environment.aurora.maxCapacity,
+          hasReaders: environment.aurora.instanceCount > 1,
           thresholds: toAuroraAlarmsThresholds(alarmThresholds),
           criticalTopic: snsStack.criticalTopic,
           warningTopic: snsStack.warningTopic,

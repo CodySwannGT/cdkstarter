@@ -37,9 +37,11 @@
 import * as cdk from "aws-cdk-lib";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as logs from "aws-cdk-lib/aws-logs";
+import * as iam from "aws-cdk-lib/aws-iam";
 import * as rds from "aws-cdk-lib/aws-rds";
-import type * as secretsmanager from "aws-cdk-lib/aws-secretsmanager";
+import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager";
 import type { Construct } from "constructs";
+import { validateAuroraConfig } from "../../../util/aurora-config";
 import type { AuroraConfig } from "../../types";
 
 /**
@@ -91,6 +93,15 @@ export class AuroraStack extends cdk.Stack {
    */
   public readonly secret: secretsmanager.ISecret;
 
+  /** Dedicated application credentials; the administrative secret stays separate. */
+  public readonly applicationSecret: secretsmanager.Secret;
+  /** Optional credentials for a separately authorized read-only consumer. */
+  public readonly readOnlySecret?: secretsmanager.Secret;
+  /** Database username used by runtime IAM grants and the operator bootstrap. */
+  public readonly applicationUsername: string;
+  /** Optional configured read-only username. */
+  public readonly readOnlyUsername?: string;
+
   /**
    * Creates a new AuroraStack.
    * @param scope - Parent construct
@@ -101,6 +112,7 @@ export class AuroraStack extends cdk.Stack {
     super(scope, id, props);
 
     const { stageName, vpc, aurora } = props;
+    validateAuroraConfig(aurora);
 
     // Reference the security group by ID rather than using the construct
     // directly. The proxy (addProxy) auto-adds an ingress rule on the
@@ -125,6 +137,36 @@ export class AuroraStack extends cdk.Stack {
       );
     }
     this.secret = this.cluster.secret;
+    this.applicationUsername = aurora.applicationUsername ?? "application";
+    this.readOnlyUsername = aurora.readOnlyUsername;
+    this.applicationSecret = new secretsmanager.Secret(
+      this,
+      "ApplicationCredentials",
+      {
+        generateSecretString: {
+          secretStringTemplate: JSON.stringify({
+            username: this.applicationUsername,
+          }),
+          generateStringKey: "password",
+          excludePunctuation: true,
+        },
+      }
+    );
+    if (aurora.readOnlyUsername) {
+      this.readOnlySecret = new secretsmanager.Secret(
+        this,
+        "ReadOnlyCredentials",
+        {
+          generateSecretString: {
+            secretStringTemplate: JSON.stringify({
+              username: aurora.readOnlyUsername,
+            }),
+            generateStringKey: "password",
+            excludePunctuation: true,
+          },
+        }
+      );
+    }
     this.proxy = this.createProxy(stageName, vpc, securityGroup);
     this.createOutputs(stageName);
   }
@@ -148,19 +190,28 @@ export class AuroraStack extends cdk.Stack {
     return new rds.DatabaseCluster(this, "AuroraCluster", {
       clusterIdentifier,
       engine: rds.DatabaseClusterEngine.auroraPostgres({
-        version: rds.AuroraPostgresEngineVersion.VER_16_4,
+        version: aurora.engineVersion
+          ? rds.AuroraPostgresEngineVersion.of(
+              aurora.engineVersion,
+              aurora.engineVersion.split(".")[0]
+            )
+          : rds.AuroraPostgresEngineVersion.VER_16_4,
       }),
       credentials: rds.Credentials.fromGeneratedSecret("clusteradmin"),
+      iamAuthentication: true,
       writer: rds.ClusterInstance.serverlessV2("writer", {
         enablePerformanceInsights: aurora.performanceInsights ?? false,
       }),
       readers: Array.from(
         { length: Math.max(0, aurora.instanceCount - 1) },
-        () =>
-          rds.ClusterInstance.serverlessV2("reader", {
-            scaleWithWriter: true,
-            enablePerformanceInsights: aurora.performanceInsights ?? false,
-          })
+        (_, index) =>
+          rds.ClusterInstance.serverlessV2(
+            index === 0 ? "reader" : `reader${index + 1}`,
+            {
+              scaleWithWriter: true,
+              enablePerformanceInsights: aurora.performanceInsights ?? false,
+            }
+          )
       ),
       // Enhanced Monitoring (OS-level metrics per instance); optional —
       // omitting the config field creates no monitoring role at all.
@@ -192,13 +243,27 @@ export class AuroraStack extends cdk.Stack {
     vpc: ec2.IVpc,
     securityGroup: ec2.ISecurityGroup
   ): rds.DatabaseProxy {
-    return this.cluster.addProxy(`${stageName}-proxy`, {
+    const proxy = this.cluster.addProxy(`${stageName}-proxy`, {
       vpc,
-      secrets: [this.cluster.secret!],
+      // Explicit SECRETS auth overrides backend IAM for registered users.
+      // End-to-end IAM deliberately has no password-backed Auth entries.
+      defaultAuthScheme: rds.DefaultAuthScheme.IAM_AUTH,
       securityGroups: [securityGroup],
       iamAuth: true,
       requireTLS: true,
     });
+    // Keep CDK's existing proxy role identity. End-to-end IAM must authorize
+    // the proxy on actual cluster resource-ID dbusers, not the cluster API ARN.
+    const role = iam.Role.fromRoleArn(
+      this,
+      "ProxyIamAuthRole",
+      (proxy.node.defaultChild as rds.CfnDBProxy).roleArn
+    );
+    this.cluster.grantConnect(role, this.applicationUsername);
+    if (this.readOnlyUsername) {
+      this.cluster.grantConnect(role, this.readOnlyUsername);
+    }
+    return proxy;
   }
 
   /**
@@ -239,6 +304,17 @@ export class AuroraStack extends cdk.Stack {
       description: `Aurora secret ARN for ${stageName}`,
       exportName: `${stageName}-aurora-secret-arn`,
     });
+
+    new cdk.CfnOutput(this, "ApplicationSecretArn", {
+      value: this.applicationSecret.secretArn,
+      exportName: `${stageName}-aurora-application-secret-arn`,
+    });
+    if (this.readOnlySecret) {
+      new cdk.CfnOutput(this, "ReadOnlySecretArn", {
+        value: this.readOnlySecret.secretArn,
+        exportName: `${stageName}-aurora-read-only-secret-arn`,
+      });
+    }
 
     new cdk.CfnOutput(this, "ClusterPort", {
       value: this.cluster.clusterEndpoint.port.toString(),

@@ -1,4 +1,8 @@
-/** Configure an isolated offline process before loading the real CDK app. */
+/**
+ * Offline fixture that configures and then loads the real starter entrypoint.
+ * Each CDK CLI invocation runs in its own process, so configuration mutations
+ * cannot leak into another scenario or into the checked-in configuration.
+ */
 const {
   stageEnvironments,
   supportEnvironments,
@@ -39,12 +43,21 @@ githubConfig.codeConnectionArn =
 
 if (mode === "frontend-only") {
   shared.accountId = "PLACEHOLDER";
-  environment.features = Object.fromEntries(
-    Object.keys(environment.features).map(feature => [
-      feature,
-      feature === "amplifyHosting",
-    ])
-  );
+  environment.features = {
+    network: false,
+    observability: false,
+    aurora: false,
+    valkey: false,
+    cognito: false,
+    ssmRelay: false,
+    githubOidcDeploy: false,
+    migrationRunner: false,
+    xray: false,
+    waf: false,
+    shieldAdvanced: false,
+    backup: false,
+    amplifyHosting: true,
+  };
   environment.amplifyHosting = {
     owner: "example",
     repository: "frontend",
@@ -53,8 +66,6 @@ if (mode === "frontend-only") {
   };
 }
 
-// The subprocess runner strips inherited CDK context. These values originate
-// from the CLI's checked-in cdk.json context and its bundling orchestration.
 process.env.CDK_CONTEXT_JSON = JSON.stringify({
   ...JSON.parse(process.env.CDK_CONTEXT_JSON ?? "{}"),
   "availability-zones:account=111111111111:region=us-east-1": [

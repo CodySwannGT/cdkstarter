@@ -168,9 +168,11 @@ export class AppStage extends cdk.Stage {
     // Create IAM stack only if we have the required resources
     if (this.auroraStack && this.cognitoStack) {
       this.iamStack = new IamStack(this, "IamStack", {
+        enableXray: environment.features.xray,
         stageName,
-        auroraClusterArn: this.auroraStack.cluster.clusterArn,
-        auroraSecretArn: this.auroraStack.secret.secretArn,
+        databaseProxy: this.auroraStack.proxy,
+        applicationUsername: this.auroraStack.applicationUsername,
+        applicationSecret: this.auroraStack.applicationSecret,
         cognitoUserPoolArn: this.cognitoStack.userPool.userPoolArn,
         stackName: `${stageName}-iam`,
       });
@@ -182,6 +184,8 @@ export class AppStage extends cdk.Stage {
     // Create tag-driven AWS Backup plan if enabled. Resources tagged
     // backup=yes anywhere in this account are included.
     if (features.backup) {
+      if (this.auroraStack)
+        cdk.Tags.of(this.auroraStack.cluster).add("backup", "yes");
       this.backupStack = new BackupStack(this, "BackupStack", {
         stageName,
         stackName: `${stageName}-backup`,

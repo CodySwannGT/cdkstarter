@@ -3,17 +3,27 @@
  *
  * @module test/stacks/auth/iam-stack.test
  */
+import { rmSync } from "node:fs";
 import * as cdk from "aws-cdk-lib";
 import { Match, Template } from "aws-cdk-lib/assertions";
+import * as rds from "aws-cdk-lib/aws-rds";
+import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager";
 import { IamStack } from "../../../lib/stacks/auth/iam-stack";
 
 describe("IamStack", () => {
+  const outdirs: string[] = [];
+  afterEach(() => {
+    outdirs
+      .splice(0)
+      .forEach(outdir => rmSync(outdir, { recursive: true, force: true }));
+  });
   const defaultProps = {
     stageName: "test",
-    auroraClusterArn:
-      "arn:aws:rds:us-east-1:123456789012:cluster:test-aurora-cluster",
-    auroraSecretArn:
-      "arn:aws:secretsmanager:us-east-1:123456789012:secret:test-aurora-secret",
+    databaseProxyArn:
+      "arn:aws:rds:us-east-1:123456789012:db-proxy:prx-testproxy",
+    applicationUsername: "application",
+    applicationSecretArn:
+      "arn:aws:secretsmanager:us-east-1:123456789012:secret:test-application-secret-AbCdEf",
     cognitoUserPoolArn:
       "arn:aws:cognito-idp:us-east-1:123456789012:userpool/us-east-1_test",
     env: { account: "123456789012", region: "us-east-1" },
@@ -21,12 +31,47 @@ describe("IamStack", () => {
 
   const createStack = (props: Partial<typeof defaultProps> = {}): Template => {
     const app = new cdk.App();
+    outdirs.push(app.outdir);
+    const imports = new cdk.Stack(app, "Imports", { env: defaultProps.env });
     const stack = new IamStack(app, "TestStack", {
       ...defaultProps,
       ...props,
+      databaseProxy: rds.DatabaseProxy.fromDatabaseProxyAttributes(
+        imports,
+        "Proxy",
+        {
+          dbProxyArn: defaultProps.databaseProxyArn,
+          dbProxyName: "testproxy",
+          endpoint: "fixture.example.test",
+          securityGroups: [],
+        }
+      ),
+      applicationSecret: secretsmanager.Secret.fromSecretCompleteArn(
+        imports,
+        "Credentials",
+        defaultProps.applicationSecretArn
+      ),
     });
     return Template.fromStack(stack);
   };
+
+  it.each([
+    "",
+    "*",
+    "clusteradmin",
+    "rdsadmin",
+    "pg_operator",
+    "rds_operator",
+    "A_user",
+    "a".repeat(64),
+  ])(
+    "rejects unsupported runtime usernames before IAM grants: %s",
+    applicationUsername => {
+      expect(() => createStack({ applicationUsername })).toThrow(
+        /Runtime IAM requires a specific non-administrative database username/
+      );
+    }
+  );
 
   describe("Lambda Execution Role", () => {
     it("should create Lambda execution role", () => {
@@ -115,8 +160,16 @@ describe("IamStack", () => {
             Match.objectLike({
               Action: "rds-db:connect",
               Effect: "Allow",
-              Resource:
-                "arn:aws:rds:us-east-1:123456789012:cluster:test-aurora-cluster/*",
+              Resource: {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    { Ref: "AWS::Partition" },
+                    ":rds-db:us-east-1:123456789012:dbuser:prx-testproxy/application",
+                  ],
+                ],
+              },
             }),
           ]),
         },
@@ -130,26 +183,25 @@ describe("IamStack", () => {
         PolicyDocument: {
           Statement: Match.arrayWith([
             Match.objectLike({
-              Action: "secretsmanager:GetSecretValue",
+              Action: Match.arrayWith(["secretsmanager:GetSecretValue"]),
               Effect: "Allow",
               Resource:
-                "arn:aws:secretsmanager:us-east-1:123456789012:secret:test-aurora-secret",
+                "arn:aws:secretsmanager:us-east-1:123456789012:secret:test-application-secret-AbCdEf",
             }),
           ]),
         },
       });
     });
 
-    it("should use specific Aurora cluster ARN (not wildcard)", () => {
+    it("should use a specific proxy resource-ID and database user", () => {
       const template = createStack();
 
       const policies = template.findResources("AWS::IAM::Policy");
       const policyStatements = JSON.stringify(policies);
 
-      expect(policyStatements).toContain("test-aurora-cluster");
-      // RDS connect uses cluster ARN with wildcard suffix for db user
-      // This is intentional - grants access to any db user on the specific cluster
-      expect(policyStatements).toContain("cluster:test-aurora-cluster/*");
+      expect(policyStatements).toContain("prx-testproxy/application");
+      // Only the configured application dbuser on the real proxy is authorized.
+      expect(policyStatements).toContain("dbuser:prx-testproxy/application");
     });
   });
 

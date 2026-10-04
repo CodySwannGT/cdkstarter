@@ -22,6 +22,8 @@ import type { AlarmThresholds } from "../lib/types";
 export const toAuroraAlarmsThresholds = (
   thresholds: AlarmThresholds
 ): AuroraAlarmsThresholds => ({
+  capacityWarningPercent: thresholds.aurora.capacityWarningPercent ?? 80,
+  capacityCriticalPercent: thresholds.aurora.capacityCriticalPercent ?? 90,
   cpuCriticalPercent: thresholds.aurora.cpuCritical,
   cpuWarningPercent: thresholds.aurora.cpuWarning,
   storageCriticalGB: thresholds.aurora.freeStorageCriticalGB,

@@ -128,15 +128,17 @@ const pipelineEvent = msg => {
 /**
  * Maps a failed AWS Backup job (via EventBridge) to a Sentry event.
  * @param {object} event - The EventBridge invocation payload.
+ * @param {string} severity - Existing SNS route, or critical for direct events.
  * @returns {object} A Sentry event payload.
  */
-const backupEvent = event => {
+const backupEvent = (event, severity = "critical") => {
   const detail = event.detail || {};
   return baseEvent(
     `[${STAGE}] AWS Backup job ${detail.state}: ${detail.resourceType || "unknown resource"}`,
-    "error",
+    severity === "warning" ? "warning" : "error",
     {
       source: "aws-backup",
+      severity,
       state: detail.state,
       resource_type: detail.resourceType,
     },
@@ -148,6 +150,14 @@ const backupEvent = event => {
     ["backup-job-failure", detail.resourceType || "unknown"]
   );
 };
+
+/**
+ * Ignore successful/in-progress Backup jobs even if invoked outside the rule.
+ * @param {object} event - Backup state-change event.
+ * @returns {boolean} Whether this state needs an alert.
+ */
+const isBackupFailure = event =>
+  ["FAILED", "ABORTED", "EXPIRED"].includes(event.detail?.state);
 
 /**
  * Parses a JSON string, returning null instead of throwing.
@@ -165,11 +175,20 @@ const parseJson = raw => {
 /**
  * Maps one SNS record to a Sentry event by sniffing the message shape.
  * @param {object} record - The SNS record from the Lambda event.
- * @returns {object} A Sentry event payload.
+ * @returns {object|null} A Sentry event payload, or an ignored Backup state.
  */
 const snsRecordEvent = record => {
   const msg = parseJson(record.Sns.Message);
   const severity = severityFromTopic(record.Sns.TopicArn);
+  if (
+    msg &&
+    (msg.source === "aws.backup" ||
+      msg["detail-type"] === "Backup Job State Change")
+  ) {
+    return isBackupFailure(msg)
+      ? backupEvent(msg, severity === "warning" ? "warning" : "critical")
+      : null;
+  }
   if (msg && msg.AlarmName) return alarmEvent(msg, severity);
   if (msg && (msg.detailType || msg["detail-type"])) return pipelineEvent(msg);
   return baseEvent(
@@ -188,8 +207,8 @@ const snsRecordEvent = record => {
  */
 exports.handler = async event => {
   const events = event.Records
-    ? event.Records.map(snsRecordEvent)
-    : event.source === "aws.backup" && event.detail
+    ? event.Records.map(snsRecordEvent).filter(Boolean)
+    : event.source === "aws.backup" && event.detail && isBackupFailure(event)
       ? [backupEvent(event)]
       : [];
   await Promise.all(events.map(sendToSentry));

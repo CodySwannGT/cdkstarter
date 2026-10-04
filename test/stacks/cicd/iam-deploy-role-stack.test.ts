@@ -3,10 +3,23 @@
  *
  * @module test/stacks/cicd/iam-deploy-role-stack.test
  */
+import { rmSync } from "node:fs";
 import * as cdk from "aws-cdk-lib";
 import { Match, Template } from "aws-cdk-lib/assertions";
 import { IamDeployRoleStack } from "../../../lib/stacks/cicd/iam-deploy-role-stack";
 import type { GitHubConfig } from "../../../lib/types";
+
+const outputs: string[] = [];
+/** Track each assembly so fail-fast and successful synths both clean up. */
+const createApp = (props?: cdk.AppProps): cdk.App => {
+  const app = new cdk.App(props);
+  outputs.push(app.outdir);
+  return app;
+};
+afterEach(() => {
+  for (const output of outputs.splice(0))
+    rmSync(output, { recursive: true, force: true });
+});
 
 describe("IamDeployRoleStack", () => {
   const github: GitHubConfig = {
@@ -15,12 +28,15 @@ describe("IamDeployRoleStack", () => {
     branch: "main",
     codeConnectionArn: "PLACEHOLDER",
     deployRoleName: "DeployServiceRole",
-    deployRepoPattern: "*",
+    ownerId: "123456",
+    deployRepositories: [
+      { name: "backend", id: "456789", refs: ["refs/heads/main"] },
+    ],
     migrationRunnerRepo: "backend",
   };
 
   const createTemplate = (): Template => {
-    const app = new cdk.App();
+    const app = createApp();
     const stack = new IamDeployRoleStack(app, "TestStack", {
       stageName: "dev",
       github,
@@ -33,7 +49,7 @@ describe("IamDeployRoleStack", () => {
     it("should create the GitHub Actions identity provider", () => {
       const template = createTemplate();
 
-      template.hasResourceProperties("Custom::AWSCDKOpenIdConnectProvider", {
+      template.hasResourceProperties("AWS::IAM::OIDCProvider", {
         Url: "https://token.actions.githubusercontent.com",
       });
     });
@@ -58,9 +74,10 @@ describe("IamDeployRoleStack", () => {
           Statement: Match.arrayWith([
             Match.objectLike({
               Condition: Match.objectLike({
-                StringLike: Match.objectLike({
-                  "token.actions.githubusercontent.com:sub":
-                    "repo:your-project-io/*:*",
+                StringEquals: Match.objectLike({
+                  "token.actions.githubusercontent.com:sub": [
+                    "repo:your-project-io@123456/backend@456789:ref:refs/heads/main",
+                  ],
                 }),
               }),
             }),
@@ -69,7 +86,7 @@ describe("IamDeployRoleStack", () => {
       });
     });
 
-    it("should include the CDK bootstrap asset bucket statement", () => {
+    it("should restrict assets to the application namespace", () => {
       const template = createTemplate();
 
       template.hasResourceProperties("AWS::IAM::Role", {
@@ -81,7 +98,16 @@ describe("IamDeployRoleStack", () => {
                 Match.objectLike({
                   Action: "s3:*",
                   Resource: Match.arrayWith([
-                    "arn:aws:s3:::cdk-*-assets-111111111111-us-east-1",
+                    {
+                      "Fn::Join": [
+                        "",
+                        [
+                          "arn:",
+                          { Ref: "AWS::Partition" },
+                          ":s3:::infrastructure-dev-*",
+                        ],
+                      ],
+                    },
                   ]),
                 }),
               ]),

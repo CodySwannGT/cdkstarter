@@ -24,6 +24,12 @@ export interface BackupStackProps extends cdk.StackProps {
    * Stage name for resource naming.
    */
   readonly stageName: string;
+
+  /** Nonempty tag selectors; omitted means backup=yes. Each selector is OR-matched. */
+  readonly selectionTags?: readonly {
+    readonly key: string;
+    readonly value: string;
+  }[];
 }
 
 /**
@@ -44,6 +50,31 @@ export class BackupStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: BackupStackProps) {
     super(scope, id, props);
 
+    const selectionTags = props.selectionTags ?? [
+      { key: "backup", value: "yes" },
+    ];
+    if (
+      !Array.isArray(selectionTags) ||
+      selectionTags.length === 0 ||
+      selectionTags.some(
+        tag =>
+          !tag ||
+          typeof tag.key !== "string" ||
+          typeof tag.value !== "string" ||
+          !tag.key.trim() ||
+          !tag.value.trim() ||
+          tag.key !== tag.key.trim() ||
+          tag.value !== tag.value.trim() ||
+          tag.key.startsWith("aws:") ||
+          tag.key.length > 128 ||
+          tag.value.length > 256
+      )
+    ) {
+      throw new Error(
+        "AWS Backup selection requires nonempty valid tag keys and values"
+      );
+    }
+
     const role = new iam.Role(this, "BackupRole", {
       assumedBy: new iam.ServicePrincipal("backup.amazonaws.com"),
     });
@@ -60,9 +91,9 @@ export class BackupStack extends cdk.Stack {
     );
 
     this.plan.addSelection("BackupPlanSelection", {
-      resources: [
-        backup.BackupResource.fromTag("backup", "yes"), // All resources tagged backup=yes
-      ],
+      resources: selectionTags.map(tag =>
+        backup.BackupResource.fromTag(tag.key, tag.value)
+      ),
       role,
     });
 

@@ -70,6 +70,43 @@ Coverage and mutation target the actual `lib`, `util`, `bin`, `config`, and Java
 
 > Ask Claude: "Run CDK synth and verify the CloudFormation templates are generated correctly."
 
+Configure a valid account ID in `config/environments.ts`, then run:
+
+```sh
+npx cdk list
+npx cdk synth
+npm run test:integration
+```
+
+Direct deployment composes networking, application and observability stacks in
+one `Env-<environment>` stage, matching the pipeline composition. This keeps VPC
+and security-group references inside one cloud assembly. CI/CD and shared-account
+stages stay separate. Frontend-only environments use the same composition with
+their backend features disabled.
+
+For existing direct consumers, Stage IDs change from
+`<environment>-network`, `<environment>-app` and `<environment>-observability` to
+`Env-<environment>`. Select the nested stacks with a quoted pattern such as
+`'Env-dev/*'`, rather than the Stage ID alone:
+
+```sh
+npx cdk list
+npx cdk diff 'Env-dev/*'
+npx cdk deploy 'Env-dev/*'
+```
+
+Explicit CloudFormation stack names remain the same. Review `cdk list` and
+`cdk diff` before adopting this change: CDK paths/metadata,
+scope-derived Name tags (including VPCs, subnets and SSM launch templates),
+generated logical IDs (including security-group ingress rules and an Aurora
+secret) and cross-stack imports/exports can differ even when physical stack names
+match. This starter change does not deploy existing consumers.
+
+The integration suite synthesizes the real entrypoint in direct, pipeline and
+frontend-only modes with fake account IDs, supplied availability-zone context and
+`--no-lookups`. It requires nonempty templates and runs through the CI integration
+job; it does not establish deployed AWS behavior.
+
 ### Frontend-only Environments
 
 The application infrastructure is composable. A stage can host only a static
@@ -124,3 +161,96 @@ variables, and custom domain are independently configurable.
 ## Troubleshooting
 
 > Ask Claude: "I'm having an issue with [describe problem]. Help me debug it."
+
+### Aurora capacity alerts
+
+Capacity warnings/critical alarms use `aurora.maxCapacity` times
+`alarmThresholds.aurora.capacityWarningPercent`/`capacityCriticalPercent`
+(defaults 80/90%). The comparison is high-capacity `>=`; dev/staging/production
+ceilings 2/8/32 ACUs produce 1.6/1.8, 6.4/7.2 and 25.6/28.8 ACUs. Percentages
+must satisfy `0 < warning < critical <= 100`. Writer signals retain the existing
+`ServerlessWarningAlarm`/`ServerlessCriticalAlarm` construct identities. A reader
+pair is added only when `aurora.instanceCount > 1`. Each role uses Maximum over
+five minutes; missing data is not breaching, including paused/absent metrics.
+
+Legacy free-storage GB values never control ACU alerts. They remain separate
+compatibility settings and do not create a storage alarm for this Aurora
+PostgreSQL Serverless configuration. Existing CPU alarms remain independent;
+workload-specific composite alarms stay opt-in. Existing consumers should
+review the changed alarm thresholds/dimensions and additional reader alarms
+before deployment. AWS documents [capacity metrics](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Aurora.AuroraMonitoring.Metrics.html)
+and [writer/reader dimensions](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/dimensions.html).
+
+### Private AWS service endpoints
+
+`network.vpcEndpoints` is now honored in both unified and legacy network stages.
+The configured S3/DynamoDB defaults create free gateway endpoints associated
+with every private-with-egress and isolated route table, excluding public routes.
+An empty or omitted list creates no endpoints. Duplicate service names create
+one endpoint each; unsupported services fail synthesis.
+
+Only explicit `secretsmanager`, `ssm`, `ssmmessages` and `logs` entries create paid
+interface endpoints. Their ENIs use private-with-egress subnets (one per AZ),
+private DNS, and a shared security group allowing only TCP443 from the actual
+private-with-egress and isolated subnet CIDRs. Public subnet and VPC-wide ingress
+are excluded. Extra services require a separate reviewed allowlist change.
+Before adopting, review new endpoint/route-table/security-group resources and
+interface hourly/data charges. See AWS [gateway routing](https://docs.aws.amazon.com/vpc/latest/privatelink/gateway-endpoints.html)
+and [interface prerequisites](https://docs.aws.amazon.com/vpc/latest/privatelink/create-interface-endpoint.html).
+
+### Dedicated database users
+
+Application and optional read-only database users have separate credentials and
+least-privilege proxy grants. Read the [operator bootstrap and migration runbook](docs/database/application-users.md) before adopting these IAM-only users on an existing database.
+
+### AWS Backup enrollment and failure notifications
+
+When `features.backup` is enabled, unified and legacy application stages apply
+`backup=yes` to the actual Aurora cluster and create the matching tag-driven
+AWS Backup plan. Disabling the flag creates neither that enrollment tag nor the
+plan; Aurora native `backupRetentionDays` remains independent and unchanged.
+`BackupStack.selectionTags` defaults to `backup=yes`; explicit selectors must
+be a nonempty list of nonblank valid key/value pairs (OR selection). Empty,
+malformed or reserved `aws:` keys fail synthesis. Other resources need an
+explicit matching tag to enroll.
+
+With `observability.backupFailureAlerts` and `sentryDsn`, the existing single
+EventBridge target forwards FAILED/EXPIRED/ABORTED jobs to the existing Sentry
+forwarder as critical errors. SNS-wrapped Backup events preserve warning or
+critical routing. Each input event emits one Sentry request; successful and
+in-progress states emit none even if the handler is invoked directly. No
+second notification target is added. AWS delivery/retry semantics remain
+at-least-once: this does not claim durable duplicate suppression.
+
+Offline enrollment and mocked notification evidence do not establish a
+successful live backup, recovery point or restore. Review the cluster tag,
+selection, IAM and alert changes before consumer deployment; validate real
+backups/restores separately. See AWS [resource selection](https://docs.aws.amazon.com/aws-backup/latest/devguide/assigning-resources.html)
+and [state-change events](https://docs.aws.amazon.com/aws-backup/latest/devguide/eventbridge.html).
+
+## Configuration validation
+
+Account IDs must contain exactly 12 decimal digits, or use the exact
+`PLACEHOLDER` starter sentinel. Whitespace and malformed accounts fail startup
+validation. Environment names must be unique, with at most one support
+environment. Enabled VPCs require aligned IPv4 ranges with /16 through /28
+prefixes and must not overlap, so they can later be peered.
+
+Aurora requires an integer `instanceCount` of at least one, coherent capacities
+in half-ACU increments (minimum 0.5, maximum 1–128), backup retention of 1–35 days,
+and log retention of 1, 3, 7, 14, 30, 90, 180 or 365 days. Configure
+`aurora.engineVersion` with an Aurora PostgreSQL major.minor version when needed.
+The default remains 16.4. Check engine and capacity availability in the target
+region before deploying an upgrade. Additional readers have unique identities,
+while the writer and original first reader retain theirs.
+
+Shield Advanced and cross-region replica/backup flags currently fail validation
+when enabled. Custom `dashboardWidgets` lists must stay empty: the existing
+built-in dashboard uses `observability.dashboardEnabled`. The `xray` flag controls
+trace-submission permissions on the application IAM role, which requires Aurora
+and Cognito. Set it false on paths without that role. Application owners must
+also enable tracing in their runtime. It does not enable tracing on unrelated
+helper functions.
+
+Sources: [Aurora capacity settings](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/aurora-serverless-v2.setting-capacity.html)
+and [DBCluster engine configuration](https://docs.aws.amazon.com/AWSCloudFormation/latest/TemplateReference/aws-resource-rds-dbcluster.html).

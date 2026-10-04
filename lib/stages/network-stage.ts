@@ -94,6 +94,7 @@ export class NetworkStage extends cdk.Stage {
     this.vpcStack = new VpcStack(this, "VpcStack", {
       stageName,
       vpcCidr: network.vpcCidr,
+      vpcEndpoints: network.vpcEndpoints,
       natGatewayCount,
       enableFlowLogs,
       stackName: `${stageName}-vpc`,

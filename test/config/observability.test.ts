@@ -8,6 +8,7 @@
  * @module test/config/observability.test
  */
 import { alarmThresholds, dashboardWidgets } from "../../config/observability";
+import { validateConfiguration } from "../../util/config-loader";
 
 describe("observability", () => {
   describe("alarmThresholds", () => {
@@ -64,31 +65,18 @@ describe("observability", () => {
       expect(dashboardWidgets).toBeDefined();
     });
 
-    it("should have aurora dashboard widgets", () => {
-      expect(dashboardWidgets.aurora).toBeDefined();
-      expect(Array.isArray(dashboardWidgets.aurora)).toBe(true);
-      expect(dashboardWidgets.aurora).toContain("cpu");
-      expect(dashboardWidgets.aurora).toContain("memory");
-      expect(dashboardWidgets.aurora).toContain("connections");
-    });
-
-    it("should have valkey dashboard widgets", () => {
-      expect(dashboardWidgets.valkey).toBeDefined();
-      expect(Array.isArray(dashboardWidgets.valkey)).toBe(true);
-      expect(dashboardWidgets.valkey).toContain("hitRate");
-      expect(dashboardWidgets.valkey).toContain("cpu");
-    });
-
-    it("should have cognito dashboard widgets", () => {
-      expect(dashboardWidgets.cognito).toBeDefined();
-      expect(Array.isArray(dashboardWidgets.cognito)).toBe(true);
-      expect(dashboardWidgets.cognito).toContain("signIns");
-    });
-
-    it("should have vpc dashboard widgets", () => {
-      expect(dashboardWidgets.vpc).toBeDefined();
-      expect(Array.isArray(dashboardWidgets.vpc)).toBe(true);
-      expect(dashboardWidgets.vpc).toContain("natGateway");
-    });
+    it.each(["aurora", "valkey", "cognito", "vpc"] as const)(
+      "keeps unsupported %s custom widgets empty and rejects selections",
+      resource => {
+        expect(dashboardWidgets[resource]).toEqual([]);
+        expect(() =>
+          validateConfiguration({
+            stages: [],
+            supports: [],
+            dashboardWidgets: { ...dashboardWidgets, [resource]: ["custom"] },
+          })
+        ).toThrow(/dashboardWidgets.*unsupported/);
+      }
+    );
   });
 });

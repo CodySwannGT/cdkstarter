@@ -67,8 +67,8 @@ export interface StageFeatures {
   readonly cognito: boolean;
 
   /**
-   * Enable X-Ray tracing for distributed tracing.
-   * Helps diagnose performance issues and request flows.
+   * Permit X-Ray trace submission from the application execution role.
+   * Requires Aurora and Cognito. Consumers must also enable runtime tracing.
    */
   readonly xray: boolean;
 
@@ -93,10 +93,7 @@ export interface StageFeatures {
   readonly waf: boolean;
 
   /**
-   * Enable AWS Shield Advanced for DDoS protection.
-   * Provides enhanced DDoS protection beyond Shield Standard.
-   * Note: Significant cost ($3,000/month + data transfer). Disabled by default.
-   * Shield Standard is always enabled at no cost.
+   * Reserved for Shield Advanced. Unsupported: validation rejects true.
    */
   readonly shieldAdvanced: boolean;
 
@@ -154,6 +151,12 @@ export interface StageFeatures {
  * - Production: min=2, max=64 (performance optimized, always warm)
  */
 export interface AuroraConfig {
+  /** Aurora PostgreSQL major.minor engine version. Defaults to 16.4. Verify regional support before deployment. */
+  readonly engineVersion?: string;
+  /** Dedicated runtime database user; never the administrative cluster user. */
+  readonly applicationUsername?: string;
+  /** Optional separate read-only user; this creates no observer IAM role. */
+  readonly readOnlyUsername?: string;
   /**
    * Minimum Aurora Capacity Units.
    * Lower values save cost but may have cold start latency.
@@ -338,27 +341,11 @@ export interface DeploymentConfig {
  * be enabled when business requirements justify the expense.
  */
 export interface DisasterRecoveryConfig {
-  /**
-   * Enable Aurora Global Database for cross-region read replicas.
-   * Provides RPO of ~1 second and RTO of ~1 minute for regional failover.
-   * Cost: Additional Aurora instance in secondary region + data transfer.
-   * Disabled by default due to cost.
-   */
+  /** Reserved for cross-region replicas. Unsupported: validation rejects true. */
   readonly enableCrossRegionReplica: boolean;
-
-  /**
-   * Secondary region for cross-region replication.
-   * Only used if enableCrossRegionReplica is true.
-   * Example: "us-west-2" for us-east-1 primary
-   */
+  /** Reserved secondary region, inactive while cross-region features are disabled. */
   readonly secondaryRegion?: string;
-
-  /**
-   * Enable cross-region automated backups for Aurora.
-   * Copies automated backups to a secondary region.
-   * Cost: Storage costs in secondary region + data transfer.
-   * Disabled by default due to cost.
-   */
+  /** Reserved for cross-region backups. Unsupported: validation rejects true. */
   readonly enableCrossRegionBackup: boolean;
 }
 
@@ -372,31 +359,17 @@ export interface DisasterRecoveryConfig {
  * ## Paid Interface Endpoints (~$7/month each + data transfer)
  * Only enable if needed for security compliance or private connectivity:
  * - `secretsmanager` - Secrets Manager
- * - `rds` - RDS API
  * - `logs` - CloudWatch Logs
- * - `monitoring` - CloudWatch Metrics
- * - `ecr.api` - ECR API
- * - `ecr.dkr` - ECR Docker registry
- * - `kms` - Key Management Service
  * - `ssm` - Systems Manager
  * - `ssmmessages` - SSM Session Manager
- * - `ec2messages` - SSM EC2 messages
  */
 export type VpcEndpointType =
-  // Gateway endpoints (FREE)
   | "s3"
   | "dynamodb"
-  // Interface endpoints (PAID ~$7/month each)
   | "secretsmanager"
-  | "rds"
   | "logs"
-  | "monitoring"
-  | "ecr.api"
-  | "ecr.dkr"
-  | "kms"
   | "ssm"
-  | "ssmmessages"
-  | "ec2messages";
+  | "ssmmessages";
 
 /**
  * VPC network configuration.
@@ -426,7 +399,7 @@ export interface NetworkConfig {
    * Gateway endpoints (s3, dynamodb) are free.
    *
    * Empty array or undefined means no VPC endpoints.
-   * Recommended for production: ["s3", "secretsmanager", "logs", "kms"]
+   * Default configurations request ["s3", "dynamodb"]. Paid interfaces are explicit opt-in.
    */
   readonly vpcEndpoints?: readonly VpcEndpointType[];
 }
@@ -701,6 +674,10 @@ export interface DomainConfig {
  * immediate action required.
  */
 export interface AuroraAlarmThresholds {
+  /** ACU ceiling warning percentage; defaults to 80. */
+  readonly capacityWarningPercent?: number;
+  /** ACU ceiling critical percentage; defaults to 90. */
+  readonly capacityCriticalPercent?: number;
   /**
    * CPU utilization warning threshold (percentage).
    * Triggers when CPU consistently exceeds this value.
@@ -814,28 +791,17 @@ export interface AlarmThresholds {
 /**
  * CloudWatch dashboard widget configuration.
  *
- * Specifies which metrics to display on the environment dashboard.
- * Each array contains metric identifiers for that resource type.
+ * Reserved custom widget selections. Nonempty arrays are rejected until implemented.
+ * Built-in dashboard metrics are controlled by observability.dashboardEnabled.
  */
 export interface DashboardWidgets {
-  /**
-   * Aurora metrics to display (e.g., "connections", "cpu", "memory", "iops", "latency").
-   */
+  /** Reserved custom Aurora widgets. Unsupported: keep empty. */
   readonly aurora: readonly string[];
-
-  /**
-   * Valkey metrics to display (e.g., "hitRate", "connections", "memory", "cpu").
-   */
+  /** Reserved custom Valkey widgets. Unsupported: keep empty. */
   readonly valkey: readonly string[];
-
-  /**
-   * Cognito metrics to display (e.g., "signIns", "signUps", "tokenRefreshes").
-   */
+  /** Reserved custom Cognito widgets. Unsupported: keep empty. */
   readonly cognito: readonly string[];
-
-  /**
-   * VPC metrics to display (e.g., "natGateway", "dataTransfer").
-   */
+  /** Reserved custom VPC widgets. Unsupported: keep empty. */
   readonly vpc: readonly string[];
 }
 
@@ -911,12 +877,29 @@ export interface GitHubConfig {
    */
   readonly deployRoleName: string;
 
-  /**
-   * Repository pattern allowed to assume the deploy role.
-   * "*" allows every repo in the organization; narrow to a specific
-   * repo name to restrict.
-   */
-  readonly deployRepoPattern: string;
+  /** Numeric immutable GitHub owner ID; required when OIDC deployment is enabled. */
+  readonly ownerId?: string;
+
+  /** Explicit repository IDs and exact ref/environment subjects allowed to deploy. */
+  readonly deployRepositories?: readonly {
+    readonly name: string;
+    readonly id: string;
+    readonly refs?: readonly string[];
+    readonly environments?: readonly string[];
+  }[];
+
+  /** Accept matching name-only subjects during a deliberate legacy transition. */
+  readonly allowLegacyDeploySubjects?: boolean;
+
+  /** Application-only deployment namespace; infrastructure bootstrap stays administrative. */
+  readonly applicationDeploy?: {
+    readonly stackPrefix: string;
+    readonly resourcePrefix: string;
+    readonly applicationRoleNames: readonly string[];
+  };
+
+  /** @deprecated Ignored. Replace with deployRepositories; wildcard trust is rejected. */
+  readonly deployRepoPattern?: string;
 
   /**
    * Optional pre-existing IAM user used by GitHub Actions (legacy

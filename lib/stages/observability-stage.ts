@@ -150,6 +150,8 @@ export class ObservabilityStage extends cdk.Stage {
         {
           stageName,
           clusterIdentifier: auroraClusterId,
+          maxCapacity: environment.aurora.maxCapacity,
+          hasReaders: environment.aurora.instanceCount > 1,
           thresholds: auroraThresholds,
           criticalTopic: this.snsStack.criticalTopic,
           warningTopic: this.snsStack.warningTopic,
