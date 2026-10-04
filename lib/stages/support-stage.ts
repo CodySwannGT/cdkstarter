@@ -26,6 +26,7 @@
  * @see lib/stacks/support/trust-policy-stack.ts - CDK bootstrap trust
  * @module lib/stages/support-stage
  */
+import { getDnsDelegations } from "../../util/dns-delegation";
 import * as cdk from "aws-cdk-lib";
 import type { Construct } from "constructs";
 import { CodeConnectionsShareStack } from "../stacks/support/codeconnections-share-stack";
@@ -138,7 +139,13 @@ export class SupportStage extends cdk.Stage {
     this.supportEnvironment = supportEnvironment;
 
     // Create DNS only when the support account opts in and domains exist.
-    if (supportEnvironment.purpose.dns && domainConfig.domains.length > 0) {
+    if (
+      supportEnvironment.purpose.dns &&
+      (domainConfig.domains.length > 0 ||
+        getDnsDelegations(domainConfig).some(
+          entry => entry.parentAccountId === supportEnvironment.accountId
+        ))
+    ) {
       this.dnsStack = new DnsStack(this, "DnsStack", {
         domainConfig,
         stackName: `${supportEnvironment.name}-dns`,

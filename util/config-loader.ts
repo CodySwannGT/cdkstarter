@@ -28,6 +28,7 @@
  * @see config/observability.ts - Alarm thresholds and dashboard widgets
  * @module util/config-loader
  */
+import { getDnsDelegations } from "./dns-delegation";
 import { validateAuroraConfig } from "./aurora-config";
 import { agentOperationsConfig } from "../config/agent-operations";
 import { domainConfig } from "../config/domains";
@@ -199,6 +200,7 @@ export const validateConfiguration = (
     input.supports,
     input.dashboardWidgets
   );
+  getDnsDelegations(domainConfig, input.stages);
   validatePrimaryDomain();
   validateWafFlag(input.stages);
   validateEdgeRegions(input.stages);

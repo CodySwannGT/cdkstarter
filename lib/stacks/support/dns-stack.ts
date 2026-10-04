@@ -30,6 +30,11 @@
  */
 import * as acm from "aws-cdk-lib/aws-certificatemanager";
 import * as cdk from "aws-cdk-lib";
+import * as iam from "aws-cdk-lib/aws-iam";
+import {
+  dnsDelegationId,
+  getDnsDelegations,
+} from "../../../util/dns-delegation";
 import * as route53 from "aws-cdk-lib/aws-route53";
 import type { Construct } from "constructs";
 import type { DomainConfig } from "../../types";
@@ -95,6 +100,7 @@ export class DnsStack extends cdk.Stack {
     super(scope, id, props);
 
     const { domainConfig } = props;
+    const delegations = getDnsDelegations(domainConfig);
 
     domainConfig.domains.forEach(domain => {
       const constructId = this.sanitizeConstructId(domain.name);
@@ -114,6 +120,48 @@ export class DnsStack extends cdk.Stack {
 
       this.createOutputs(domain.name);
     });
+
+    for (const entry of delegations.filter(
+      item => item.parentAccountId === this.account
+    )) {
+      // Explicit zone ID references an existing parent without replacing managed Zone-* resources.
+      const role = new iam.Role(
+        this,
+        `DelegationRole-${dnsDelegationId(entry)}`,
+        {
+          roleName: entry.delegationRoleName,
+          assumedBy: new iam.CompositePrincipal(
+            ...entry.trustedChildAccountIds.map(
+              account => new iam.AccountPrincipal(account)
+            )
+          ),
+        }
+      );
+      role.addToPolicy(
+        new iam.PolicyStatement({
+          actions: ["route53:ChangeResourceRecordSets"],
+          resources: [
+            this.formatArn({
+              service: "route53",
+              region: "",
+              account: "",
+              resource: "hostedzone",
+              resourceName: entry.parentHostedZoneId,
+              arnFormat: cdk.ArnFormat.SLASH_RESOURCE_NAME,
+            }),
+          ],
+          conditions: {
+            "ForAllValues:StringEquals": {
+              "route53:ChangeResourceRecordSetsRecordTypes": ["NS"],
+              "route53:ChangeResourceRecordSetsActions": ["UPSERT", "DELETE"],
+              "route53:ChangeResourceRecordSetsNormalizedRecordNames": [
+                entry.childZoneName,
+              ],
+            },
+          },
+        })
+      );
+    }
   }
 
   /**

@@ -32,6 +32,11 @@ import {
   toAuroraAlarmsThresholds,
   toValkeyAlarmsThresholds,
 } from "../../util/alarm-threshold-mapping";
+import { getDnsDelegations, normalizeDnsName } from "../../util/dns-delegation";
+import {
+  delegateChildZone,
+  DnsDelegationStack,
+} from "../stacks/support/dns-delegation-stack";
 import { resolveCdnForStage } from "../../util/cdn";
 import { CognitoStack } from "../stacks/auth/cognito-stack";
 import { CdnStack } from "../stacks/edge/cdn-stack";
@@ -121,6 +126,11 @@ export class EnvironmentStage extends cdk.Stage {
 
     const { environment, alarmThresholds, github, domainConfig } = props;
     const { name: stageName, features } = environment;
+    const delegations = domainConfig
+      ? getDnsDelegations(domainConfig).filter(entry =>
+          entry.trustedChildAccountIds.includes(environment.accountId)
+        )
+      : [];
 
     // --- Network (optional) ----------------------------------------------
     if (features.network !== false) {
@@ -187,6 +197,21 @@ export class EnvironmentStage extends cdk.Stage {
 
     // --- Edge (conditional CloudFront + WAF) -----------------------------
     this.cdnStack = this.createEdgeStack(environment, domainConfig);
+    const additionalZones = delegations.filter(entry => {
+      if (
+        this.cdnStack &&
+        entry.childZoneName ===
+          normalizeDnsName(this.cdnStack.hostedZone.zoneName)
+      ) {
+        delegateChildZone(this.cdnStack, this.cdnStack.hostedZone, entry);
+        return false;
+      }
+      return true;
+    });
+    if (additionalZones.length > 0)
+      new DnsDelegationStack(this, "DnsDelegationStack", additionalZones, {
+        stackName: `${stageName}-dns-delegation`,
+      });
 
     // --- Observability ---------------------------------------------------
     if (features.observability !== false) {

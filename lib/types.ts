@@ -653,6 +653,22 @@ export interface Domain {
   readonly environments: Readonly<Record<string, DomainEnvironmentMapping>>;
 }
 
+/** Explicit parent-zone authorization and child-zone delegation. */
+export interface DnsDelegationEntry {
+  /** Parent DNS suffix; the child must be strictly below it. */
+  readonly parentDomain: string;
+  /** Existing parent hosted zone ID, without the /hostedzone/ prefix. */
+  readonly parentHostedZoneId: string;
+  /** Twelve-digit account that owns the parent zone and delegation role. */
+  readonly parentAccountId: string;
+  /** Explicit IAM role name in the parent account. */
+  readonly delegationRoleName: string;
+  /** Child zone created in a trusted stage account. */
+  readonly childZoneName: string;
+  /** Only these account principals may assume the parent role. */
+  readonly trustedChildAccountIds: readonly string[];
+}
+
 /**
  * Top-level domain configuration wrapper.
  *
@@ -664,6 +680,14 @@ export interface DomainConfig {
    * List of domains to configure.
    */
   readonly domains: readonly Domain[];
+
+  /** Default off; explicit enabled:true activates the supplied entries. */
+  readonly dnsDelegation?: {
+    /** Activate delegation only when explicitly true. */
+    readonly enabled?: boolean;
+    /** Parent authorization and child zone settings. */
+    readonly entries: readonly DnsDelegationEntry[];
+  };
 }
 
 /**

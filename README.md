@@ -319,3 +319,5 @@ helper functions.
 
 Sources: [Aurora capacity settings](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/aurora-serverless-v2.setting-capacity.html)
 and [DBCluster engine configuration](https://docs.aws.amazon.com/AWSCloudFormation/latest/TemplateReference/aws-resource-rds-dbcluster.html).
+
+Optional cross-account DNS delegation is configured in `domainConfig.dnsDelegation`. See [setup and retained-record cleanup](docs/setup/dns-delegation.md) before enabling it.
