@@ -2,6 +2,23 @@
 
 Reviewed on 2026-10-02 for [#48](https://github.com/CodySwannGT/cdkstarter/issues/48). This is a bounded dependency and source review, with offline synthesis. It does not attest to deployed AWS resources or the entire dependency graph. The full dependency refresh and cleanup remain in [#39](https://github.com/CodySwannGT/cdkstarter/issues/39).
 
+## Historical scope and combined delivery
+
+The evidence below records the original #48-only source commit `fbf50b2ae4ec461b55ac1058dfa0d5a0bab5f89c`. Its Node 22.21.1 commands, installed-copy counts, raw audit totals and integration collection limitation describe that historical artifact.
+
+The combined [#29](https://github.com/CodySwannGT/cdkstarter/issues/29)/#48 delivery separately adopts Lisa 4.69.1 and Node 22.23.3, preserves the exact CDK security pins and three residual dispositions, and restores a populated integration command. Fresh audit observations report 10 high/3 moderate findings in the full graph and one high production finding; documented policy filters pass while those raw findings remain unresolved. The separate accepted `braces` risk is recorded in [starter braces advisory acceptance](starter-braces-advisory.md).
+
+Completion requires fresh final-head native fixtures, installed-occurrence/caller/asset checks and required CI evidence in each issue's own artifact manifest. Historical proof below must not be presented as proof of that changed combined artifact. Current offline commands use the pinned Node 22.23.3 environment:
+
+```sh
+npm run test:unit -- test/starter-cdk-security.test.ts
+npm run test:integration
+npm run test:cov
+npm audit --json
+npm audit --omit=dev --json
+npm ls aws-cdk-lib @aws-cdk/aws-amplify-alpha aws-cdk constructs brace-expansion
+```
+
 ## Update and compatibility
 
 The starter pins `aws-cdk-lib` to `2.272.0` and `@aws-cdk/aws-amplify-alpha` to `2.272.0-alpha.0`. Both declare `constructs ^10.5.0`. The retained installed `constructs 10.6.0` satisfies those peers. The retained CDK CLI `2.1132.0` synthesizes both real-entrypoint fixtures successfully under the required Node `22.21.1`. No CLI, constructs, Lisa or unrelated direct dependency refresh was necessary.
