@@ -1,6 +1,12 @@
 /** Actual CDK CLI regressions for direct, pipeline and frontend composition. */
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, readFileSync, readdirSync, rmSync } from "node:fs";
+import {
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
@@ -33,12 +39,20 @@ const filesBelow = (directory: string): readonly string[] =>
 const offlineEnvironment = (output: string): NodeJS.ProcessEnv => ({
   ...Object.fromEntries(
     Object.entries(process.env).filter(
-      ([key]) => !key.startsWith("AWS_") && !key.startsWith("CDK_DEFAULT_")
+      ([key]) =>
+        !key.startsWith("AWS_") &&
+        !key.startsWith("CDK_DEFAULT_") &&
+        key !== "CDK_CONTEXT_JSON" &&
+        key !== "AGENT_OPERATIONS_EXTERNAL_ID"
     )
   ),
   AWS_EC2_METADATA_DISABLED: "true",
   AWS_CONFIG_FILE: join(output, "no-aws-config"),
   AWS_SHARED_CREDENTIALS_FILE: join(output, "no-aws-credentials"),
+  TMPDIR: join(output, "tmp"),
+  TMP: join(output, "tmp"),
+  TEMP: join(output, "tmp"),
+  npm_config_cache: join(output, "npm-cache"),
 });
 
 describe("starter entrypoint composition", () => {
@@ -47,6 +61,7 @@ describe("starter entrypoint composition", () => {
     mode => {
       const output = mkdtempSync(join(tmpdir(), `starter-${mode}-`));
       try {
+        mkdirSync(join(output, "tmp"), { recursive: true });
         const result = spawnSync(
           process.execPath,
           [

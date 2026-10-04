@@ -15,3 +15,7 @@ Native Codex collaboration tools establish the team. The bounded input resolver 
 
 Plan name: Unify starter direct deployment under EnvironmentStage.
 Scope: this leaf only; the overarching caller goal retains every remaining implementation leaf.
+
+## Resume after #29/#48 terminal delivery
+
+Released main `e706d113cf5c2a147570d02c334272ad316ca372` is the current baseline. Refreshed full input transaction completed before worker dispatch. Existing worker owns only the bounded composition source/fixtures/docs/plan/roster in this worktree. Independent reviewer and verifier remain separate; root owns normal commit/push/PR/CI/merge/release/evidence/closure. Old e472 proof is historical. All exposed business roles remain excluded for the reasons above. HOME/CODEX_HOME/XDG and original dirty checkout are preserved. No AWS or downstream delivery is authorized.
