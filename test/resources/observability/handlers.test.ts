@@ -54,6 +54,21 @@ afterEach(() => {
 });
 
 describe("canary deployed asset", () => {
+  it.each([
+    "{",
+    "null",
+    "{}",
+    "[1]",
+    '["https://valid.invalid", ""]',
+    '["file:///tmp/fixture"]',
+  ])(
+    "rejects malformed targets %s before checking any endpoint",
+    async targets => {
+      vi.stubEnv("CANARY_URLS", targets);
+      await expect(load("canary").handler()).rejects.toThrow();
+      expect(fetch).not.toHaveBeenCalled();
+    }
+  );
   it("handles absent targets without a request", async () => {
     vi.stubEnv("CANARY_URLS", undefined);
     expect(await load("canary").handler()).toEqual({ ok: true, checked: 0 });
@@ -80,13 +95,108 @@ describe("canary deployed asset", () => {
 });
 
 describe("Sentry deployed forwarder", () => {
+  it.each([null, undefined, { Records: "invalid" }])(
+    "rejects malformed invocation %s before transport",
+    async event => {
+      await expect(
+        load("sentry-forwarder").handler(event as Record<string, unknown>)
+      ).rejects.toThrow(/Invalid (notification|SNS)/);
+      expect(fetch).not.toHaveBeenCalled();
+    }
+  );
+  it.each([undefined, "BROKEN", 7])(
+    "rejects malformed recognized alarm state %s before transport",
+    async state => {
+      await expect(
+        load("sentry-forwarder").handler(
+          sns({
+            AlarmName: "fixture alarm",
+            NewStateValue: state,
+          })
+        )
+      ).rejects.toThrow(/alarm state/i);
+      expect(fetch).not.toHaveBeenCalled();
+    }
+  );
+  it.each([null, {}, { state: 7 }, { state: "FAILED" }])(
+    "rejects malformed Backup job detail %s instead of ignoring or forwarding it",
+    async detail => {
+      const handler = load("sentry-forwarder");
+      const event = {
+        source: "aws.backup",
+        "detail-type": "Backup Job State Change",
+        detail,
+      };
+      await expect(handler.handler(event)).rejects.toThrow(/backup job/i);
+      await expect(handler.handler(sns(event))).rejects.toThrow(/backup job/i);
+      expect(fetch).not.toHaveBeenCalled();
+    }
+  );
+  it.each([null, {}, { Message: null }])(
+    "rejects malformed SNS record %s before transport",
+    async Sns => {
+      await expect(
+        load("sentry-forwarder").handler({ Records: [{ Sns }] })
+      ).rejects.toThrow(/SNS record/i);
+      expect(fetch).not.toHaveBeenCalled();
+    }
+  );
+  it.each([
+    new TypeError("network unavailable"),
+    new DOMException("request timed out", "TimeoutError"),
+  ])(
+    "propagates transport failure %s and accepts an external reinvocation",
+    async error => {
+      const handler = load("sentry-forwarder");
+      const event = sns({
+        source: "aws.backup",
+        "detail-type": "Backup Job State Change",
+        account: "111111111111",
+        region: "us-east-1",
+        detail: {
+          state: "FAILED",
+          backupJobId: "fixture-job",
+          resourceType: "Aurora",
+        },
+      });
+      vi.mocked(fetch).mockRejectedValueOnce(error);
+      await expect(handler.handler(event)).rejects.toBe(error);
+      expect(fetch).toHaveBeenCalledTimes(1);
+      expect(await handler.handler(event)).toEqual({ forwarded: 1 });
+      expect(fetch).toHaveBeenCalledTimes(2);
+      expect(sent()[1]).toMatchObject({
+        tags: { source: "aws-backup" },
+        extra: { backup_job_id: "fixture-job" },
+      });
+    }
+  );
+  it("fails an HTTP 429 invocation and forwards the same alarm on external retry", async () => {
+    const handler = load("sentry-forwarder");
+    const event = sns({
+      AlarmName: "fixture alarm",
+      NewStateValue: "ALARM",
+      AWSAccountId: "111111111111",
+      AlarmArn: "arn:aws:cloudwatch:us-east-1:111111111111:alarm:fixture",
+      Trigger: { MetricName: "Errors", Namespace: "AWS/Lambda" },
+    });
+    vi.mocked(fetch).mockResolvedValueOnce(response(false, 429));
+    await expect(handler.handler(event)).rejects.toThrow(
+      "Sentry responded 429"
+    );
+    expect(fetch).toHaveBeenCalledTimes(1);
+    expect(await handler.handler(event)).toEqual({ forwarded: 1 });
+    expect(sent()[1]).toMatchObject({
+      level: "error",
+      tags: { source: "cloudwatch-alarm" },
+    });
+  });
   it("does not forward unknown invocations", async () => {
     expect(await load("sentry-forwarder").handler({ source: "other" })).toEqual(
       { forwarded: 0 }
     );
     expect(fetch).not.toHaveBeenCalled();
   });
-  it.each(["ALARM", "OK"])(
+  it.each(["ALARM", "OK", "INSUFFICIENT_DATA"])(
     "maps %s alarm state, region and severity",
     async state => {
       const handler = load("sentry-forwarder");

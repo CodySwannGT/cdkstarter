@@ -272,7 +272,7 @@ describe("starter Lisa adoption", () => {
     });
   }, 600_000);
 
-  it("reports empty integration as SKIP and executes populated passing and failing suites", () => {
+  it("fails closed on empty integration and executes populated passing and failing suites", () => {
     expect(existsSync(join(root, "scripts/test-integration.mjs"))).toBe(true);
     fixture(directory => {
       symlinkSync(
@@ -297,9 +297,9 @@ describe("starter Lisa adoption", () => {
       );
       const args = [join(root, "scripts/test-integration.mjs")];
       const empty = run(directory, args);
-      expect(empty.status, empty.stdout + empty.stderr).toBe(0);
-      expect(empty.stdout).toContain(
-        "SKIP: integration collection is empty (0 files)"
+      expect(empty.status, empty.stdout + empty.stderr).toBe(1);
+      expect(empty.stdout + empty.stderr).toContain(
+        "FAIL: integration collection is empty (0 files)"
       );
       expect(empty.stdout).not.toContain("Tests  ");
       put(

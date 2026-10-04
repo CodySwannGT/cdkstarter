@@ -85,6 +85,9 @@ const baseEvent = (message, level, tags, extra, fingerprint) => ({
  * @returns {object} A Sentry event payload.
  */
 const alarmEvent = (msg, severity) => {
+  if (!["ALARM", "OK", "INSUFFICIENT_DATA"].includes(msg.NewStateValue)) {
+    throw new Error("Invalid CloudWatch alarm state");
+  }
   const region = msg.AlarmArn ? msg.AlarmArn.split(":")[3] : "us-east-1";
   const consoleUrl = `https://${region}.console.aws.amazon.com/cloudwatch/home?region=${region}#alarmsV2:alarm/${encodeURIComponent(msg.AlarmName)}`;
   const inAlarm = msg.NewStateValue === "ALARM";
@@ -156,8 +159,25 @@ const backupEvent = (event, severity = "critical") => {
  * @param {object} event - Backup state-change event.
  * @returns {boolean} Whether this state needs an alert.
  */
-const isBackupFailure = event =>
-  ["FAILED", "ABORTED", "EXPIRED"].includes(event.detail?.state);
+const isBackupFailure = event => {
+  const detail = event.detail;
+  if (
+    !detail ||
+    typeof detail !== "object" ||
+    typeof detail.state !== "string" ||
+    !detail.state
+  ) {
+    throw new Error("Invalid Backup job detail/state");
+  }
+  const failure = ["FAILED", "ABORTED", "EXPIRED"].includes(detail.state);
+  if (
+    failure &&
+    (typeof detail.backupJobId !== "string" || !detail.backupJobId)
+  ) {
+    throw new Error("Invalid Backup job identifier");
+  }
+  return failure;
+};
 
 /**
  * Parses a JSON string, returning null instead of throwing.
@@ -178,6 +198,9 @@ const parseJson = raw => {
  * @returns {object|null} A Sentry event payload, or an ignored Backup state.
  */
 const snsRecordEvent = record => {
+  if (!record?.Sns || typeof record.Sns.Message !== "string") {
+    throw new Error("Invalid SNS record: Message must be a string");
+  }
   const msg = parseJson(record.Sns.Message);
   const severity = severityFromTopic(record.Sns.TopicArn);
   if (
@@ -206,9 +229,15 @@ const snsRecordEvent = record => {
  * @returns {Promise<{forwarded: number}>} How many events were sent.
  */
 exports.handler = async event => {
+  if (!event || typeof event !== "object") {
+    throw new Error("Invalid notification event");
+  }
+  if (event.Records !== undefined && !Array.isArray(event.Records)) {
+    throw new Error("Invalid SNS records: expected an array");
+  }
   const events = event.Records
     ? event.Records.map(snsRecordEvent).filter(Boolean)
-    : event.source === "aws.backup" && event.detail && isBackupFailure(event)
+    : event.source === "aws.backup" && isBackupFailure(event)
       ? [backupEvent(event)]
       : [];
   await Promise.all(events.map(sendToSentry));

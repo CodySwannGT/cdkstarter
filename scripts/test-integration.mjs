@@ -34,8 +34,8 @@ try {
   process.exit(1);
 }
 if (files.length === 0) {
-  console.log("SKIP: integration collection is empty (0 files)");
-  process.exit(0);
+  console.error("FAIL: integration collection is empty (0 files)");
+  process.exit(1);
 }
 console.log(
   `Integration collection: ${files.length} file(s); executing Lisa's managed gate`
