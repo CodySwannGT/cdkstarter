@@ -169,8 +169,9 @@ export class AppStage extends cdk.Stage {
     if (this.auroraStack && this.cognitoStack) {
       this.iamStack = new IamStack(this, "IamStack", {
         stageName,
-        auroraClusterArn: this.auroraStack.cluster.clusterArn,
-        auroraSecretArn: this.auroraStack.secret.secretArn,
+        databaseProxy: this.auroraStack.proxy,
+        applicationUsername: this.auroraStack.applicationUsername,
+        applicationSecret: this.auroraStack.applicationSecret,
         cognitoUserPoolArn: this.cognitoStack.userPool.userPoolArn,
         stackName: `${stageName}-iam`,
       });

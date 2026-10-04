@@ -32,6 +32,8 @@
  */
 import * as cdk from "aws-cdk-lib";
 import * as iam from "aws-cdk-lib/aws-iam";
+import type * as rds from "aws-cdk-lib/aws-rds";
+import type * as secretsmanager from "aws-cdk-lib/aws-secretsmanager";
 import type { Construct } from "constructs";
 
 /**
@@ -44,17 +46,12 @@ export interface IamStackProps extends cdk.StackProps {
    */
   readonly stageName: string;
 
-  /**
-   * Aurora cluster ARN for RDS IAM authentication policy.
-   * Used to grant rds-db:connect permission.
-   */
-  readonly auroraClusterArn: string;
-
-  /**
-   * Aurora Secrets Manager secret ARN.
-   * Used for non-IAM auth scenarios (fallback, admin operations).
-   */
-  readonly auroraSecretArn: string;
+  /** Actual RDS Proxy; grantConnect derives its prx resource-ID dbuser ARN. */
+  readonly databaseProxy: rds.IDatabaseProxy;
+  /** Dedicated application username, never a wildcard or administrator. */
+  readonly applicationUsername: string;
+  /** Only application credentials are readable by the runtime role. */
+  readonly applicationSecret: secretsmanager.ISecret;
 
   /**
    * Cognito user pool ARN for admin operations.
@@ -87,12 +84,28 @@ export class IamStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: IamStackProps) {
     super(scope, id, props);
 
-    const { stageName, auroraClusterArn, auroraSecretArn, cognitoUserPoolArn } =
-      props;
+    const {
+      stageName,
+      databaseProxy,
+      applicationUsername,
+      applicationSecret,
+      cognitoUserPoolArn,
+    } = props;
 
+    if (
+      !/^[a-z][a-z0-9_]{0,62}$/.test(applicationUsername) ||
+      applicationUsername === "clusteradmin" ||
+      applicationUsername.startsWith("pg_") ||
+      applicationUsername.startsWith("rds_")
+    ) {
+      throw new Error(
+        "Runtime IAM requires a specific non-administrative database username."
+      );
+    }
     this.lambdaExecutionRole = this.createLambdaExecutionRole(stageName);
     this.addManagedPolicies();
-    this.addAuroraPolicy(auroraClusterArn, auroraSecretArn);
+    databaseProxy.grantConnect(this.lambdaExecutionRole, applicationUsername);
+    applicationSecret.grantRead(this.lambdaExecutionRole);
     this.addCognitoPolicy(cognitoUserPoolArn);
     this.addXRayPolicy();
     this.createOutputs(stageName);
@@ -128,37 +141,6 @@ export class IamStack extends cdk.Stack {
       iam.ManagedPolicy.fromAwsManagedPolicyName(
         "service-role/AWSLambdaVPCAccessExecutionRole"
       )
-    );
-  }
-
-  /**
-   * Adds policy for Aurora access.
-   *
-   * - rds-db:connect: Connect via RDS Proxy with IAM auth
-   * - secretsmanager:GetSecretValue: Fallback for non-IAM scenarios
-   * @param auroraClusterArn - Aurora cluster ARN
-   * @param auroraSecretArn - Aurora secret ARN
-   */
-  private addAuroraPolicy(
-    auroraClusterArn: string,
-    auroraSecretArn: string
-  ): void {
-    // RDS IAM auth requires connect permission on cluster resources
-    this.lambdaExecutionRole.addToPolicy(
-      new iam.PolicyStatement({
-        actions: ["rds-db:connect"],
-        resources: [`${auroraClusterArn}/*`],
-        effect: iam.Effect.ALLOW,
-      })
-    );
-
-    // Secrets Manager access for non-IAM scenarios
-    this.lambdaExecutionRole.addToPolicy(
-      new iam.PolicyStatement({
-        actions: ["secretsmanager:GetSecretValue"],
-        resources: [auroraSecretArn],
-        effect: iam.Effect.ALLOW,
-      })
     );
   }
 

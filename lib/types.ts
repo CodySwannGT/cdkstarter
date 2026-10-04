@@ -154,6 +154,10 @@ export interface StageFeatures {
  * - Production: min=2, max=64 (performance optimized, always warm)
  */
 export interface AuroraConfig {
+  /** Dedicated runtime database user; never the administrative cluster user. */
+  readonly applicationUsername?: string;
+  /** Optional separate read-only user; this creates no observer IAM role. */
+  readonly readOnlyUsername?: string;
   /**
    * Minimum Aurora Capacity Units.
    * Lower values save cost but may have cold start latency.

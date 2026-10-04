@@ -197,3 +197,8 @@ are excluded. Extra services require a separate reviewed allowlist change.
 Before adopting, review new endpoint/route-table/security-group resources and
 interface hourly/data charges. See AWS [gateway routing](https://docs.aws.amazon.com/vpc/latest/privatelink/gateway-endpoints.html)
 and [interface prerequisites](https://docs.aws.amazon.com/vpc/latest/privatelink/create-interface-endpoint.html).
+
+### Dedicated database users
+
+Application and optional read-only database users have separate credentials and
+least-privilege proxy grants. Read the [operator bootstrap and migration runbook](docs/database/application-users.md) before adopting these IAM-only users on an existing database.

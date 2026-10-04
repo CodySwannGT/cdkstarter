@@ -272,8 +272,9 @@ export class EnvironmentStage extends cdk.Stage {
     if (auroraStack && cognitoStack) {
       const iamStack = new IamStack(this, "IamStack", {
         stageName,
-        auroraClusterArn: auroraStack.cluster.clusterArn,
-        auroraSecretArn: auroraStack.secret.secretArn,
+        databaseProxy: auroraStack.proxy,
+        applicationUsername: auroraStack.applicationUsername,
+        applicationSecret: auroraStack.applicationSecret,
         cognitoUserPoolArn: cognitoStack.userPool.userPoolArn,
         stackName: `${stageName}-iam`,
       });
