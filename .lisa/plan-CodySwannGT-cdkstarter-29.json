@@ -1,0 +1,914 @@
+{
+  "schema_version": 1,
+  "name": "Adopt verified Lisa tooling with preserved CDK security",
+  "flow": "Implement",
+  "work_type": "Build",
+  "work_item_ref": "CodySwannGT/cdkstarter#29",
+  "carried_work_item_ref": "CodySwannGT/cdkstarter#48",
+  "tracker_provider": "github",
+  "worktree": "/tmp/cdkstarter-29-implementation",
+  "work_item_context": "/private/tmp/cdkstarter-29-implementation/.lisa/work-item-context.md",
+  "context_sha256": "04e0c2cc3379a373e25718a4562f2cfc4bcf19edbea47fd2b34df297387d32d3",
+  "roster": ".lisa/roster/CodySwannGT-cdkstarter-29.md",
+  "branch": "codex/29-adopt-current-lisa",
+  "target_environment": "Assumption: production \u2014 remote default branch main",
+  "base_branch": "main",
+  "target_branch": "main",
+  "base_sha": "1111fbe6d1f0d56de3c0adb19b9aceee34271a4d",
+  "carried_security_source_sha": "fbf50b2ae4ec461b55ac1058dfa0d5a0bab5f89c",
+  "branch_plan_reconciliation": "Current production\u2192main matches ticket and live remote; main is ancestor of48 commit.",
+  "binding_verified": true,
+  "preflight_status": "pass",
+  "required_access": [
+    {
+      "tool": "GitHub tracker, repository, Actions and rulesets",
+      "probe": "gh api repos/CodySwannGT/cdkstarter; gh api repos/CodySwannGT/cdkstarter/rulesets/{18805277,18805429}",
+      "status": "pass"
+    },
+    {
+      "tool": "Exact official npm Lisa4.69.1 artifact",
+      "probe": "GET https://registry.npmjs.org/@codyswann%2flisa/4.69.1",
+      "status": "pass",
+      "gitHead": "995f533b00d9b8a60256096bf6d28940164cd893"
+    }
+  ],
+  "required_remote_checks": [
+    {
+      "context": "\ud83d\udd0d Quality Checks / \ud83e\uddf9 Lint",
+      "integration_id": 15368
+    },
+    {
+      "context": "\ud83d\udd0d Quality Checks / \ud83d\udd0d Type Check",
+      "integration_id": 15368
+    },
+    {
+      "context": "\ud83d\udd0d Quality Checks / \ud83c\udfd7\ufe0f Build",
+      "integration_id": 15368
+    },
+    {
+      "context": "\ud83d\udd0d Quality Checks / \ud83d\udcd0 Check Formatting",
+      "integration_id": 15368
+    },
+    {
+      "context": "\ud83d\udd0d Quality Checks / \ud83d\udd12 Security Scan",
+      "integration_id": 15368
+    },
+    {
+      "context": "\ud83d\udd0d Quality Checks / \ud83e\uddea Run Unit Tests",
+      "integration_id": 15368
+    },
+    {
+      "context": "\ud83d\udd0d Quality Checks / \ud83e\uddea Run Integration Tests",
+      "integration_id": 15368
+    },
+    {
+      "context": "CodeRabbit",
+      "integration_id": 347564
+    },
+    {
+      "context": "GitGuardian Security Checks",
+      "integration_id": 46505
+    }
+  ],
+  "local_tool_versions": {
+    "node": "v22.23.3",
+    "lisa": "4.69.1"
+  },
+  "research_status": "local implementation independently reviewed; accepted starter exception being verified; remote delivery pending",
+  "research": [
+    "Read full live29/48 context, complete strategy and actual4.69.1 updater retirement amendment. PublicR995f533b is terminally verified. Use ownership-aware full apply, preserve source-only CI/customizations and nine live required checks. Retain exact48 CDK/alpha/CLI and scoped brace/security dispositions. Deliberately coordinate hostNode22.23.3, Vitest/coverage4.1.11 and Vite8.3.2. No PAT/updater replacement, scheduler, AWS deployment, consumer writes,39 dependency batch or23 hold change.",
+    "Read-only explorer confirms package strategy receives package.lisa.json before package.json translation: preserve existing package ignore unless actual report proves change necessary. Host test/unit/cov/watch compositions survive adoption and need deliberate managed delegation. Current roots are lib36TS/util5TS/bin1TS/config6TS/resources2JS; coverage/mutation must use real extensions. New continuous-gates and workflow-load-failure-sweep create-only schedules require supported host default-off dispositions.",
+    "Independent plan quality review passed scope/proof with T1\u2013T3 local checkpoint expectations corrected; T4/global retain actual CI/review/merge/release/terminal obligations.",
+    "Actual full official Lisa4.69.1 apply exited0 with86 copies16 overwrites8 JSON merges and2 policy deletions. Existing package ignore preserved; special package strategy adopted host policy. Native prover suite passed6 meaningful cases after index-aware fixture correction. Adoption baseline recorded3 failing cases, not yet final GREEN.",
+    "Normal npm dependency resolution remains unverified: npm10.9.9 existing and clean attempts failed null edgesOut; explicit npm10.9.4 failed likewise. Vitest dollar-reference trial failed resolution, literal equal direct range progressed then failed inherited esbuild dollar reference. No peer/engine/force bypass or broad39 refresh. Unchanged npm>=10.9.4 permits supported newer npm diagnosis; no exact manager version imposed.",
+    "ImmutableR canonical tracker validator requires configured tracker scope; GITHUB_REPOSITORY alone does not replace placeholder identity. Use existing declared traceability host task extension with a narrowly scoped temporary complete CI tracking config and unchanged canonical validation. Preserve generic tracked defaults and actual event base/head/PR.",
+    "Actual PR49 lease refreshed at2026-10-04T08:13:16Z; PR remains OPEN at exact fbf50 head with no standalone merge. Source4326 remains terminally complete; combined29/48 fresh verification and remote delivery still pending.",
+    "Independent source inspection of SRI-verified official npm11.21.0 found explicit detached-peer-parent guard in Arborist loadPeerSet and local-package fallback for dollar override references, both absent npm10. Declared npm>=10.9.4 and official npm11 Node engine admit pinnedNode22.23.3. Authorized one normal isolated original-manifest/old-lock install; actual success still pending, with no permanent policy change or peer/engine bypass.",
+    "Explorer resolved existing traceability extension env: GH_TOKEN, LISA_PR_BASE_SHA, LISA_PR_HEAD_SHA, LISA_PR_NUMBER and GITHUB_REPOSITORY. Host task invokes unchanged canonical validate-pr with child-only LISA_TRACKING_CONFIG_FILE pointing to complete ephemeral config. Derive real CI identity only while preserving generic tracked identity and exact resolved event range. Retained templates require CDK child specializations and explicit ownership, not TypeScript-generic replacement.",
+    "Actual normal isolated official npm11.21.0 install succeeded exit0 onNode22.23.3,1162 packages, original adopted dollar references restored and experimental Vitest override removed. Hooks ran normally. Raw audit4moderate/15high is not clear; exact lock/installed attribution, fresh CI-paired npm10.9.9 ci and full quality remain pending. Release caller reconciledNode22.23.3 and populated integration skip removed without adding deployment behavior.",
+    "Working-tree checkpoint at historical fbf50 (not future committed proof): actual direct native collection2 suites/11 cases passed, comprising6 prover controls and5 CI traceability composition controls. Adapter uses supported declared required task, placeholder-only actual repository adaptation, real/queue scope preservation, child-only mode600 complete config and cleanup. Scoped lint-staged/audit/eslint retained-template refresh commands exited0; remaining CDK-specific template refreshes and fresh-ci/audit/quality pending.",
+    "Draft independent traceability review found complete override makes unchanged canonical configAt(base) read HEAD policy. Actual sole configAt caller is deployChainRefs; preserve deploy.branches from actual effective BASE Git config in temporary complete config, matching unchanged --base/env option precedence and fail-safe no-chain behavior for unreadable config. Current production-to-main policy is unchanged and no bypass observed in this PR. Canonical validator remains untouched; meaningful self-exemption regression required before final proof.",
+    "Actual fresh workflow-pairedNode22.23.3/npm10.9.9 CI install exited0. Independent draft adapter correction review PASS: first --base usable-next/env precedence matches canonical, temporary deploy.branches comes from actual Git base or strict no-chain fallback, other policy and cleanup preserved, canonical validator byte-equalR. Owner native13 cases passed at working-tree checkpoint. Final AST docs refresh failed ENOENT due overlapping apply/npm-ci mutation of node_modules, rollback completed and failed log preserved; rerun that one scoped refresh sequentially against stable installed tool. Raw audits/full quality/final-head proof remain pending.",
+    "Actual adoption integration GREEN1 suite/3 cases after containment-only nested TMP/cache fix; initial assertions passed but strict scratch guard failure retained. Public apply twice produced equal deterministic snapshot and preserved sentinels. Typecheck0; native13PASS. Lint found inherited global statement-order override re-enabling rule on canonical standalone scripts; canonical base explicitly scopes scripts profile, so host local override narrowed toTS/TSX preserving options, not blanket ignore or managed edits. Once-only audits: production filtered0/raw1high qualified by original48 exceptions; normal filtered11/raw15high remains blocker. Independent occurrence review identified browserslist4.28.7,nanoid3.3.18,fast-uri4.1.5 same-band patched targets; authorize narrow supported higher host floors (public strategy restores them), preserve higher-major children and39 broader scope. Deepmerge8 compatibility and unpatchedbraces reachability unresolved; no new waiver.",
+    "Actual full lint0 and Knip0 after preserving published standalone-MJS profile; actual41suites/431assertions passed, but new real roots exposed branch63.78 below preserved70 (81.66/86.19/81.71 other metrics). Owner adding meaningful missing-branch tests, no floor lowering. Compatible3-leaf patched candidate ordinary install and freshnpm10ci0, direct specs/higher-major children preserved; final-byte archived-baseline RED actual1/3expectedfailures after fresh baselineci repaired corrupted moved modules (failed archive checkpoint retained). Scoped deepmerge7\u21928 version-qualified override ordinarynpm11install0 but freshnpm10ci failed missing7.1.6 lock; authorize parent-specific vulnerable leaf under sole incoming7 parent eslint-plugin-functional, preserving parent version/other8 leaves, then one normal lock update/freshCI and actualAPI/lint/type proof. Unpatched braces actualPR-controlled manifest\u2192Knipglob\u2192parser reachability requires starter-specific impact/risk assessment; source-only approval cannot transfer, no new exclusion written.",
+    "Actual parent-scoped vulnerable-leaf deepmerge override normalnpm11install0 and freshworkflow-pairednpm10.9.9ci0; installed8.0.2 within approved^8.0.1. Actual nested-schema API/input-immutability and functional plugin positive0/negative1 proof passed. Expanded coverage actual0,42suites/446cases with15 meaningful mocked-network Lambda contracts, all5 actualroots,87.59 statements/75.53branches/91.90functions/87.47lines, unchanged70floors. Risk draft now materialloaderlimits explicit: manualreviewOct16 not automaticexpiry; exclusion would matchadvisory/package, not enforceableinstalledpath. No newexclusion. Final changed-graph audit and lint/type pending before concrete humanriskdecision.",
+    "Actual repaired audit independently verified normal1unmatched highGHSA-vfj7/rootbraces3.0.3, production0filtered/raw1high, rawnormal3moderate/10high remainsqualified notclear. Other high CDK/minimatch IDs are existing reviewed dispositions. Actual alllocal type/lint/slowlint/format/Knip/AST0; fullcoverage446 andunitcoverage443 above70; ordinary secondfullpublicapply0 across1021file snapshot with explicit transient/3metadata exclusions. Independent decision draft review found loader matches GHSAID ONLY (notpackage/path/expiry), so correct materialrisklimits. Also both resolutions/overrides required by explicitsecurityladder; complete matching scoped metadata for4patched leaves routinely then fresh-ci/second-apply preservation. No waiver yet. All prior captures retainworkingtreefbf50 provenance; no final-head claim.",
+    "Independent corrected risk packet PASS f60211b20c598af2ff3890a21075269cb5ed40e9a3c9144bfdddafffb3c0361a, historical CHANGES_REQUIRED retained. Actual GHSA-only/manualscope/manualexpiry/forkcopy limits and four matching scoped policies verified. User was asked for specific starter risk decision at current2026-10-04; no reply/acceptance yet, no exclusion or push authorized by silence. Continue independent code review and authorized local checks. Prior sourceLisa approval applies only sourceoccurrence. Explicit eagerSecurityAuditHandling rung4 requires human decision for reachableunpatched risk; no false-positive disposition.",
+    "Actual final matching-policy publicapply0/1021-file delta0 and workflow-pairedfreshci0. Four repaired actualversions browser4.29.3/fast-uri4.2.1/nanoid3.3.19/deepmerge8.0.2 remain authorizedpatchedbands and retainedparents; corrected starterriskpacket verifiednoexclusion. Draft code review found authored fixture childHOME override violates prior explicitstrategy/currentdeveloper; root initialisolatedHOMEassignment superseded, preservehistoricalcaptures, use exactsupportedproject-scopedharnessroute withnoactualprivateglobalwrites andno completefilesystem/credential sandboxclaim. Explorer checkingpublicRroute beforemodifiedtest. Existing8b4c consolidatedworkingcheckpoint stayshistorical. No staging/commit/push/terminalproof yet; ownerdecisionpending independently.",
+    "Corrected authored HOME finding resolved by independent draftreviewPASS: adoption test nowinheritsHOME/CODEX_HOME/XDG, selects project-scopedCodex, disposabletemp/cache/repos and boundedexecutablePATH withactualClaudeabsence checks; ordinaryGitchecks/no skip retained. CurrenttestSHA6a7d38f957a2855db4157f1e6d426ab9866e01f04c5a21af8f31e89b7da9d1ed, READMESHA374246e7e9ed65861a134857b48135721460b80b5d98e74b4dc457766df2d369; correctednativeintegrationactual0/3PASS and identicalbytebaselineactual1/3RED. No fullcredential/filesystemsandbox, actualnativefleet/no-global hostrepeat, or relabeledhistoricalHOME capture claimed. Newfullcoverage oncorrectedbytes pending; prior446PASS checkpoint historical. ActualRhostfleet hasnosupportedno-globalfullapplyroute preservingtrackedfleet identity; selected Codex fixture is highestpractical projectscope runtimeboundary. Ownerapproval remainspending andnoexclusion/commit/pushyet.",
+    "Root verified ignoredlocalcontext/config/verdict and923ownedchange rows beforestaging; diff-check0. Corrected finalproject-scopecheckpoint5132ff8d independentlydraftreviewedPASS, all14localcommands0/full446coverage75.53. Oneunmatchedstarterbraces humanriskdecisionpending/noexclusion. Prepare localimplementationcommit withnormalhooks andsingle29trailer to make exactheadreviewable; no push/PR/closure orriskacceptance inferred.",
+    "Root staged1024ownedpaths excludingallprivatecontext/config/verdict, stagedtreecbcdae9d3a8e9f552feb2f24370eb58f62552947; oneextraEOFblank inrootroster corrected beforestaging, originalfailurelogged. Normalgitcommit actualexit1: lint-stagedall734eligiblefilesPASS withnoactualstagedtreebytechanges, thenstrictthresholdratchetblocked removingbaselinesrcTS/TSX targets andaddingdeclaration exclusion. No bypass/no commitcreated/no exclusion. Narrowownerfix retainsbaselineempty-srcglobs alongsideactual5roots andremovesnewd.ts exclusion (nonecurrentlyinrealroots), retaining80/60/60; actualratchet rerunrequired. Riskdecisionstillpending; no push orterminalclaim.",
+    "Ownerfixed/stagedONLYStrykerconfig: baseline2srcpatterns retainedwithactual5roots, d.ts exclusionremoved,80/60/60unchanged. Actualcanonicalstagedratchet0/formatter0 andallotherstagedentriesunchanged, receipt8d461278f5a648a09c09dee714cfd6949d8d5b667dbbb22d044847ce54a3ef51. Rootretryordinarycommit next; humanriskpending/noexclusion.",
+    "Normalcommitretry actualexit1 withlint-staged/threshold/work-item/commitlintPASS; onlyAIcoauthorship gate refusedmissingCodex trailer. Add supportedCodex attribution in finalunbrokentrailerblock, retainingexactlyone29WorkItem. Rawretryfailurepreserved; no bypass/commit/push/riskacceptance.",
+    "Normal local implementation commit b3620c7c665a3c5f54419ae3dbe9967feec7e224 succeeded through normal hooks and independent exact-commit source review2dcb4c2c PASS. Explicit owner instruction in current conversation accepted starter braces risk on2026-10-04 and requested full review/CI/merge/release/closeout. Native acceptance29comment5980473502 and39comment5980473638 readbacks verified; Oct16 is manual follow-up only, GHSA-only loader scope/expiry unenforced. Full29/48 current comments appended to ignored context. Add exactly accepted advisory; preserve old dispositions,39 open and23 hold. Fresh qualified audit, acceptance commit/exactreview and combinedPR still pending.",
+    "Explicitly accepted starterbraces exclusion now implemented: unchangedcanonical filter0 for actualfreshnormal/prod audits, rawnormal3moderate10high/prod1high (bothrawexit1) stilldisclosed. RemovingonlynewIDrestores1normalunmatched. All14originalexclusions/three48objects unchanged; receiptf7a1df96a7d9888263123af6284eb9a15dc6b47c0f143fe43f35f15703658ed2 bindsb362plusownedworkingdelta, notfinalhead. Nativeexplorer verifiedRquality/release contractmajor1; add existing expected_workflow_contract_major input1 tohostcallers, retainingallpins/runtime/permissions/skiplists. R internalrelease-quality omitsassertion upstream, honestlimitation noincidentalticket. Rootwillcommitacceptedrisk+metadata/callerassertionthroughnormalhooks andobtainfreshindependentheadreview beforepush."
+  ],
+  "proof_command": "Run verified public Lisa dist/index.js apply <project-scoped disposable starter fixture> --yes --no-update-check --harness=codex twice; execute actual generated integration and native provers on empty/pass/fail fixtures; run real offline CDK pipeline/frontend-only synth on final combined head.",
+  "effective_completion_condition": "Second adoption has zero deterministic managed delta and preserves sentinels. Every immutable workflow callee exists at R. Populated suites execute and intentional failures propagate; empty integration is explicit skip. All48 security scenarios and raw audit dispositions pass fresh assessment. Required normal hooks, complete relevant CI, nine required checks, review, merged-main identity and applicable source release succeed. Both leaves carry their own three artifacts, usage/backlinks and native terminal readbacks. No raw-audit-clear or mutation score inferred.",
+  "comment_inventory": [
+    {
+      "id": 5960670734,
+      "issue": 29,
+      "author": "CodySwannGT",
+      "author_id": 292923,
+      "author_type": "User",
+      "date": "2026-10-02T20:11:15Z",
+      "flags": [
+        "decision",
+        "constraint"
+      ],
+      "gist": "Accepted29 scope and three typed artifacts."
+    },
+    {
+      "id": 5963374926,
+      "issue": 29,
+      "author": "CodySwannGT",
+      "author_id": 292923,
+      "author_type": "User",
+      "date": "2026-10-03T00:01:47Z",
+      "flags": [
+        "decision",
+        "constraint"
+      ],
+      "gist": "Atomic29+48 delivery after true upstream publication; both contracts/backlinks before49 supersession."
+    },
+    {
+      "id": 5977765394,
+      "issue": 29,
+      "author": "CodySwannGT",
+      "author_id": 292923,
+      "author_type": "User",
+      "date": "2026-10-04T07:37:41Z",
+      "flags": [
+        "decision",
+        "constraint"
+      ],
+      "gist": "Managed29 claim; binding retained until terminal."
+    },
+    {
+      "id": 5962210141,
+      "issue": 48,
+      "author": "CodySwannGT",
+      "author_id": 292923,
+      "author_type": "User",
+      "date": "2026-10-02T22:05:13Z",
+      "flags": [
+        "decision",
+        "constraint"
+      ],
+      "gist": "Available48 patch and exact residual dispositions precede30; preserve39 ordering and23 hold."
+    },
+    {
+      "id": 5962266351,
+      "issue": 48,
+      "author": "CodySwannGT",
+      "author_id": 292923,
+      "author_type": "User",
+      "date": "2026-10-02T22:10:19Z",
+      "flags": [
+        "decision",
+        "constraint"
+      ],
+      "gist": "Preserve original48 claim and binding."
+    },
+    {
+      "id": 5963107029,
+      "issue": 48,
+      "author": "CodySwannGT",
+      "author_id": 292923,
+      "author_type": "User",
+      "date": "2026-10-02T23:32:07Z",
+      "flags": [
+        "decision",
+        "constraint"
+      ],
+      "gist": "49 backlink is historical until replacement exists."
+    },
+    {
+      "id": 5963144646,
+      "issue": 48,
+      "author": "CodySwannGT",
+      "author_id": 292923,
+      "author_type": "User",
+      "date": "2026-10-02T23:36:05Z",
+      "flags": [
+        "decision",
+        "constraint"
+      ],
+      "gist": "Historical fbf50 proof is not final combined proof; preserve audit/exception limits."
+    },
+    {
+      "id": 5963375088,
+      "issue": 48,
+      "author": "CodySwannGT",
+      "author_id": 292923,
+      "author_type": "User",
+      "date": "2026-10-03T00:01:49Z",
+      "flags": [
+        "decision",
+        "constraint"
+      ],
+      "gist": "Atomic two-leaf final verification; no48\u219229 prerequisite; preserve39 and23."
+    },
+    {
+      "id": 5980473502,
+      "issue": 29,
+      "author": "CodySwannGT",
+      "author_id": 292923,
+      "author_type": "User",
+      "date": "2026-10-04T13:28:17Z",
+      "flags": [
+        "decision",
+        "constraint"
+      ],
+      "gist": "Agent relay of explicit owner starter-braces acceptance; proceed now, manualOct16followup, retain39/23 and fullterminal proof."
+    }
+  ],
+  "comment_obligations": [
+    "Accepted29 scope and three typed artifacts.",
+    "Atomic29+48 delivery after true upstream publication; both contracts/backlinks before49 supersession.",
+    "Managed29 claim; binding retained until terminal.",
+    "Available48 patch and exact residual dispositions precede30; preserve39 ordering and23 hold.",
+    "Preserve original48 claim and binding.",
+    "49 backlink is historical until replacement exists.",
+    "Historical fbf50 proof is not final combined proof; preserve audit/exception limits.",
+    "Atomic two-leaf final verification; no48\u219229 prerequisite; preserve39 and23.",
+    "Agent relay of explicit owner starter-braces acceptance; proceed now, manualOct16followup, retain39/23 and fullterminal proof."
+  ],
+  "tasks": [
+    {
+      "id": "T1",
+      "title": "Resolve, claim, bind and prove access",
+      "owner": "input-resolver/root",
+      "status": "completed",
+      "blockedBy": [],
+      "description": "Read /private/tmp/cdkstarter-29-implementation/.lisa/work-item-context.md in full. Comment inventory: [{\"id\": 5960670734, \"issue\": 29, \"author\": \"CodySwannGT\", \"author_id\": 292923, \"author_type\": \"User\", \"date\": \"2026-10-02T20:11:15Z\", \"flags\": [\"decision\", \"constraint\"], \"gist\": \"Accepted29 scope and three typed artifacts.\"}, {\"id\": 5963374926, \"issue\": 29, \"author\": \"CodySwannGT\", \"author_id\": 292923, \"author_type\": \"User\", \"date\": \"2026-10-03T00:01:47Z\", \"flags\": [\"decision\", \"constraint\"], \"gist\": \"Atomic29+48 delivery after true upstream publication; both contracts/backlinks before49 supersession.\"}, {\"id\": 5977765394, \"issue\": 29, \"author\": \"CodySwannGT\", \"author_id\": 292923, \"author_type\": \"User\", \"date\": \"2026-10-04T07:37:41Z\", \"flags\": [\"decision\", \"constraint\"], \"gist\": \"Managed29 claim; binding retained until terminal.\"}, {\"id\": 5962210141, \"issue\": 48, \"author\": \"CodySwannGT\", \"author_id\": 292923, \"author_type\": \"User\", \"date\": \"2026-10-02T22:05:13Z\", \"flags\": [\"decision\", \"constraint\"], \"gist\": \"Available48 patch and exact residual dispositions precede30; preserve39 ordering and23 hold.\"}, {\"id\": 5962266351, \"issue\": 48, \"author\": \"CodySwannGT\", \"author_id\": 292923, \"author_type\": \"User\", \"date\": \"2026-10-02T22:10:19Z\", \"flags\": [\"decision\", \"constraint\"], \"gist\": \"Preserve original48 claim and binding.\"}, {\"id\": 5963107029, \"issue\": 48, \"author\": \"CodySwannGT\", \"author_id\": 292923, \"author_type\": \"User\", \"date\": \"2026-10-02T23:32:07Z\", \"flags\": [\"decision\", \"constraint\"], \"gist\": \"49 backlink is historical until replacement exists.\"}, {\"id\": 5963144646, \"issue\": 48, \"author\": \"CodySwannGT\", \"author_id\": 292923, \"author_type\": \"User\", \"date\": \"2026-10-02T23:36:05Z\", \"flags\": [\"decision\", \"constraint\"], \"gist\": \"Historical fbf50 proof is not final combined proof; preserve audit/exception limits.\"}, {\"id\": 5963375088, \"issue\": 48, \"author\": \"CodySwannGT\", \"author_id\": 292923, \"author_type\": \"User\", \"date\": \"2026-10-03T00:01:49Z\", \"flags\": [\"decision\", \"constraint\"], \"gist\": \"Atomic two-leaf final verification; no48\\u219229 prerequisite; preserve39 and23.\"}, {\"id\": 5980473502, \"issue\": 29, \"author\": \"CodySwannGT\", \"author_id\": 292923, \"author_type\": \"User\", \"date\": \"2026-10-04T13:28:17Z\", \"flags\": [\"decision\", \"constraint\"], \"gist\": \"Agent relay of explicit owner starter-braces acceptance; proceed now, manualOct16followup, retain39/23 and fullterminal proof.\"}]. Preserve other agents and historical proof; every listed comment obligation is covered by acceptance criteria and verification.",
+      "metadata": {
+        "plan": "Adopt verified Lisa tooling with preserved CDK security",
+        "type": "task",
+        "acceptance_criteria": [
+          "Verified live29 binding/context and true upstream terminal prerequisite."
+        ],
+        "relevant_documentation": "Read full live29/48 context, complete strategy and actual4.69.1 updater retirement amendment. PublicR995f533b is terminally verified. Use ownership-aware full apply, preserve source-only CI/customizations and nine live required checks. Retain exact48 CDK/alpha/CLI and scoped brace/security dispositions. Deliberately coordinate hostNode22.23.3, Vitest/coverage4.1.11 and Vite8.3.2. No PAT/updater replacement, scheduler, AWS deployment, consumer writes,39 dependency batch or23 hold change.",
+        "work_item_context": "/private/tmp/cdkstarter-29-implementation/.lisa/work-item-context.md",
+        "comment_inventory": [
+          {
+            "id": 5960670734,
+            "issue": 29,
+            "author": "CodySwannGT",
+            "author_id": 292923,
+            "author_type": "User",
+            "date": "2026-10-02T20:11:15Z",
+            "flags": [
+              "decision",
+              "constraint"
+            ],
+            "gist": "Accepted29 scope and three typed artifacts."
+          },
+          {
+            "id": 5963374926,
+            "issue": 29,
+            "author": "CodySwannGT",
+            "author_id": 292923,
+            "author_type": "User",
+            "date": "2026-10-03T00:01:47Z",
+            "flags": [
+              "decision",
+              "constraint"
+            ],
+            "gist": "Atomic29+48 delivery after true upstream publication; both contracts/backlinks before49 supersession."
+          },
+          {
+            "id": 5977765394,
+            "issue": 29,
+            "author": "CodySwannGT",
+            "author_id": 292923,
+            "author_type": "User",
+            "date": "2026-10-04T07:37:41Z",
+            "flags": [
+              "decision",
+              "constraint"
+            ],
+            "gist": "Managed29 claim; binding retained until terminal."
+          },
+          {
+            "id": 5962210141,
+            "issue": 48,
+            "author": "CodySwannGT",
+            "author_id": 292923,
+            "author_type": "User",
+            "date": "2026-10-02T22:05:13Z",
+            "flags": [
+              "decision",
+              "constraint"
+            ],
+            "gist": "Available48 patch and exact residual dispositions precede30; preserve39 ordering and23 hold."
+          },
+          {
+            "id": 5962266351,
+            "issue": 48,
+            "author": "CodySwannGT",
+            "author_id": 292923,
+            "author_type": "User",
+            "date": "2026-10-02T22:10:19Z",
+            "flags": [
+              "decision",
+              "constraint"
+            ],
+            "gist": "Preserve original48 claim and binding."
+          },
+          {
+            "id": 5963107029,
+            "issue": 48,
+            "author": "CodySwannGT",
+            "author_id": 292923,
+            "author_type": "User",
+            "date": "2026-10-02T23:32:07Z",
+            "flags": [
+              "decision",
+              "constraint"
+            ],
+            "gist": "49 backlink is historical until replacement exists."
+          },
+          {
+            "id": 5963144646,
+            "issue": 48,
+            "author": "CodySwannGT",
+            "author_id": 292923,
+            "author_type": "User",
+            "date": "2026-10-02T23:36:05Z",
+            "flags": [
+              "decision",
+              "constraint"
+            ],
+            "gist": "Historical fbf50 proof is not final combined proof; preserve audit/exception limits."
+          },
+          {
+            "id": 5963375088,
+            "issue": 48,
+            "author": "CodySwannGT",
+            "author_id": 292923,
+            "author_type": "User",
+            "date": "2026-10-03T00:01:49Z",
+            "flags": [
+              "decision",
+              "constraint"
+            ],
+            "gist": "Atomic two-leaf final verification; no48\u219229 prerequisite; preserve39 and23."
+          },
+          {
+            "id": 5980473502,
+            "issue": 29,
+            "author": "CodySwannGT",
+            "author_id": 292923,
+            "author_type": "User",
+            "date": "2026-10-04T13:28:17Z",
+            "flags": [
+              "decision",
+              "constraint"
+            ],
+            "gist": "Agent relay of explicit owner starter-braces acceptance; proceed now, manualOct16followup, retain39/23 and fullterminal proof."
+          }
+        ],
+        "testing_requirements": [
+          "Real public CLI adoption suite RED/GREEN and named required CI execution.",
+          "Real native/integration empty/pass/fail controls; full applicable quality and offline48 security/synth checks."
+        ],
+        "skills": [
+          "lisa-implement",
+          "lisa-test-strategy",
+          "lisa-verify"
+        ],
+        "learnings": [],
+        "required_access": [
+          {
+            "tool": "GitHub tracker, repository, Actions and rulesets",
+            "probe": "gh api repos/CodySwannGT/cdkstarter; gh api repos/CodySwannGT/cdkstarter/rulesets/{18805277,18805429}",
+            "status": "pass"
+          },
+          {
+            "tool": "Exact official npm Lisa4.69.1 artifact",
+            "probe": "GET https://registry.npmjs.org/@codyswann%2flisa/4.69.1",
+            "status": "pass",
+            "gitHead": "995f533b00d9b8a60256096bf6d28940164cd893"
+          }
+        ],
+        "verification": {
+          "type": "cli-test",
+          "command": "node /Users/cody/workspace/lisa/scripts/lisa-work-item.mjs current; git merge-base --is-ancestor origin/main HEAD; gh issue view 29 --repo CodySwannGT/cdkstarter --json state,assignees,labels",
+          "expected": "Live open claimed29, attached canonical branch binding and complete ignored context; origin/main ancestor of retained48 source; actual public prerequisite and access verified."
+        }
+      }
+    },
+    {
+      "id": "T2",
+      "title": "Capture RED and implement owned migration",
+      "owner": "/root/implement_input_resolver",
+      "status": "completed",
+      "blockedBy": [
+        "T1"
+      ],
+      "description": "Read /private/tmp/cdkstarter-29-implementation/.lisa/work-item-context.md in full. Comment inventory: [{\"id\": 5960670734, \"issue\": 29, \"author\": \"CodySwannGT\", \"author_id\": 292923, \"author_type\": \"User\", \"date\": \"2026-10-02T20:11:15Z\", \"flags\": [\"decision\", \"constraint\"], \"gist\": \"Accepted29 scope and three typed artifacts.\"}, {\"id\": 5963374926, \"issue\": 29, \"author\": \"CodySwannGT\", \"author_id\": 292923, \"author_type\": \"User\", \"date\": \"2026-10-03T00:01:47Z\", \"flags\": [\"decision\", \"constraint\"], \"gist\": \"Atomic29+48 delivery after true upstream publication; both contracts/backlinks before49 supersession.\"}, {\"id\": 5977765394, \"issue\": 29, \"author\": \"CodySwannGT\", \"author_id\": 292923, \"author_type\": \"User\", \"date\": \"2026-10-04T07:37:41Z\", \"flags\": [\"decision\", \"constraint\"], \"gist\": \"Managed29 claim; binding retained until terminal.\"}, {\"id\": 5962210141, \"issue\": 48, \"author\": \"CodySwannGT\", \"author_id\": 292923, \"author_type\": \"User\", \"date\": \"2026-10-02T22:05:13Z\", \"flags\": [\"decision\", \"constraint\"], \"gist\": \"Available48 patch and exact residual dispositions precede30; preserve39 ordering and23 hold.\"}, {\"id\": 5962266351, \"issue\": 48, \"author\": \"CodySwannGT\", \"author_id\": 292923, \"author_type\": \"User\", \"date\": \"2026-10-02T22:10:19Z\", \"flags\": [\"decision\", \"constraint\"], \"gist\": \"Preserve original48 claim and binding.\"}, {\"id\": 5963107029, \"issue\": 48, \"author\": \"CodySwannGT\", \"author_id\": 292923, \"author_type\": \"User\", \"date\": \"2026-10-02T23:32:07Z\", \"flags\": [\"decision\", \"constraint\"], \"gist\": \"49 backlink is historical until replacement exists.\"}, {\"id\": 5963144646, \"issue\": 48, \"author\": \"CodySwannGT\", \"author_id\": 292923, \"author_type\": \"User\", \"date\": \"2026-10-02T23:36:05Z\", \"flags\": [\"decision\", \"constraint\"], \"gist\": \"Historical fbf50 proof is not final combined proof; preserve audit/exception limits.\"}, {\"id\": 5963375088, \"issue\": 48, \"author\": \"CodySwannGT\", \"author_id\": 292923, \"author_type\": \"User\", \"date\": \"2026-10-03T00:01:49Z\", \"flags\": [\"decision\", \"constraint\"], \"gist\": \"Atomic two-leaf final verification; no48\\u219229 prerequisite; preserve39 and23.\"}, {\"id\": 5980473502, \"issue\": 29, \"author\": \"CodySwannGT\", \"author_id\": 292923, \"author_type\": \"User\", \"date\": \"2026-10-04T13:28:17Z\", \"flags\": [\"decision\", \"constraint\"], \"gist\": \"Agent relay of explicit owner starter-braces acceptance; proceed now, manualOct16followup, retain39/23 and fullterminal proof.\"}]. Preserve other agents and historical proof; every listed comment obligation is covered by acceptance criteria and verification.",
+      "metadata": {
+        "plan": "Adopt verified Lisa tooling with preserved CDK security",
+        "type": "task",
+        "acceptance_criteria": [
+          "Existing immutable workflow targets and second-apply/customization behavior verified.",
+          "Empty integration is explicitly skipped; populated pass/fail suites execute truthfully.",
+          "Five missing tooling provers repaired through full adoption and real execution, without disabling gates.",
+          "Exact48 CDK security and residual dispositions preserved and freshly verified.",
+          "Source-only CI and23 hold preserved; no updater/scheduler/PAT recreation."
+        ],
+        "relevant_documentation": "Read full live29/48 context, complete strategy and actual4.69.1 updater retirement amendment. PublicR995f533b is terminally verified. Use ownership-aware full apply, preserve source-only CI/customizations and nine live required checks. Retain exact48 CDK/alpha/CLI and scoped brace/security dispositions. Deliberately coordinate hostNode22.23.3, Vitest/coverage4.1.11 and Vite8.3.2. No PAT/updater replacement, scheduler, AWS deployment, consumer writes,39 dependency batch or23 hold change.",
+        "work_item_context": "/private/tmp/cdkstarter-29-implementation/.lisa/work-item-context.md",
+        "comment_inventory": [
+          {
+            "id": 5960670734,
+            "issue": 29,
+            "author": "CodySwannGT",
+            "author_id": 292923,
+            "author_type": "User",
+            "date": "2026-10-02T20:11:15Z",
+            "flags": [
+              "decision",
+              "constraint"
+            ],
+            "gist": "Accepted29 scope and three typed artifacts."
+          },
+          {
+            "id": 5963374926,
+            "issue": 29,
+            "author": "CodySwannGT",
+            "author_id": 292923,
+            "author_type": "User",
+            "date": "2026-10-03T00:01:47Z",
+            "flags": [
+              "decision",
+              "constraint"
+            ],
+            "gist": "Atomic29+48 delivery after true upstream publication; both contracts/backlinks before49 supersession."
+          },
+          {
+            "id": 5977765394,
+            "issue": 29,
+            "author": "CodySwannGT",
+            "author_id": 292923,
+            "author_type": "User",
+            "date": "2026-10-04T07:37:41Z",
+            "flags": [
+              "decision",
+              "constraint"
+            ],
+            "gist": "Managed29 claim; binding retained until terminal."
+          },
+          {
+            "id": 5962210141,
+            "issue": 48,
+            "author": "CodySwannGT",
+            "author_id": 292923,
+            "author_type": "User",
+            "date": "2026-10-02T22:05:13Z",
+            "flags": [
+              "decision",
+              "constraint"
+            ],
+            "gist": "Available48 patch and exact residual dispositions precede30; preserve39 ordering and23 hold."
+          },
+          {
+            "id": 5962266351,
+            "issue": 48,
+            "author": "CodySwannGT",
+            "author_id": 292923,
+            "author_type": "User",
+            "date": "2026-10-02T22:10:19Z",
+            "flags": [
+              "decision",
+              "constraint"
+            ],
+            "gist": "Preserve original48 claim and binding."
+          },
+          {
+            "id": 5963107029,
+            "issue": 48,
+            "author": "CodySwannGT",
+            "author_id": 292923,
+            "author_type": "User",
+            "date": "2026-10-02T23:32:07Z",
+            "flags": [
+              "decision",
+              "constraint"
+            ],
+            "gist": "49 backlink is historical until replacement exists."
+          },
+          {
+            "id": 5963144646,
+            "issue": 48,
+            "author": "CodySwannGT",
+            "author_id": 292923,
+            "author_type": "User",
+            "date": "2026-10-02T23:36:05Z",
+            "flags": [
+              "decision",
+              "constraint"
+            ],
+            "gist": "Historical fbf50 proof is not final combined proof; preserve audit/exception limits."
+          },
+          {
+            "id": 5963375088,
+            "issue": 48,
+            "author": "CodySwannGT",
+            "author_id": 292923,
+            "author_type": "User",
+            "date": "2026-10-03T00:01:49Z",
+            "flags": [
+              "decision",
+              "constraint"
+            ],
+            "gist": "Atomic two-leaf final verification; no48\u219229 prerequisite; preserve39 and23."
+          },
+          {
+            "id": 5980473502,
+            "issue": 29,
+            "author": "CodySwannGT",
+            "author_id": 292923,
+            "author_type": "User",
+            "date": "2026-10-04T13:28:17Z",
+            "flags": [
+              "decision",
+              "constraint"
+            ],
+            "gist": "Agent relay of explicit owner starter-braces acceptance; proceed now, manualOct16followup, retain39/23 and fullterminal proof."
+          }
+        ],
+        "testing_requirements": [
+          "Real public CLI adoption suite RED/GREEN and named required CI execution.",
+          "Real native/integration empty/pass/fail controls; full applicable quality and offline48 security/synth checks."
+        ],
+        "skills": [
+          "lisa-implement",
+          "lisa-test-strategy",
+          "lisa-verify"
+        ],
+        "learnings": [],
+        "required_access": [
+          {
+            "tool": "GitHub tracker, repository, Actions and rulesets",
+            "probe": "gh api repos/CodySwannGT/cdkstarter; gh api repos/CodySwannGT/cdkstarter/rulesets/{18805277,18805429}",
+            "status": "pass"
+          },
+          {
+            "tool": "Exact official npm Lisa4.69.1 artifact",
+            "probe": "GET https://registry.npmjs.org/@codyswann%2flisa/4.69.1",
+            "status": "pass",
+            "gitHead": "995f533b00d9b8a60256096bf6d28940164cd893"
+          }
+        ],
+        "verification": {
+          "type": "cli-test",
+          "command": "Run verified public Lisa dist/index.js apply <project-scoped disposable starter fixture> --yes --no-update-check --harness=codex twice; execute actual generated integration and native provers on empty/pass/fail fixtures; run real offline CDK pipeline/frontend-only synth on final combined head.",
+          "expected": "Real baseline RED recorded; full official publicR apply twice yields second deterministic managed delta0 with host customizations preserved. Actual empty/pass/fail integration/native fixtures behave truthfully. Immutable callees resolve, new schedules remain disabled, intended Node/tooling policy and exact48 pins survive locally."
+        }
+      },
+      "started_at": "2026-10-04T07:46:31.070083+00:00"
+    },
+    {
+      "id": "T3",
+      "title": "Review and independently verify exact combined commit",
+      "owner": "independent reviewer/verifier",
+      "status": "in_progress",
+      "blockedBy": [
+        "T2"
+      ],
+      "description": "Read /private/tmp/cdkstarter-29-implementation/.lisa/work-item-context.md in full. Comment inventory: [{\"id\": 5960670734, \"issue\": 29, \"author\": \"CodySwannGT\", \"author_id\": 292923, \"author_type\": \"User\", \"date\": \"2026-10-02T20:11:15Z\", \"flags\": [\"decision\", \"constraint\"], \"gist\": \"Accepted29 scope and three typed artifacts.\"}, {\"id\": 5963374926, \"issue\": 29, \"author\": \"CodySwannGT\", \"author_id\": 292923, \"author_type\": \"User\", \"date\": \"2026-10-03T00:01:47Z\", \"flags\": [\"decision\", \"constraint\"], \"gist\": \"Atomic29+48 delivery after true upstream publication; both contracts/backlinks before49 supersession.\"}, {\"id\": 5977765394, \"issue\": 29, \"author\": \"CodySwannGT\", \"author_id\": 292923, \"author_type\": \"User\", \"date\": \"2026-10-04T07:37:41Z\", \"flags\": [\"decision\", \"constraint\"], \"gist\": \"Managed29 claim; binding retained until terminal.\"}, {\"id\": 5962210141, \"issue\": 48, \"author\": \"CodySwannGT\", \"author_id\": 292923, \"author_type\": \"User\", \"date\": \"2026-10-02T22:05:13Z\", \"flags\": [\"decision\", \"constraint\"], \"gist\": \"Available48 patch and exact residual dispositions precede30; preserve39 ordering and23 hold.\"}, {\"id\": 5962266351, \"issue\": 48, \"author\": \"CodySwannGT\", \"author_id\": 292923, \"author_type\": \"User\", \"date\": \"2026-10-02T22:10:19Z\", \"flags\": [\"decision\", \"constraint\"], \"gist\": \"Preserve original48 claim and binding.\"}, {\"id\": 5963107029, \"issue\": 48, \"author\": \"CodySwannGT\", \"author_id\": 292923, \"author_type\": \"User\", \"date\": \"2026-10-02T23:32:07Z\", \"flags\": [\"decision\", \"constraint\"], \"gist\": \"49 backlink is historical until replacement exists.\"}, {\"id\": 5963144646, \"issue\": 48, \"author\": \"CodySwannGT\", \"author_id\": 292923, \"author_type\": \"User\", \"date\": \"2026-10-02T23:36:05Z\", \"flags\": [\"decision\", \"constraint\"], \"gist\": \"Historical fbf50 proof is not final combined proof; preserve audit/exception limits.\"}, {\"id\": 5963375088, \"issue\": 48, \"author\": \"CodySwannGT\", \"author_id\": 292923, \"author_type\": \"User\", \"date\": \"2026-10-03T00:01:49Z\", \"flags\": [\"decision\", \"constraint\"], \"gist\": \"Atomic two-leaf final verification; no48\\u219229 prerequisite; preserve39 and23.\"}, {\"id\": 5980473502, \"issue\": 29, \"author\": \"CodySwannGT\", \"author_id\": 292923, \"author_type\": \"User\", \"date\": \"2026-10-04T13:28:17Z\", \"flags\": [\"decision\", \"constraint\"], \"gist\": \"Agent relay of explicit owner starter-braces acceptance; proceed now, manualOct16followup, retain39/23 and fullterminal proof.\"}]. Preserve other agents and historical proof; every listed comment obligation is covered by acceptance criteria and verification.",
+      "metadata": {
+        "plan": "Adopt verified Lisa tooling with preserved CDK security",
+        "type": "task",
+        "acceptance_criteria": [
+          "Existing immutable workflow targets and second-apply/customization behavior verified.",
+          "Empty integration is explicitly skipped; populated pass/fail suites execute truthfully.",
+          "Five missing tooling provers repaired through full adoption and real execution, without disabling gates.",
+          "Exact48 CDK security and residual dispositions preserved and freshly verified.",
+          "Source-only CI and23 hold preserved; no updater/scheduler/PAT recreation."
+        ],
+        "relevant_documentation": "Read full live29/48 context, complete strategy and actual4.69.1 updater retirement amendment. PublicR995f533b is terminally verified. Use ownership-aware full apply, preserve source-only CI/customizations and nine live required checks. Retain exact48 CDK/alpha/CLI and scoped brace/security dispositions. Deliberately coordinate hostNode22.23.3, Vitest/coverage4.1.11 and Vite8.3.2. No PAT/updater replacement, scheduler, AWS deployment, consumer writes,39 dependency batch or23 hold change.",
+        "work_item_context": "/private/tmp/cdkstarter-29-implementation/.lisa/work-item-context.md",
+        "comment_inventory": [
+          {
+            "id": 5960670734,
+            "issue": 29,
+            "author": "CodySwannGT",
+            "author_id": 292923,
+            "author_type": "User",
+            "date": "2026-10-02T20:11:15Z",
+            "flags": [
+              "decision",
+              "constraint"
+            ],
+            "gist": "Accepted29 scope and three typed artifacts."
+          },
+          {
+            "id": 5963374926,
+            "issue": 29,
+            "author": "CodySwannGT",
+            "author_id": 292923,
+            "author_type": "User",
+            "date": "2026-10-03T00:01:47Z",
+            "flags": [
+              "decision",
+              "constraint"
+            ],
+            "gist": "Atomic29+48 delivery after true upstream publication; both contracts/backlinks before49 supersession."
+          },
+          {
+            "id": 5977765394,
+            "issue": 29,
+            "author": "CodySwannGT",
+            "author_id": 292923,
+            "author_type": "User",
+            "date": "2026-10-04T07:37:41Z",
+            "flags": [
+              "decision",
+              "constraint"
+            ],
+            "gist": "Managed29 claim; binding retained until terminal."
+          },
+          {
+            "id": 5962210141,
+            "issue": 48,
+            "author": "CodySwannGT",
+            "author_id": 292923,
+            "author_type": "User",
+            "date": "2026-10-02T22:05:13Z",
+            "flags": [
+              "decision",
+              "constraint"
+            ],
+            "gist": "Available48 patch and exact residual dispositions precede30; preserve39 ordering and23 hold."
+          },
+          {
+            "id": 5962266351,
+            "issue": 48,
+            "author": "CodySwannGT",
+            "author_id": 292923,
+            "author_type": "User",
+            "date": "2026-10-02T22:10:19Z",
+            "flags": [
+              "decision",
+              "constraint"
+            ],
+            "gist": "Preserve original48 claim and binding."
+          },
+          {
+            "id": 5963107029,
+            "issue": 48,
+            "author": "CodySwannGT",
+            "author_id": 292923,
+            "author_type": "User",
+            "date": "2026-10-02T23:32:07Z",
+            "flags": [
+              "decision",
+              "constraint"
+            ],
+            "gist": "49 backlink is historical until replacement exists."
+          },
+          {
+            "id": 5963144646,
+            "issue": 48,
+            "author": "CodySwannGT",
+            "author_id": 292923,
+            "author_type": "User",
+            "date": "2026-10-02T23:36:05Z",
+            "flags": [
+              "decision",
+              "constraint"
+            ],
+            "gist": "Historical fbf50 proof is not final combined proof; preserve audit/exception limits."
+          },
+          {
+            "id": 5963375088,
+            "issue": 48,
+            "author": "CodySwannGT",
+            "author_id": 292923,
+            "author_type": "User",
+            "date": "2026-10-03T00:01:49Z",
+            "flags": [
+              "decision",
+              "constraint"
+            ],
+            "gist": "Atomic two-leaf final verification; no48\u219229 prerequisite; preserve39 and23."
+          },
+          {
+            "id": 5980473502,
+            "issue": 29,
+            "author": "CodySwannGT",
+            "author_id": 292923,
+            "author_type": "User",
+            "date": "2026-10-04T13:28:17Z",
+            "flags": [
+              "decision",
+              "constraint"
+            ],
+            "gist": "Agent relay of explicit owner starter-braces acceptance; proceed now, manualOct16followup, retain39/23 and fullterminal proof."
+          }
+        ],
+        "testing_requirements": [
+          "Real public CLI adoption suite RED/GREEN and named required CI execution.",
+          "Real native/integration empty/pass/fail controls; full applicable quality and offline48 security/synth checks."
+        ],
+        "skills": [
+          "lisa-implement",
+          "lisa-test-strategy",
+          "lisa-verify"
+        ],
+        "learnings": [],
+        "required_access": [
+          {
+            "tool": "GitHub tracker, repository, Actions and rulesets",
+            "probe": "gh api repos/CodySwannGT/cdkstarter; gh api repos/CodySwannGT/cdkstarter/rulesets/{18805277,18805429}",
+            "status": "pass"
+          },
+          {
+            "tool": "Exact official npm Lisa4.69.1 artifact",
+            "probe": "GET https://registry.npmjs.org/@codyswann%2flisa/4.69.1",
+            "status": "pass",
+            "gitHead": "995f533b00d9b8a60256096bf6d28940164cd893"
+          }
+        ],
+        "verification": {
+          "type": "cli-test",
+          "command": "Run verified public Lisa dist/index.js apply <project-scoped disposable starter fixture> --yes --no-update-check --harness=codex twice; execute actual generated integration and native provers on empty/pass/fail fixtures; run real offline CDK pipeline/frontend-only synth on final combined head.",
+          "expected": "Independent exact combined source commit review and real CLI proof pass, including named29 scenarios, all48 security/native pipeline/frontend scenarios, installed occurrence/assets/raw audit qualification and applicable local quality gates. No CI/merge/release completion is inferred yet."
+        }
+      }
+    },
+    {
+      "id": "T4",
+      "title": "Deliver and close both leaves with native proof",
+      "owner": "root/delivery",
+      "status": "pending",
+      "blockedBy": [
+        "T3"
+      ],
+      "description": "Read /private/tmp/cdkstarter-29-implementation/.lisa/work-item-context.md in full. Comment inventory: [{\"id\": 5960670734, \"issue\": 29, \"author\": \"CodySwannGT\", \"author_id\": 292923, \"author_type\": \"User\", \"date\": \"2026-10-02T20:11:15Z\", \"flags\": [\"decision\", \"constraint\"], \"gist\": \"Accepted29 scope and three typed artifacts.\"}, {\"id\": 5963374926, \"issue\": 29, \"author\": \"CodySwannGT\", \"author_id\": 292923, \"author_type\": \"User\", \"date\": \"2026-10-03T00:01:47Z\", \"flags\": [\"decision\", \"constraint\"], \"gist\": \"Atomic29+48 delivery after true upstream publication; both contracts/backlinks before49 supersession.\"}, {\"id\": 5977765394, \"issue\": 29, \"author\": \"CodySwannGT\", \"author_id\": 292923, \"author_type\": \"User\", \"date\": \"2026-10-04T07:37:41Z\", \"flags\": [\"decision\", \"constraint\"], \"gist\": \"Managed29 claim; binding retained until terminal.\"}, {\"id\": 5962210141, \"issue\": 48, \"author\": \"CodySwannGT\", \"author_id\": 292923, \"author_type\": \"User\", \"date\": \"2026-10-02T22:05:13Z\", \"flags\": [\"decision\", \"constraint\"], \"gist\": \"Available48 patch and exact residual dispositions precede30; preserve39 ordering and23 hold.\"}, {\"id\": 5962266351, \"issue\": 48, \"author\": \"CodySwannGT\", \"author_id\": 292923, \"author_type\": \"User\", \"date\": \"2026-10-02T22:10:19Z\", \"flags\": [\"decision\", \"constraint\"], \"gist\": \"Preserve original48 claim and binding.\"}, {\"id\": 5963107029, \"issue\": 48, \"author\": \"CodySwannGT\", \"author_id\": 292923, \"author_type\": \"User\", \"date\": \"2026-10-02T23:32:07Z\", \"flags\": [\"decision\", \"constraint\"], \"gist\": \"49 backlink is historical until replacement exists.\"}, {\"id\": 5963144646, \"issue\": 48, \"author\": \"CodySwannGT\", \"author_id\": 292923, \"author_type\": \"User\", \"date\": \"2026-10-02T23:36:05Z\", \"flags\": [\"decision\", \"constraint\"], \"gist\": \"Historical fbf50 proof is not final combined proof; preserve audit/exception limits.\"}, {\"id\": 5963375088, \"issue\": 48, \"author\": \"CodySwannGT\", \"author_id\": 292923, \"author_type\": \"User\", \"date\": \"2026-10-03T00:01:49Z\", \"flags\": [\"decision\", \"constraint\"], \"gist\": \"Atomic two-leaf final verification; no48\\u219229 prerequisite; preserve39 and23.\"}, {\"id\": 5980473502, \"issue\": 29, \"author\": \"CodySwannGT\", \"author_id\": 292923, \"author_type\": \"User\", \"date\": \"2026-10-04T13:28:17Z\", \"flags\": [\"decision\", \"constraint\"], \"gist\": \"Agent relay of explicit owner starter-braces acceptance; proceed now, manualOct16followup, retain39/23 and fullterminal proof.\"}]. Preserve other agents and historical proof; every listed comment obligation is covered by acceptance criteria and verification.",
+      "metadata": {
+        "plan": "Adopt verified Lisa tooling with preserved CDK security",
+        "type": "task",
+        "acceptance_criteria": [
+          "Combined29/48 PR declares exactly both work items and both backlinks before49 supersession."
+        ],
+        "relevant_documentation": "Read full live29/48 context, complete strategy and actual4.69.1 updater retirement amendment. PublicR995f533b is terminally verified. Use ownership-aware full apply, preserve source-only CI/customizations and nine live required checks. Retain exact48 CDK/alpha/CLI and scoped brace/security dispositions. Deliberately coordinate hostNode22.23.3, Vitest/coverage4.1.11 and Vite8.3.2. No PAT/updater replacement, scheduler, AWS deployment, consumer writes,39 dependency batch or23 hold change.",
+        "work_item_context": "/private/tmp/cdkstarter-29-implementation/.lisa/work-item-context.md",
+        "comment_inventory": [
+          {
+            "id": 5960670734,
+            "issue": 29,
+            "author": "CodySwannGT",
+            "author_id": 292923,
+            "author_type": "User",
+            "date": "2026-10-02T20:11:15Z",
+            "flags": [
+              "decision",
+              "constraint"
+            ],
+            "gist": "Accepted29 scope and three typed artifacts."
+          },
+          {
+            "id": 5963374926,
+            "issue": 29,
+            "author": "CodySwannGT",
+            "author_id": 292923,
+            "author_type": "User",
+            "date": "2026-10-03T00:01:47Z",
+            "flags": [
+              "decision",
+              "constraint"
+            ],
+            "gist": "Atomic29+48 delivery after true upstream publication; both contracts/backlinks before49 supersession."
+          },
+          {
+            "id": 5977765394,
+            "issue": 29,
+            "author": "CodySwannGT",
+            "author_id": 292923,
+            "author_type": "User",
+            "date": "2026-10-04T07:37:41Z",
+            "flags": [
+              "decision",
+              "constraint"
+            ],
+            "gist": "Managed29 claim; binding retained until terminal."
+          },
+          {
+            "id": 5962210141,
+            "issue": 48,
+            "author": "CodySwannGT",
+            "author_id": 292923,
+            "author_type": "User",
+            "date": "2026-10-02T22:05:13Z",
+            "flags": [
+              "decision",
+              "constraint"
+            ],
+            "gist": "Available48 patch and exact residual dispositions precede30; preserve39 ordering and23 hold."
+          },
+          {
+            "id": 5962266351,
+            "issue": 48,
+            "author": "CodySwannGT",
+            "author_id": 292923,
+            "author_type": "User",
+            "date": "2026-10-02T22:10:19Z",
+            "flags": [
+              "decision",
+              "constraint"
+            ],
+            "gist": "Preserve original48 claim and binding."
+          },
+          {
+            "id": 5963107029,
+            "issue": 48,
+            "author": "CodySwannGT",
+            "author_id": 292923,
+            "author_type": "User",
+            "date": "2026-10-02T23:32:07Z",
+            "flags": [
+              "decision",
+              "constraint"
+            ],
+            "gist": "49 backlink is historical until replacement exists."
+          },
+          {
+            "id": 5963144646,
+            "issue": 48,
+            "author": "CodySwannGT",
+            "author_id": 292923,
+            "author_type": "User",
+            "date": "2026-10-02T23:36:05Z",
+            "flags": [
+              "decision",
+              "constraint"
+            ],
+            "gist": "Historical fbf50 proof is not final combined proof; preserve audit/exception limits."
+          },
+          {
+            "id": 5963375088,
+            "issue": 48,
+            "author": "CodySwannGT",
+            "author_id": 292923,
+            "author_type": "User",
+            "date": "2026-10-03T00:01:49Z",
+            "flags": [
+              "decision",
+              "constraint"
+            ],
+            "gist": "Atomic two-leaf final verification; no48\u219229 prerequisite; preserve39 and23."
+          },
+          {
+            "id": 5980473502,
+            "issue": 29,
+            "author": "CodySwannGT",
+            "author_id": 292923,
+            "author_type": "User",
+            "date": "2026-10-04T13:28:17Z",
+            "flags": [
+              "decision",
+              "constraint"
+            ],
+            "gist": "Agent relay of explicit owner starter-braces acceptance; proceed now, manualOct16followup, retain39/23 and fullterminal proof."
+          }
+        ],
+        "testing_requirements": [
+          "Real public CLI adoption suite RED/GREEN and named required CI execution.",
+          "Real native/integration empty/pass/fail controls; full applicable quality and offline48 security/synth checks."
+        ],
+        "skills": [
+          "lisa-implement",
+          "lisa-test-strategy",
+          "lisa-verify"
+        ],
+        "learnings": [],
+        "required_access": [
+          {
+            "tool": "GitHub tracker, repository, Actions and rulesets",
+            "probe": "gh api repos/CodySwannGT/cdkstarter; gh api repos/CodySwannGT/cdkstarter/rulesets/{18805277,18805429}",
+            "status": "pass"
+          },
+          {
+            "tool": "Exact official npm Lisa4.69.1 artifact",
+            "probe": "GET https://registry.npmjs.org/@codyswann%2flisa/4.69.1",
+            "status": "pass",
+            "gitHead": "995f533b00d9b8a60256096bf6d28940164cd893"
+          }
+        ],
+        "verification": {
+          "type": "cli-test",
+          "command": "Run verified public Lisa dist/index.js apply <project-scoped disposable starter fixture> --yes --no-update-check --harness=codex twice; execute actual generated integration and native provers on empty/pass/fail fixtures; run real offline CDK pipeline/frontend-only synth on final combined head.",
+          "expected": "Second adoption has zero deterministic managed delta and preserves sentinels. Every immutable workflow callee exists at R. Populated suites execute and intentional failures propagate; empty integration is explicit skip. All48 security scenarios and raw audit dispositions pass fresh assessment. Required normal hooks, complete relevant CI, nine required checks, review, merged-main identity and applicable source release succeed. Both leaves carry their own three artifacts, usage/backlinks and native terminal readbacks. No raw-audit-clear or mutation score inferred."
+        }
+      }
+    }
+  ],
+  "created_at": "2026-10-04T07:43:22.701428+00:00",
+  "learning_capture": "Concise MLD; empty valid. No Codex memory writes authorized.",
+  "updated_at": "2026-10-04T13:30:28.117474+00:00"
+}

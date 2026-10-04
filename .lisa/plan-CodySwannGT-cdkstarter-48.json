@@ -1,0 +1,1311 @@
+{
+  "schema_version": 1,
+  "plan": "Apply the available CDK security patch before composition delivery",
+  "work_item_ref": "CodySwannGT/cdkstarter#48",
+  "tracker_provider": "github",
+  "status": "local-quality-complete-exact-commit-verification-in-progress",
+  "created_at": "2026-10-02T22:31:34.875686+00:00",
+  "worktree": "/tmp/cdkstarter-48-implementation",
+  "branch": "codex/48-cdk-security-prerequisite",
+  "target_branch": "main",
+  "target_environment": "production",
+  "target_environment_provenance": "ExplicitissueAssumption + currentconfigproduction\u2192main/defaultmain; offline source-onlyterminalcontract.",
+  "base_sha": "1111fbe6d1f0d56de3c0adb19b9aceee34271a4d",
+  "work_item_context": "/tmp/cdkstarter-48-implementation/.lisa/work-item-context.md",
+  "context_bytes": 158173,
+  "context_sha256": "e9befc271bb537f0e9b45eb0bd66b9f56757e815bbb2b5c7c93510d8d94617c8",
+  "roster": "/tmp/cdkstarter-48-implementation/.lisa/roster/CodySwannGT-cdkstarter-48.md",
+  "scope": [
+    "exactCDK/alpha/targetlockgraph",
+    "test/starter-cdk-security.test.ts",
+    "test/fixtures/cdk-security-entrypoint.cjs",
+    "evaluatedexactresidualaudit.ignore.local.json",
+    "READMEaudit/migrationguidance",
+    "perflowplan/roster/canonicalledger",
+    "docs/security/cdk-bundled-advisories.md"
+  ],
+  "out_of_scope": [
+    "bin/lib/config/IAM/composition/featurebehavior",
+    "#30source/suite",
+    "#29Lisa/managedtoolingmigration",
+    "#38broadhandler/coverage/runnerrepair",
+    "#39fullbatch/staleexceptioncleanup",
+    "unrelateddirectresolutionrefresh",
+    "downstream/liveAWS"
+  ],
+  "primary_comment_inventory": [
+    {
+      "id": 5962210141,
+      "author": "CodySwannGT",
+      "immutable_author_id": 292923,
+      "type": "User",
+      "association": "OWNER",
+      "date": "2026-10-02T22:05:13Z",
+      "flags": ["decision", "constraint"],
+      "obligation": "AI filing/validation: available fix before exact all-occurrence residual non-exposure/owner/expiry/tracking; native25; blocks30; full39 retains29/38;23held unchanged; no AWS or human-hold release.",
+      "verification": "T1 live graph/binding; T3 installed/audit/asset proof; T4 independent review; T5 commit/main proof; T6 terminal graph/scope preservation."
+    },
+    {
+      "id": 5962266351,
+      "author": "CodySwannGT",
+      "immutable_author_id": 292923,
+      "type": "User",
+      "association": "OWNER",
+      "date": "2026-10-02T22:10:19Z",
+      "flags": ["decision"],
+      "obligation": "Verified managed Lisa claim; no product/security waiver.",
+      "verification": "T1 binding current; T4 normal commit linkage; T6 clear only after true completion."
+    }
+  ],
+  "comment_inventory": [
+    "- #48 comment 5962210141 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T22:05:13Z | flags decision,constraint | AI filing/validation and graph disposition; available fix before finite residual evaluation; #39 scope retained; #23 hold preserved",
+    "- #48 comment 5962266351 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T22:10:19Z | flags decision | Managed Lisa claim; authenticated actor assignment/lifecycle; no product or security waiver",
+    "- #25 comment 5960666818 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:02Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above",
+    "- #29 comment 5960670734 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:15Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above",
+    "- #30 comment 5960671421 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:17Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above",
+    "- #30 comment 5961005829 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:33:36Z | flags decision | Managed Lisa claim; authenticated actor assignment/lifecycle; no product or security waiver",
+    "- #30 comment 5961221043 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:47:07Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above",
+    "- #30 comment 5961721501 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T21:25:25Z | flags constraint,repro | Actual pre-push bundled-audit failure, source preserved, no bypass; original #39 ordering superseded by later comment",
+    "- #30 comment 5962210635 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T22:05:15Z | flags decision,constraint | #48 supersedes #39 as delivery prerequisite; cycle removed; full #39 scope retained",
+    "- #38 comment 5960675614 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:31Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above",
+    "- #39 comment 5960676348 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:33Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above"
+  ],
+  "comment_obligations": [
+    {
+      "id": 5960666818,
+      "issue": 25,
+      "obligation": "Coordination container, independently shippable48; T1/T6 verify."
+    },
+    {
+      "id": 5960670734,
+      "issue": 29,
+      "obligation": "Shared Lisa migration/runtime policy separate; no managed edits; T1/T3/T4/T6 verify."
+    },
+    {
+      "id": 5960671421,
+      "issue": 30,
+      "obligation": "Accepted composition source/evidence preserved; T1/T4/T6 verify."
+    },
+    {
+      "id": 5961005829,
+      "issue": 30,
+      "obligation": "Separate managed claim/binding preserved; T1/T6 verify."
+    },
+    {
+      "id": 5961221043,
+      "issue": 30,
+      "obligation": "30 owns directStage/integration correction,48 usesunit/cov; T2/T4/T6 verify."
+    },
+    {
+      "id": 5961721501,
+      "issue": 30,
+      "obligation": "Actual bundled audit rejected normal push; no bypass; old39edge superseded; T2/T3/T6 verify."
+    },
+    {
+      "id": 5962210635,
+      "issue": 30,
+      "obligation": "48 supersedes39deliveryblocker, cycle removed/full39retained; T1/T6 verify."
+    },
+    {
+      "id": 5960675614,
+      "issue": 38,
+      "obligation": "Broad handler/coverage/runner repair and sibling deps separate; T2/T4/T6 verify."
+    },
+    {
+      "id": 5960676348,
+      "issue": 39,
+      "obligation": "Full coordinated batch and29/38prerequisites retained; residualtracking39; T3/T4/T6 verify."
+    }
+  ],
+  "required_access": [
+    {
+      "tool": "Git repository/main and bound tracker",
+      "probe": "git remote get-url origin; git ls-remote origin refs/heads/main; node /Users/cody/workspace/lisa/scripts/lisa-work-item.mjs current",
+      "status": "pass",
+      "result": "CodySwannGT/cdkstarter; main1111fbe; github#48 bound actual branch."
+    },
+    {
+      "tool": "Node22.21.1/npm/jq",
+      "probe": "mise exec node@22.21.1 -- node --version; mise exec node@22.21.1 -- npm --version; jq --version",
+      "status": "pass",
+      "result": "22.21.1/10.9.4/jq1.8.2; default22.22.0 is not selectedvalidationruntime."
+    },
+    {
+      "tool": "Npm exact targets and primary advisories",
+      "probe": "HTTP reads registry.npmjs.org exact CDK2.272.0/alpha2.272.0-alpha.0/CLI2.1132.0+2.1144.0/constructs10.8.1/brace5.0.12; web open primary rgw5/q2hr/qhr7/6j4f advisories",
+      "status": "pass",
+      "result": "All six registry200, four advisories accessible; peers/schema/fix floors verified."
+    },
+    {
+      "tool": "GitHub tracker/checks/Actions and permissions",
+      "probe": "gh api user; gh api repos/CodySwannGT/cdkstarter; gh api repos/CodySwannGT/cdkstarter/rules/branches/main; gh run list --repo CodySwannGT/cdkstarter --limit 2 --json databaseId,headSha,status,conclusion",
+      "status": "pass",
+      "result": "Immutable292923/User; actualrepo/main; pull/push/admin; live9requiredchecks; Actionsread. Earliermainfailures are not48proof."
+    }
+  ],
+  "open_questions": [],
+  "research_findings": {
+    "selectedNode": "miseexec22.21.1/npm10.9.4proven; defaultshell22.22.0",
+    "targets": "registry200CDK2.272/alpha2.272.0-alpha.0; constructspeer^10.5; cloudschema^54.24.0; Node>=20",
+    "retain": "CLI2.1132,constructs10.6,Lisa2.217.1; fallbackCLI2.1144onlyactualschemafailure/constructs10.8.1onlypeerfailure",
+    "baseline": "nestedinBundlebrace5.0.8/minimatch10.2.5; externalbrace5.0.9; targettarballpriorproofbrace5.0.9/minimatch10.2.5SHA256bbb06fb8e6f1853fce825c03bfdf291082d4753c65b1f0e002677631100fef75; actualnewinstallproofrequiredT3",
+    "security": "Orderedcompatibleupdate\u2192leafresolution+override\u2192alloccurrenceimpact\u2192exposedunfixableescalation/nonexposedexactfiniteexception. rgw5patched5.0.9neverexclude; residualq2hr5.0.12/qhr75.0.11/6j4f5.0.10. GlobalGHSAfilternotpathscoped. Expirymaintenanceobligationnotautomaticenforcement.",
+    "callers": "Baselinecore/lib/stack.js(operatorbundlingcontext/default**),fs/ignore.js(sourceexclude),mixins/selectors.js(sourcepatterns). Rechecknewallcallers/inputs/actualassets+optionalhandlerdirsT3; prior30proofnot48finalproof.",
+    "named_CI": "Live9requiredchecks; requiredunitjob npmrun test:cov fallback -> installedLisaCDKtest/**/*.test.ts includesnewroot-test suite. Nooptin. Actualnamedlog proofmandatory.",
+    "integration": "Existingtests/integration --passWithNoTests wrongpluralzero; separate29/38, unchangednot48proof.",
+    "source_release": "deploy.yml pushmain/dispatch usesrelease.ymlstandard-version/Node22.21.1/npm,skiptest:e2e,test:integration; noAWSwiring; requirednormalreleasefollowthrough+mergedmainCLIproof.",
+    "project_learnings": "Canonical.claude/rules/PROJECT_LEARNINGS.mdabsent.",
+    "required_checks": [
+      "CodeRabbit",
+      "GitGuardian Security Checks",
+      "\ud83d\udd0d Quality Checks / \ud83e\uddf9 Lint",
+      "\ud83d\udd0d Quality Checks / \ud83d\udd0d Type Check",
+      "\ud83d\udd0d Quality Checks / \ud83c\udfd7\ufe0f Build",
+      "\ud83d\udd0d Quality Checks / \ud83d\udcd0 Check Formatting",
+      "\ud83d\udd0d Quality Checks / \ud83d\udd12 Security Scan",
+      "\ud83d\udd0d Quality Checks / \ud83e\uddea Run Unit Tests",
+      "\ud83d\udd0d Quality Checks / \ud83e\uddea Run Integration Tests"
+    ],
+    "actual_target_T3_result": "Version-qualified brace-expansion leaf overrides preserve declared 1.x/2.x/5.x ranges, npm ls passes after audits; actual bundled copy remains 5.0.9 and exact residual disposition is documented."
+  },
+  "fixture_contract": "Full48bodyfakeaccount/AZ/domain/agentops/shared/pipeline/frontend contract authoritative; pipeline14expectedphysicalnames,frontend1Amplify/noVPCDB; allnestedtemplatesresources/nonmissingcontext; stripsAWS/CDK_DEFAULT metadataoff/nonexistentcredentials;60stimeout/boundedoutput.",
+  "CLI_proof_command": "env -i PATH=/Users/cody/.local/share/mise/installs/node/22.21.1/bin:/opt/homebrew/bin:/usr/bin:/bin AWS_EC2_METADATA_DISABLED=true AWS_CONFIG_FILE=/tmp/cdkstarter-48-no-aws-config AWS_SHARED_CREDENTIALS_FILE=/tmp/cdkstarter-48-no-aws-credentials node node_modules/aws-cdk/bin/cdk synth --no-lookups --app \"node --import tsx test/fixtures/cdk-security-entrypoint.cjs MODE\" --output /tmp/cdkstarter-48-evidence/PHASE-MODE-UNIQUE",
+  "CLI_substitutions": "MODE=pipeline,frontend-only; PHASE=baseline/final/review/final-commit/main; UNIQUE freshpath neverreuse. Directdiagnostic separately30.",
+  "quality_commands": [
+    "mise exec node@22.21.1 -- npm run typecheck",
+    "mise exec node@22.21.1 -- npm run build",
+    "mise exec node@22.21.1 -- npm run lint",
+    "mise exec node@22.21.1 -- npm run lint:slow",
+    "mise exec node@22.21.1 -- npm run format:check",
+    "mise exec node@22.21.1 -- npm run knip",
+    "mise exec node@22.21.1 -- npm run test:unit",
+    "mise exec node@22.21.1 -- npm run test:cov",
+    "mise exec node@22.21.1 -- npm run test:integration"
+  ],
+  "effective_completion_condition": {
+    "type": "cli-test",
+    "command": "gh pr view PR --repo CodySwannGT/cdkstarter --json url,state,mergedAt,mergeCommit,headRefOid,baseRefName; gh pr checks PR --repo CodySwannGT/cdkstarter --required; gh run view RUN --repo CodySwannGT/cdkstarter --json headSha,status,conclusion,url; git fetch origin; git merge-base --is-ancestor MERGE_SHA origin/main; env -i PATH=/Users/cody/.local/share/mise/installs/node/22.21.1/bin:/opt/homebrew/bin:/usr/bin:/bin AWS_EC2_METADATA_DISABLED=true AWS_CONFIG_FILE=/tmp/cdkstarter-48-no-aws-config AWS_SHARED_CREDENTIALS_FILE=/tmp/cdkstarter-48-no-aws-credentials node node_modules/aws-cdk/bin/cdk synth --no-lookups --app \"node --import tsx test/fixtures/cdk-security-entrypoint.cjs MODE\" --output /tmp/cdkstarter-48-evidence/PHASE-MODE-UNIQUE (MODE=pipeline/frontend; PHASE=main cleancheckout); gh issue view 48 --repo CodySwannGT/cdkstarter --json state,labels,comments",
+    "expected": "Actual PR merged into main, all nine required checks passed with named nonzero unit/coverage proof, required source release reached its terminal outcome and independent main CLI 14/1/package/audit proof passed. Three artifacts, backlink and usage are recorded. Root confirms configured #48 done, then binding/context are absent. No AWS behavior is claimed."
+  },
+  "evidence_manifest": [
+    {
+      "kind": "test-run-log",
+      "name": "baseline-security-and-synth",
+      "task": "T2"
+    },
+    {
+      "kind": "cli-output",
+      "name": "updated-audit-and-template-comparison",
+      "task": "T3/T5"
+    },
+    {
+      "kind": "test-run-log",
+      "name": "final-quality-and-required-ci",
+      "task": "T4/T6"
+    }
+  ],
+  "execution_order": [
+    "T1rootindependentplanreview",
+    "T2baselineredsecurity/greenCLI",
+    "T3boundedupdate/residualreview",
+    "T4independentreview/localquality",
+    "normalfinalcommit",
+    "T5checkpointAcurrentheadV2",
+    "T6normalpushPR/namedrequiredCI/merge/sourcerelease",
+    "T5checkpointBmergedmainproof",
+    "T6rootevidence/usage/terminalcloseout"
+  ],
+  "tasks": [
+    {
+      "id": "T1",
+      "title": "Preflight/research",
+      "owner": "plan_quality",
+      "depends_on": [],
+      "status": "completed",
+      "description": "Reconfirm the resolver and roster gates, production-to-main branch resolution, actual origin, worktree binding, context identity and required access. Research the actual manifest/lock, installed Lisa security policy/Vitest factory, and live CI/source-release surfaces. Root independently reviews this plan before test or source work. No installation occurs in this planning step.\n\nRead /tmp/cdkstarter-48-implementation/.lisa/work-item-context.md IN FULL before acting. You are not alone; preserve others/originaldirtycheckout/#30/holds. No secret copying. Full resolver inventory:\n- #48 comment 5962210141 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T22:05:13Z | flags decision,constraint | AI filing/validation and graph disposition; available fix before finite residual evaluation; #39 scope retained; #23 hold preserved\n- #48 comment 5962266351 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T22:10:19Z | flags decision | Managed Lisa claim; authenticated actor assignment/lifecycle; no product or security waiver\n- #25 comment 5960666818 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:02Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above\n- #29 comment 5960670734 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:15Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above\n- #30 comment 5960671421 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:17Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above\n- #30 comment 5961005829 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:33:36Z | flags decision | Managed Lisa claim; authenticated actor assignment/lifecycle; no product or security waiver\n- #30 comment 5961221043 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:47:07Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above\n- #30 comment 5961721501 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T21:25:25Z | flags constraint,repro | Actual pre-push bundled-audit failure, source preserved, no bypass; original #39 ordering superseded by later comment\n- #30 comment 5962210635 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T22:05:15Z | flags decision,constraint | #48 supersedes #39 as delivery prerequisite; cycle removed; full #39 scope retained\n- #38 comment 5960675614 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:31Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above\n- #39 comment 5960676348 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:33Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above",
+      "metadata": {
+        "plan": "Apply the available CDK security patch before composition delivery",
+        "type": "spike",
+        "owner": "plan_quality",
+        "acceptance_criteria": [
+          "Target-specific read probes pass; bound repository, branch, baseline and full context identity match the resolver handoff.",
+          "Exact package targets, peer/schema findings and permitted fallback conditions are documented, with no inferred credentials or hold release.",
+          "Every flagged primary and linked comment obligation maps to implementation and verification; root independent plan review precedes T2."
+        ],
+        "relevant_documentation": "/tmp/cdkstarter-48-implementation/.lisa/work-item-context.md\n/tmp/cdkstarter-48-implementation/.lisa/roster/CodySwannGT-cdkstarter-48.md\n/tmp/cdkstarter-48-implementation/package.json\n/tmp/cdkstarter-48-implementation/package-lock.json\n/tmp/cdkstarter-48-implementation/vitest.config.ts\n/tmp/cdkstarter-48-implementation/.husky/pre-push\n/tmp/cdkstarter-48-implementation/.github/workflows/ci.yml\n/tmp/cdkstarter-48-implementation/.github/workflows/deploy.yml\nhttps://github.com/CodySwannGT/cdkstarter/issues/48\n/Users/cody/workspace/lisa/plugins/src/base/skills/lisa-implement/SKILL.md\n/tmp/cdkstarter-security-prerequisite/probe-summary.json\n/tmp/cdkstarter-security-prerequisite/security-disposition.md\n/tmp/cdkstarter-security-prerequisite/upstream-quality.yml\n/tmp/cdkstarter-30-implementation/node_modules/@codyswann/lisa/dist/configs/vitest/cdk.js\n/tmp/cdkstarter-30-implementation/node_modules/@codyswann/lisa/plugins/src/base/rules/reference/security-audit-handling.md\n/tmp/cdkstarter-30-implementation/node_modules/@codyswann/lisa/plugins/src/base/rules/eager/security-audit-handling.md",
+        "work_item_context": "/tmp/cdkstarter-48-implementation/.lisa/work-item-context.md",
+        "primary_comment_inventory": [
+          {
+            "id": 5962210141,
+            "author": "CodySwannGT",
+            "immutable_author_id": 292923,
+            "type": "User",
+            "association": "OWNER",
+            "date": "2026-10-02T22:05:13Z",
+            "flags": ["decision", "constraint"],
+            "obligation": "AI filing/validation: available fix before exact all-occurrence residual non-exposure/owner/expiry/tracking; native25; blocks30; full39 retains29/38;23held unchanged; no AWS or human-hold release.",
+            "verification": "T1 live graph/binding; T3 installed/audit/asset proof; T4 independent review; T5 commit/main proof; T6 terminal graph/scope preservation."
+          },
+          {
+            "id": 5962266351,
+            "author": "CodySwannGT",
+            "immutable_author_id": 292923,
+            "type": "User",
+            "association": "OWNER",
+            "date": "2026-10-02T22:10:19Z",
+            "flags": ["decision"],
+            "obligation": "Verified managed Lisa claim; no product/security waiver.",
+            "verification": "T1 binding current; T4 normal commit linkage; T6 clear only after true completion."
+          }
+        ],
+        "comment_inventory": [
+          "- #48 comment 5962210141 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T22:05:13Z | flags decision,constraint | AI filing/validation and graph disposition; available fix before finite residual evaluation; #39 scope retained; #23 hold preserved",
+          "- #48 comment 5962266351 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T22:10:19Z | flags decision | Managed Lisa claim; authenticated actor assignment/lifecycle; no product or security waiver",
+          "- #25 comment 5960666818 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:02Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above",
+          "- #29 comment 5960670734 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:15Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above",
+          "- #30 comment 5960671421 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:17Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above",
+          "- #30 comment 5961005829 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:33:36Z | flags decision | Managed Lisa claim; authenticated actor assignment/lifecycle; no product or security waiver",
+          "- #30 comment 5961221043 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:47:07Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above",
+          "- #30 comment 5961721501 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T21:25:25Z | flags constraint,repro | Actual pre-push bundled-audit failure, source preserved, no bypass; original #39 ordering superseded by later comment",
+          "- #30 comment 5962210635 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T22:05:15Z | flags decision,constraint | #48 supersedes #39 as delivery prerequisite; cycle removed; full #39 scope retained",
+          "- #38 comment 5960675614 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:31Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above",
+          "- #39 comment 5960676348 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:33Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above"
+        ],
+        "comment_obligations": [
+          {
+            "id": 5960666818,
+            "issue": 25,
+            "obligation": "Coordination container, independently shippable48; T1/T6 verify."
+          },
+          {
+            "id": 5960670734,
+            "issue": 29,
+            "obligation": "Shared Lisa migration/runtime policy separate; no managed edits; T1/T3/T4/T6 verify."
+          },
+          {
+            "id": 5960671421,
+            "issue": 30,
+            "obligation": "Accepted composition source/evidence preserved; T1/T4/T6 verify."
+          },
+          {
+            "id": 5961005829,
+            "issue": 30,
+            "obligation": "Separate managed claim/binding preserved; T1/T6 verify."
+          },
+          {
+            "id": 5961221043,
+            "issue": 30,
+            "obligation": "30 owns directStage/integration correction,48 usesunit/cov; T2/T4/T6 verify."
+          },
+          {
+            "id": 5961721501,
+            "issue": 30,
+            "obligation": "Actual bundled audit rejected normal push; no bypass; old39edge superseded; T2/T3/T6 verify."
+          },
+          {
+            "id": 5962210635,
+            "issue": 30,
+            "obligation": "48 supersedes39deliveryblocker, cycle removed/full39retained; T1/T6 verify."
+          },
+          {
+            "id": 5960675614,
+            "issue": 38,
+            "obligation": "Broad handler/coverage/runner repair and sibling deps separate; T2/T4/T6 verify."
+          },
+          {
+            "id": 5960676348,
+            "issue": 39,
+            "obligation": "Full coordinated batch and29/38prerequisites retained; residualtracking39; T3/T4/T6 verify."
+          }
+        ],
+        "testing_requirements": ["Read-only probes; no tests/source yet."],
+        "skills": [
+          "lisa-implement",
+          "lisa-test-strategy",
+          "lisa-review-implementation",
+          "lisa-quality-review",
+          "lisa-verify"
+        ],
+        "learnings": [],
+        "required_access": [
+          {
+            "tool": "Git repository/main and bound tracker",
+            "probe": "git remote get-url origin; git ls-remote origin refs/heads/main; node /Users/cody/workspace/lisa/scripts/lisa-work-item.mjs current",
+            "status": "pass",
+            "result": "CodySwannGT/cdkstarter; main1111fbe; github#48 bound actual branch."
+          },
+          {
+            "tool": "Node22.21.1/npm/jq",
+            "probe": "mise exec node@22.21.1 -- node --version; mise exec node@22.21.1 -- npm --version; jq --version",
+            "status": "pass",
+            "result": "22.21.1/10.9.4/jq1.8.2; default22.22.0 is not selectedvalidationruntime."
+          },
+          {
+            "tool": "Npm exact targets and primary advisories",
+            "probe": "HTTP reads registry.npmjs.org exact CDK2.272.0/alpha2.272.0-alpha.0/CLI2.1132.0+2.1144.0/constructs10.8.1/brace5.0.12; web open primary rgw5/q2hr/qhr7/6j4f advisories",
+            "status": "pass",
+            "result": "All six registry200, four advisories accessible; peers/schema/fix floors verified."
+          },
+          {
+            "tool": "GitHub tracker/checks/Actions and permissions",
+            "probe": "gh api user; gh api repos/CodySwannGT/cdkstarter; gh api repos/CodySwannGT/cdkstarter/rules/branches/main; gh run list --repo CodySwannGT/cdkstarter --limit 2 --json databaseId,headSha,status,conclusion",
+            "status": "pass",
+            "result": "Immutable292923/User; actualrepo/main; pull/push/admin; live9requiredchecks; Actionsread. Earliermainfailures are not48proof."
+          }
+        ],
+        "verification": {
+          "type": "cli-test",
+          "command": "git ls-remote origin refs/heads/main; node /Users/cody/workspace/lisa/scripts/lisa-work-item.mjs current; mise exec node@22.21.1 -- node --version; gh api repos/CodySwannGT/cdkstarter/rules/branches/main",
+          "expected": "Observed main baseline, verified #48 binding/branch, Node 22.21.1 and live nine-check policy, followed by independent plan review."
+        },
+        "team_review": "Root/issue_validator independent review before complete; root learner records task-end MLD canonical ledger,[]valid."
+      }
+    },
+    {
+      "id": "T2",
+      "title": "Baseline regression/synth",
+      "owner": "plan_quality",
+      "depends_on": ["T1"],
+      "status": "completed",
+      "description": "After root authorizes explicit file ownership, introduce only test/starter-cdk-security.test.ts and test/fixtures/cdk-security-entrypoint.cjs. Install the baseline with CI=1 npm ci, keeping normal hooks and suppressing Lisa postinstall apply. Capture baseline graph, raw audits, templates and the expected failing target-version/bundle assertions. The real pipeline/frontend-only CLI fixtures pass on the baseline. Record the known direct CannotDependency failure separately under #30.\n\nRead /tmp/cdkstarter-48-implementation/.lisa/work-item-context.md IN FULL before acting. You are not alone; preserve others/originaldirtycheckout/#30/holds. No secret copying. Full resolver inventory:\n- #48 comment 5962210141 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T22:05:13Z | flags decision,constraint | AI filing/validation and graph disposition; available fix before finite residual evaluation; #39 scope retained; #23 hold preserved\n- #48 comment 5962266351 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T22:10:19Z | flags decision | Managed Lisa claim; authenticated actor assignment/lifecycle; no product or security waiver\n- #25 comment 5960666818 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:02Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above\n- #29 comment 5960670734 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:15Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above\n- #30 comment 5960671421 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:17Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above\n- #30 comment 5961005829 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:33:36Z | flags decision | Managed Lisa claim; authenticated actor assignment/lifecycle; no product or security waiver\n- #30 comment 5961221043 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:47:07Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above\n- #30 comment 5961721501 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T21:25:25Z | flags constraint,repro | Actual pre-push bundled-audit failure, source preserved, no bypass; original #39 ordering superseded by later comment\n- #30 comment 5962210635 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T22:05:15Z | flags decision,constraint | #48 supersedes #39 as delivery prerequisite; cycle removed; full #39 scope retained\n- #38 comment 5960675614 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:31Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above\n- #39 comment 5960676348 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:33Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above",
+      "metadata": {
+        "plan": "Apply the available CDK security patch before composition delivery",
+        "type": "task",
+        "owner": "plan_quality",
+        "acceptance_criteria": [
+          "The new focused suite collects nonzero tests through the existing test/**/*.test.ts, unit and coverage paths, with no skip or environment opt-in.",
+          "Target-version and patched-bundle controls fail on the baseline while pipeline/frontend-only CLI synthesis produces 14/1 nonempty expected stacks with no missing context.",
+          "The in-memory peer mismatch is rejected without corrupting installed dependencies. Exact issue fixture/credential isolation holds; direct failure remains separately recorded under #30."
+        ],
+        "relevant_documentation": "/tmp/cdkstarter-48-implementation/.lisa/work-item-context.md\n/tmp/cdkstarter-48-implementation/.lisa/roster/CodySwannGT-cdkstarter-48.md\n/tmp/cdkstarter-48-implementation/package.json\n/tmp/cdkstarter-48-implementation/package-lock.json\n/tmp/cdkstarter-48-implementation/vitest.config.ts\n/tmp/cdkstarter-48-implementation/.husky/pre-push\n/tmp/cdkstarter-48-implementation/.github/workflows/ci.yml\n/tmp/cdkstarter-48-implementation/.github/workflows/deploy.yml\nhttps://github.com/CodySwannGT/cdkstarter/issues/48\n/Users/cody/workspace/lisa/plugins/src/base/skills/lisa-implement/SKILL.md\n/tmp/cdkstarter-security-prerequisite/probe-summary.json\n/tmp/cdkstarter-security-prerequisite/security-disposition.md\n/tmp/cdkstarter-security-prerequisite/upstream-quality.yml\n/tmp/cdkstarter-30-implementation/node_modules/@codyswann/lisa/dist/configs/vitest/cdk.js\n/tmp/cdkstarter-30-implementation/node_modules/@codyswann/lisa/plugins/src/base/rules/reference/security-audit-handling.md\n/tmp/cdkstarter-30-implementation/node_modules/@codyswann/lisa/plugins/src/base/rules/eager/security-audit-handling.md",
+        "work_item_context": "/tmp/cdkstarter-48-implementation/.lisa/work-item-context.md",
+        "primary_comment_inventory": [
+          {
+            "id": 5962210141,
+            "author": "CodySwannGT",
+            "immutable_author_id": 292923,
+            "type": "User",
+            "association": "OWNER",
+            "date": "2026-10-02T22:05:13Z",
+            "flags": ["decision", "constraint"],
+            "obligation": "AI filing/validation: available fix before exact all-occurrence residual non-exposure/owner/expiry/tracking; native25; blocks30; full39 retains29/38;23held unchanged; no AWS or human-hold release.",
+            "verification": "T1 live graph/binding; T3 installed/audit/asset proof; T4 independent review; T5 commit/main proof; T6 terminal graph/scope preservation."
+          },
+          {
+            "id": 5962266351,
+            "author": "CodySwannGT",
+            "immutable_author_id": 292923,
+            "type": "User",
+            "association": "OWNER",
+            "date": "2026-10-02T22:10:19Z",
+            "flags": ["decision"],
+            "obligation": "Verified managed Lisa claim; no product/security waiver.",
+            "verification": "T1 binding current; T4 normal commit linkage; T6 clear only after true completion."
+          }
+        ],
+        "comment_inventory": [
+          "- #48 comment 5962210141 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T22:05:13Z | flags decision,constraint | AI filing/validation and graph disposition; available fix before finite residual evaluation; #39 scope retained; #23 hold preserved",
+          "- #48 comment 5962266351 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T22:10:19Z | flags decision | Managed Lisa claim; authenticated actor assignment/lifecycle; no product or security waiver",
+          "- #25 comment 5960666818 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:02Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above",
+          "- #29 comment 5960670734 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:15Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above",
+          "- #30 comment 5960671421 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:17Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above",
+          "- #30 comment 5961005829 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:33:36Z | flags decision | Managed Lisa claim; authenticated actor assignment/lifecycle; no product or security waiver",
+          "- #30 comment 5961221043 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:47:07Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above",
+          "- #30 comment 5961721501 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T21:25:25Z | flags constraint,repro | Actual pre-push bundled-audit failure, source preserved, no bypass; original #39 ordering superseded by later comment",
+          "- #30 comment 5962210635 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T22:05:15Z | flags decision,constraint | #48 supersedes #39 as delivery prerequisite; cycle removed; full #39 scope retained",
+          "- #38 comment 5960675614 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:31Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above",
+          "- #39 comment 5960676348 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:33Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above"
+        ],
+        "comment_obligations": [
+          {
+            "id": 5960666818,
+            "issue": 25,
+            "obligation": "Coordination container, independently shippable48; T1/T6 verify."
+          },
+          {
+            "id": 5960670734,
+            "issue": 29,
+            "obligation": "Shared Lisa migration/runtime policy separate; no managed edits; T1/T3/T4/T6 verify."
+          },
+          {
+            "id": 5960671421,
+            "issue": 30,
+            "obligation": "Accepted composition source/evidence preserved; T1/T4/T6 verify."
+          },
+          {
+            "id": 5961005829,
+            "issue": 30,
+            "obligation": "Separate managed claim/binding preserved; T1/T6 verify."
+          },
+          {
+            "id": 5961221043,
+            "issue": 30,
+            "obligation": "30 owns directStage/integration correction,48 usesunit/cov; T2/T4/T6 verify."
+          },
+          {
+            "id": 5961721501,
+            "issue": 30,
+            "obligation": "Actual bundled audit rejected normal push; no bypass; old39edge superseded; T2/T3/T6 verify."
+          },
+          {
+            "id": 5962210635,
+            "issue": 30,
+            "obligation": "48 supersedes39deliveryblocker, cycle removed/full39retained; T1/T6 verify."
+          },
+          {
+            "id": 5960675614,
+            "issue": 38,
+            "obligation": "Broad handler/coverage/runner repair and sibling deps separate; T2/T4/T6 verify."
+          },
+          {
+            "id": 5960676348,
+            "issue": 39,
+            "obligation": "Full coordinated batch and29/38prerequisites retained; residualtracking39; T3/T4/T6 verify."
+          }
+        ],
+        "testing_requirements": [
+          "mise exec node@22.21.1 -- env CI=1 npm ci",
+          "mise exec node@22.21.1 -- npx vitest run test/starter-cdk-security.test.ts --reporter=verbose",
+          "Installed CLI real bin/app.ts is highest practical observation. Strip AWS_*/CDK_DEFAULT_* in subprocess, disablemetadata/nonexistentcredentials, fixedAZcontext; 60s timeout/boundedoutput; per-case Vitesttimeout above inherited10s.",
+          "Capture npm audit --json and --omit=dev --json with actualexitcodes; preserve baseline templates. Existing unchanged sibling control if unexpected harnessfailure."
+        ],
+        "skills": [
+          "lisa-implement",
+          "lisa-test-strategy",
+          "lisa-review-implementation",
+          "lisa-quality-review",
+          "lisa-verify"
+        ],
+        "learnings": [
+          {
+            "kind": "learning",
+            "note": "The same security assertions fail before the update while actual pipeline/frontend-only CLI modes already pass. Direct no-pipeline failure remains #30.",
+            "evidence": "/tmp/cdkstarter-48-evidence/implementation-handoff.json"
+          }
+        ],
+        "required_access": [
+          {
+            "tool": "Git repository/main and bound tracker",
+            "probe": "git remote get-url origin; git ls-remote origin refs/heads/main; node /Users/cody/workspace/lisa/scripts/lisa-work-item.mjs current",
+            "status": "pass",
+            "result": "CodySwannGT/cdkstarter; main1111fbe; github#48 bound actual branch."
+          },
+          {
+            "tool": "Node22.21.1/npm/jq",
+            "probe": "mise exec node@22.21.1 -- node --version; mise exec node@22.21.1 -- npm --version; jq --version",
+            "status": "pass",
+            "result": "22.21.1/10.9.4/jq1.8.2; default22.22.0 is not selectedvalidationruntime."
+          },
+          {
+            "tool": "Npm exact targets and primary advisories",
+            "probe": "HTTP reads registry.npmjs.org exact CDK2.272.0/alpha2.272.0-alpha.0/CLI2.1132.0+2.1144.0/constructs10.8.1/brace5.0.12; web open primary rgw5/q2hr/qhr7/6j4f advisories",
+            "status": "pass",
+            "result": "All six registry200, four advisories accessible; peers/schema/fix floors verified."
+          },
+          {
+            "tool": "GitHub tracker/checks/Actions and permissions",
+            "probe": "gh api user; gh api repos/CodySwannGT/cdkstarter; gh api repos/CodySwannGT/cdkstarter/rules/branches/main; gh run list --repo CodySwannGT/cdkstarter --limit 2 --json databaseId,headSha,status,conclusion",
+            "status": "pass",
+            "result": "Immutable292923/User; actualrepo/main; pull/push/admin; live9requiredchecks; Actionsread. Earliermainfailures are not48proof."
+          }
+        ],
+        "verification": {
+          "type": "cli-test",
+          "command": "env -i PATH=/Users/cody/.local/share/mise/installs/node/22.21.1/bin:/opt/homebrew/bin:/usr/bin:/bin AWS_EC2_METADATA_DISABLED=true AWS_CONFIG_FILE=/tmp/cdkstarter-48-no-aws-config AWS_SHARED_CREDENTIALS_FILE=/tmp/cdkstarter-48-no-aws-credentials node node_modules/aws-cdk/bin/cdk synth --no-lookups --app \"node --import tsx test/fixtures/cdk-security-entrypoint.cjs MODE\" --output /tmp/cdkstarter-48-evidence/PHASE-MODE-UNIQUE (MODE=pipeline/frontend-only; PHASE=baseline); independently enumerate recursive manifests/templates and installedgraph/rawaudit",
+          "expected": "Actual baseline pipeline has 14 resource-bearing templates and frontend-only has 1; missing context is zero. Installed bundle is 5.0.8 and target security assertions fail; known direct #30 diagnostic is recorded and baseline artifacts are saved."
+        },
+        "team_review": "Root/issue_validator independent review before complete; root learner records task-end MLD canonical ledger,[]valid."
+      },
+      "result": {
+        "baseline_focused": {
+          "collected": 5,
+          "passed": 3,
+          "failed": 2,
+          "intentional_failures": [
+            "exact target family",
+            "actual bundled patched version"
+          ],
+          "log": "/tmp/cdkstarter-48-evidence/baseline-focused.log"
+        },
+        "standalone_cli": {
+          "pipeline_exit": 0,
+          "frontend_only_exit": 0,
+          "direct_known_30_failure_exit": 1,
+          "capture": "/tmp/cdkstarter-48-evidence/baseline-capture.json"
+        },
+        "independent_review": "pending T4"
+      }
+    },
+    {
+      "id": "T3",
+      "title": "Bounded dependencies/residual handling",
+      "owner": "plan_quality",
+      "depends_on": ["T2"],
+      "status": "completed",
+      "description": "Update only exact CDK 2.272.0 and Amplify alpha 2.272.0-alpha.0 plus their targeted lock graph. Retain unrelated direct resolutions and Lisa tooling. CLI 2.1144.0 is allowed only after observed CLI schema failure; constructs 10.8.1 only after observed clean-install peer failure. Apply compatible fixes for the same residual GHSAs on non-bundled vulnerable leaves in both resolutions and overrides. Renew every occurrence, caller, input and runtime asset review before documenting any finite exact exception. Update audit/migration guidance without changing bin/lib/config/IAM composition.\n\nRead /tmp/cdkstarter-48-implementation/.lisa/work-item-context.md IN FULL before acting. You are not alone; preserve others/originaldirtycheckout/#30/holds. No secret copying. Full resolver inventory:\n- #48 comment 5962210141 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T22:05:13Z | flags decision,constraint | AI filing/validation and graph disposition; available fix before finite residual evaluation; #39 scope retained; #23 hold preserved\n- #48 comment 5962266351 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T22:10:19Z | flags decision | Managed Lisa claim; authenticated actor assignment/lifecycle; no product or security waiver\n- #25 comment 5960666818 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:02Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above\n- #29 comment 5960670734 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:15Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above\n- #30 comment 5960671421 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:17Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above\n- #30 comment 5961005829 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:33:36Z | flags decision | Managed Lisa claim; authenticated actor assignment/lifecycle; no product or security waiver\n- #30 comment 5961221043 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:47:07Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above\n- #30 comment 5961721501 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T21:25:25Z | flags constraint,repro | Actual pre-push bundled-audit failure, source preserved, no bypass; original #39 ordering superseded by later comment\n- #30 comment 5962210635 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T22:05:15Z | flags decision,constraint | #48 supersedes #39 as delivery prerequisite; cycle removed; full #39 scope retained\n- #38 comment 5960675614 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:31Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above\n- #39 comment 5960676348 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:33Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above",
+      "metadata": {
+        "plan": "Apply the available CDK security patch before composition delivery",
+        "type": "task",
+        "owner": "plan_quality",
+        "acceptance_criteria": [
+          "Clean installation resolves exact aligned CDK/alpha and compatible peers; bundled brace-expansion is at least 5.0.9; rgw5 is absent from production audit and never excluded.",
+          "Identical fixtures preserve physical/logical identities, imports/exports, IAM/trust, pipeline wiring and default-off features. Explain every metadata/asset/template delta; necessary identity/IAM changes stop this bounded scope.",
+          "Every normal/production advisory occurrence is fixed or independently demonstrated non-exposed. Global GHSA exclusions honestly cover all paths; exposed, unverified, fixed and new findings are never silently excluded.",
+          "Residual entries include exact path/version, trigger, trusted pattern source, runtime exclusion, genuine update/override inability, owner CodySwannGT, expiry 2026-10-16T23:59:59Z and #39 tracking. If starting after expiry use exactly 14 calendar days from UTC evaluation and record both dates.",
+          "Unrelated direct versions, shared Lisa tooling and unrelated exceptions remain unchanged; #39 retains its full original batch."
+        ],
+        "relevant_documentation": "/tmp/cdkstarter-48-implementation/.lisa/work-item-context.md\n/tmp/cdkstarter-48-implementation/.lisa/roster/CodySwannGT-cdkstarter-48.md\n/tmp/cdkstarter-48-implementation/package.json\n/tmp/cdkstarter-48-implementation/package-lock.json\n/tmp/cdkstarter-48-implementation/vitest.config.ts\n/tmp/cdkstarter-48-implementation/.husky/pre-push\n/tmp/cdkstarter-48-implementation/.github/workflows/ci.yml\n/tmp/cdkstarter-48-implementation/.github/workflows/deploy.yml\nhttps://github.com/CodySwannGT/cdkstarter/issues/48\n/Users/cody/workspace/lisa/plugins/src/base/skills/lisa-implement/SKILL.md\n/tmp/cdkstarter-security-prerequisite/probe-summary.json\n/tmp/cdkstarter-security-prerequisite/security-disposition.md\n/tmp/cdkstarter-security-prerequisite/upstream-quality.yml\n/tmp/cdkstarter-30-implementation/node_modules/@codyswann/lisa/dist/configs/vitest/cdk.js\n/tmp/cdkstarter-30-implementation/node_modules/@codyswann/lisa/plugins/src/base/rules/reference/security-audit-handling.md\n/tmp/cdkstarter-30-implementation/node_modules/@codyswann/lisa/plugins/src/base/rules/eager/security-audit-handling.md",
+        "work_item_context": "/tmp/cdkstarter-48-implementation/.lisa/work-item-context.md",
+        "primary_comment_inventory": [
+          {
+            "id": 5962210141,
+            "author": "CodySwannGT",
+            "immutable_author_id": 292923,
+            "type": "User",
+            "association": "OWNER",
+            "date": "2026-10-02T22:05:13Z",
+            "flags": ["decision", "constraint"],
+            "obligation": "AI filing/validation: available fix before exact all-occurrence residual non-exposure/owner/expiry/tracking; native25; blocks30; full39 retains29/38;23held unchanged; no AWS or human-hold release.",
+            "verification": "T1 live graph/binding; T3 installed/audit/asset proof; T4 independent review; T5 commit/main proof; T6 terminal graph/scope preservation."
+          },
+          {
+            "id": 5962266351,
+            "author": "CodySwannGT",
+            "immutable_author_id": 292923,
+            "type": "User",
+            "association": "OWNER",
+            "date": "2026-10-02T22:10:19Z",
+            "flags": ["decision"],
+            "obligation": "Verified managed Lisa claim; no product/security waiver.",
+            "verification": "T1 binding current; T4 normal commit linkage; T6 clear only after true completion."
+          }
+        ],
+        "comment_inventory": [
+          "- #48 comment 5962210141 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T22:05:13Z | flags decision,constraint | AI filing/validation and graph disposition; available fix before finite residual evaluation; #39 scope retained; #23 hold preserved",
+          "- #48 comment 5962266351 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T22:10:19Z | flags decision | Managed Lisa claim; authenticated actor assignment/lifecycle; no product or security waiver",
+          "- #25 comment 5960666818 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:02Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above",
+          "- #29 comment 5960670734 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:15Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above",
+          "- #30 comment 5960671421 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:17Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above",
+          "- #30 comment 5961005829 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:33:36Z | flags decision | Managed Lisa claim; authenticated actor assignment/lifecycle; no product or security waiver",
+          "- #30 comment 5961221043 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:47:07Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above",
+          "- #30 comment 5961721501 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T21:25:25Z | flags constraint,repro | Actual pre-push bundled-audit failure, source preserved, no bypass; original #39 ordering superseded by later comment",
+          "- #30 comment 5962210635 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T22:05:15Z | flags decision,constraint | #48 supersedes #39 as delivery prerequisite; cycle removed; full #39 scope retained",
+          "- #38 comment 5960675614 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:31Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above",
+          "- #39 comment 5960676348 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:33Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above"
+        ],
+        "comment_obligations": [
+          {
+            "id": 5960666818,
+            "issue": 25,
+            "obligation": "Coordination container, independently shippable48; T1/T6 verify."
+          },
+          {
+            "id": 5960670734,
+            "issue": 29,
+            "obligation": "Shared Lisa migration/runtime policy separate; no managed edits; T1/T3/T4/T6 verify."
+          },
+          {
+            "id": 5960671421,
+            "issue": 30,
+            "obligation": "Accepted composition source/evidence preserved; T1/T4/T6 verify."
+          },
+          {
+            "id": 5961005829,
+            "issue": 30,
+            "obligation": "Separate managed claim/binding preserved; T1/T6 verify."
+          },
+          {
+            "id": 5961221043,
+            "issue": 30,
+            "obligation": "30 owns directStage/integration correction,48 usesunit/cov; T2/T4/T6 verify."
+          },
+          {
+            "id": 5961721501,
+            "issue": 30,
+            "obligation": "Actual bundled audit rejected normal push; no bypass; old39edge superseded; T2/T3/T6 verify."
+          },
+          {
+            "id": 5962210635,
+            "issue": 30,
+            "obligation": "48 supersedes39deliveryblocker, cycle removed/full39retained; T1/T6 verify."
+          },
+          {
+            "id": 5960675614,
+            "issue": 38,
+            "obligation": "Broad handler/coverage/runner repair and sibling deps separate; T2/T4/T6 verify."
+          },
+          {
+            "id": 5960676348,
+            "issue": 39,
+            "obligation": "Full coordinated batch and29/38prerequisites retained; residualtracking39; T3/T4/T6 verify."
+          }
+        ],
+        "testing_requirements": [
+          "mise exec node@22.21.1 -- env CI=1 npm ci",
+          "mise exec node@22.21.1 -- npm ls aws-cdk-lib @aws-cdk/aws-amplify-alpha aws-cdk constructs brace-expansion",
+          "Both actual npm audit reports valid JSON/realexitcodes, rawresiduals retained separately fromfilteredgate.",
+          "mise exec node@22.21.1 -- npx vitest run test/starter-cdk-security.test.ts --reporter=verbose",
+          "Reread updated stack.js/fs/ignore.js/mixins/selectors.js and every new caller/all externaldependent patterninputs. Matching subjects not expansionpatterns; minimatch65k cap not defense.",
+          "Enumerate/read ALL actual synthesized Lambda/customresource assets and both optional observabilityhandler directories/dependencies; installed bundledcode absentruntimeassets. Prior30proof not substitute.",
+          "Unchanged actualprepushaudit calculation/report shape; normalfullhook T6."
+        ],
+        "skills": [
+          "lisa-implement",
+          "lisa-test-strategy",
+          "lisa-review-implementation",
+          "lisa-quality-review",
+          "lisa-verify"
+        ],
+        "learnings": [
+          {
+            "kind": "learning",
+            "note": "Available CDK 2.272 fixes rgw5 but still bundles 5.0.9; successful external pins cannot prove the bundle patched.",
+            "evidence": "/tmp/cdkstarter-48-evidence/implementation-handoff.json"
+          },
+          {
+            "kind": "learning",
+            "note": "npm graph validation must run after audit as well as install; installed versions alone missed the nested override conflict.",
+            "evidence": "/tmp/cdkstarter-48-evidence/implementation-handoff.json"
+          },
+          {
+            "kind": "mistake",
+            "note": "Initial brace override configurations produced a later npm graph conflict; version-qualified leaf pins fixed it.",
+            "evidence": "/tmp/cdkstarter-48-evidence/updated-package-graph.log"
+          },
+          {
+            "kind": "mistake",
+            "note": "Initial exception expiry differed from the accepted body; corrected all entries to 2026-10-16T23:59:59Z.",
+            "evidence": "/tmp/cdkstarter-48-evidence/expiry-scoped-format.log"
+          }
+        ],
+        "required_access": [
+          {
+            "tool": "Git repository/main and bound tracker",
+            "probe": "git remote get-url origin; git ls-remote origin refs/heads/main; node /Users/cody/workspace/lisa/scripts/lisa-work-item.mjs current",
+            "status": "pass",
+            "result": "CodySwannGT/cdkstarter; main1111fbe; github#48 bound actual branch."
+          },
+          {
+            "tool": "Node22.21.1/npm/jq",
+            "probe": "mise exec node@22.21.1 -- node --version; mise exec node@22.21.1 -- npm --version; jq --version",
+            "status": "pass",
+            "result": "22.21.1/10.9.4/jq1.8.2; default22.22.0 is not selectedvalidationruntime."
+          },
+          {
+            "tool": "Npm exact targets and primary advisories",
+            "probe": "HTTP reads registry.npmjs.org exact CDK2.272.0/alpha2.272.0-alpha.0/CLI2.1132.0+2.1144.0/constructs10.8.1/brace5.0.12; web open primary rgw5/q2hr/qhr7/6j4f advisories",
+            "status": "pass",
+            "result": "All six registry200, four advisories accessible; peers/schema/fix floors verified."
+          },
+          {
+            "tool": "GitHub tracker/checks/Actions and permissions",
+            "probe": "gh api user; gh api repos/CodySwannGT/cdkstarter; gh api repos/CodySwannGT/cdkstarter/rules/branches/main; gh run list --repo CodySwannGT/cdkstarter --limit 2 --json databaseId,headSha,status,conclusion",
+            "status": "pass",
+            "result": "Immutable292923/User; actualrepo/main; pull/push/admin; live9requiredchecks; Actionsread. Earliermainfailures are not48proof."
+          }
+        ],
+        "verification": {
+          "type": "cli-test",
+          "command": "env -i PATH=/Users/cody/.local/share/mise/installs/node/22.21.1/bin:/opt/homebrew/bin:/usr/bin:/bin AWS_EC2_METADATA_DISABLED=true AWS_CONFIG_FILE=/tmp/cdkstarter-48-no-aws-config AWS_SHARED_CREDENTIALS_FILE=/tmp/cdkstarter-48-no-aws-credentials node node_modules/aws-cdk/bin/cdk synth --no-lookups --app \"node --import tsx test/fixtures/cdk-security-entrypoint.cjs MODE\" --output /tmp/cdkstarter-48-evidence/PHASE-MODE-UNIQUE (MODE=pipeline/frontend-only; PHASE=final); actual installed graph/audits + recursive identity/IAM/template comparison + peroccurrence caller/asset report",
+          "expected": "Actual CLI yields 14/1 nonempty stacks with zero missing context; installed target graph is aligned; rgw5 production occurrences are zero; identity/IAM regressions are zero. Valid raw residual reports remain visible and exclusion-filtered unhandled production high/critical GHSA count is zero for documented exact dispositions."
+        },
+        "team_review": "Root/issue_validator independent review before complete; root learner records task-end MLD canonical ledger,[]valid."
+      },
+      "result": {
+        "scoped_install_exit": 0,
+        "focused_cases_passed": 5,
+        "npm_ls_after_audits_exit": 0,
+        "actual_bundle": "5.0.9",
+        "external_compatible_leaves": ["1.1.21", "2.1.7", "5.0.12"],
+        "raw_audits_exit": {
+          "normal": 1,
+          "production": 1
+        },
+        "raw_production_affected_nodes": [
+          "node_modules/aws-cdk-lib/node_modules/brace-expansion"
+        ],
+        "exact_residual_ids": [
+          "GHSA-q2hr-2g5m-vwhr",
+          "GHSA-qhr7-859c-m2p7",
+          "GHSA-6j4f-fj2g-mc7p"
+        ],
+        "exception_owner": "CodySwannGT",
+        "exception_expiry": "2026-10-16T23:59:59Z",
+        "tracking": "CodySwannGT/cdkstarter#39",
+        "full_gates": "not run",
+        "independent_review": "pending T4",
+        "commit_push_delivery": "not established"
+      }
+    },
+    {
+      "id": "T4",
+      "title": "Review/quality",
+      "owner": "root + issue_validator (independent); plan_quality (bounded fixes)",
+      "depends_on": ["T3"],
+      "status": "completed",
+      "description": "Independently review the complete current diff, residual security disposition and fixture isolation against the acceptance criteria and source precedence. Normalize concrete findings into severity, blocking status, evidence, smallest fix and disposition. Run supported repository quality gates with real counts. Disclose the unchanged integration zero-collection limitation as separate #29/#38 work. Root provides the learner lens and captures each task-end MLD in the canonical Lisa ledger; an empty array is valid.\n\nRead /tmp/cdkstarter-48-implementation/.lisa/work-item-context.md IN FULL before acting. You are not alone; preserve others/originaldirtycheckout/#30/holds. No secret copying. Full resolver inventory:\n- #48 comment 5962210141 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T22:05:13Z | flags decision,constraint | AI filing/validation and graph disposition; available fix before finite residual evaluation; #39 scope retained; #23 hold preserved\n- #48 comment 5962266351 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T22:10:19Z | flags decision | Managed Lisa claim; authenticated actor assignment/lifecycle; no product or security waiver\n- #25 comment 5960666818 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:02Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above\n- #29 comment 5960670734 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:15Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above\n- #30 comment 5960671421 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:17Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above\n- #30 comment 5961005829 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:33:36Z | flags decision | Managed Lisa claim; authenticated actor assignment/lifecycle; no product or security waiver\n- #30 comment 5961221043 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:47:07Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above\n- #30 comment 5961721501 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T21:25:25Z | flags constraint,repro | Actual pre-push bundled-audit failure, source preserved, no bypass; original #39 ordering superseded by later comment\n- #30 comment 5962210635 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T22:05:15Z | flags decision,constraint | #48 supersedes #39 as delivery prerequisite; cycle removed; full #39 scope retained\n- #38 comment 5960675614 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:31Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above\n- #39 comment 5960676348 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:33Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above",
+      "metadata": {
+        "plan": "Apply the available CDK security patch before composition delivery",
+        "type": "task",
+        "owner": "root + issue_validator (independent); plan_quality (bounded fixes)",
+        "acceptance_criteria": [
+          "Independent review covers current bytes, global-ID scope, all occurrences/assets, fixture isolation and stable IAM/resource identities, with no unresolved concrete blocker.",
+          "Supported typecheck/build, lint including slow, formatting, knip, unit/coverage and applicable checks pass without disabled protections or new Sonar violations; named security cases actually run.",
+          "The wrong plural tests/integration command and its zero-collection success are disclosed as separate #29/#38 work and never used as #48 evidence.",
+          "Task-end MLD is recorded through the canonical Lisa ledger; [] is valid. Review reopens only on new relevant evidence."
+        ],
+        "relevant_documentation": "/tmp/cdkstarter-48-implementation/.lisa/work-item-context.md\n/tmp/cdkstarter-48-implementation/.lisa/roster/CodySwannGT-cdkstarter-48.md\n/tmp/cdkstarter-48-implementation/package.json\n/tmp/cdkstarter-48-implementation/package-lock.json\n/tmp/cdkstarter-48-implementation/vitest.config.ts\n/tmp/cdkstarter-48-implementation/.husky/pre-push\n/tmp/cdkstarter-48-implementation/.github/workflows/ci.yml\n/tmp/cdkstarter-48-implementation/.github/workflows/deploy.yml\nhttps://github.com/CodySwannGT/cdkstarter/issues/48\n/Users/cody/workspace/lisa/plugins/src/base/skills/lisa-implement/SKILL.md\n/tmp/cdkstarter-security-prerequisite/probe-summary.json\n/tmp/cdkstarter-security-prerequisite/security-disposition.md\n/tmp/cdkstarter-security-prerequisite/upstream-quality.yml\n/tmp/cdkstarter-30-implementation/node_modules/@codyswann/lisa/dist/configs/vitest/cdk.js\n/tmp/cdkstarter-30-implementation/node_modules/@codyswann/lisa/plugins/src/base/rules/reference/security-audit-handling.md\n/tmp/cdkstarter-30-implementation/node_modules/@codyswann/lisa/plugins/src/base/rules/eager/security-audit-handling.md",
+        "work_item_context": "/tmp/cdkstarter-48-implementation/.lisa/work-item-context.md",
+        "primary_comment_inventory": [
+          {
+            "id": 5962210141,
+            "author": "CodySwannGT",
+            "immutable_author_id": 292923,
+            "type": "User",
+            "association": "OWNER",
+            "date": "2026-10-02T22:05:13Z",
+            "flags": ["decision", "constraint"],
+            "obligation": "AI filing/validation: available fix before exact all-occurrence residual non-exposure/owner/expiry/tracking; native25; blocks30; full39 retains29/38;23held unchanged; no AWS or human-hold release.",
+            "verification": "T1 live graph/binding; T3 installed/audit/asset proof; T4 independent review; T5 commit/main proof; T6 terminal graph/scope preservation."
+          },
+          {
+            "id": 5962266351,
+            "author": "CodySwannGT",
+            "immutable_author_id": 292923,
+            "type": "User",
+            "association": "OWNER",
+            "date": "2026-10-02T22:10:19Z",
+            "flags": ["decision"],
+            "obligation": "Verified managed Lisa claim; no product/security waiver.",
+            "verification": "T1 binding current; T4 normal commit linkage; T6 clear only after true completion."
+          }
+        ],
+        "comment_inventory": [
+          "- #48 comment 5962210141 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T22:05:13Z | flags decision,constraint | AI filing/validation and graph disposition; available fix before finite residual evaluation; #39 scope retained; #23 hold preserved",
+          "- #48 comment 5962266351 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T22:10:19Z | flags decision | Managed Lisa claim; authenticated actor assignment/lifecycle; no product or security waiver",
+          "- #25 comment 5960666818 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:02Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above",
+          "- #29 comment 5960670734 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:15Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above",
+          "- #30 comment 5960671421 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:17Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above",
+          "- #30 comment 5961005829 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:33:36Z | flags decision | Managed Lisa claim; authenticated actor assignment/lifecycle; no product or security waiver",
+          "- #30 comment 5961221043 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:47:07Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above",
+          "- #30 comment 5961721501 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T21:25:25Z | flags constraint,repro | Actual pre-push bundled-audit failure, source preserved, no bypass; original #39 ordering superseded by later comment",
+          "- #30 comment 5962210635 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T22:05:15Z | flags decision,constraint | #48 supersedes #39 as delivery prerequisite; cycle removed; full #39 scope retained",
+          "- #38 comment 5960675614 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:31Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above",
+          "- #39 comment 5960676348 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:33Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above"
+        ],
+        "comment_obligations": [
+          {
+            "id": 5960666818,
+            "issue": 25,
+            "obligation": "Coordination container, independently shippable48; T1/T6 verify."
+          },
+          {
+            "id": 5960670734,
+            "issue": 29,
+            "obligation": "Shared Lisa migration/runtime policy separate; no managed edits; T1/T3/T4/T6 verify."
+          },
+          {
+            "id": 5960671421,
+            "issue": 30,
+            "obligation": "Accepted composition source/evidence preserved; T1/T4/T6 verify."
+          },
+          {
+            "id": 5961005829,
+            "issue": 30,
+            "obligation": "Separate managed claim/binding preserved; T1/T6 verify."
+          },
+          {
+            "id": 5961221043,
+            "issue": 30,
+            "obligation": "30 owns directStage/integration correction,48 usesunit/cov; T2/T4/T6 verify."
+          },
+          {
+            "id": 5961721501,
+            "issue": 30,
+            "obligation": "Actual bundled audit rejected normal push; no bypass; old39edge superseded; T2/T3/T6 verify."
+          },
+          {
+            "id": 5962210635,
+            "issue": 30,
+            "obligation": "48 supersedes39deliveryblocker, cycle removed/full39retained; T1/T6 verify."
+          },
+          {
+            "id": 5960675614,
+            "issue": 38,
+            "obligation": "Broad handler/coverage/runner repair and sibling deps separate; T2/T4/T6 verify."
+          },
+          {
+            "id": 5960676348,
+            "issue": 39,
+            "obligation": "Full coordinated batch and29/38prerequisites retained; residualtracking39; T3/T4/T6 verify."
+          }
+        ],
+        "testing_requirements": [
+          "mise exec node@22.21.1 -- npm run typecheck",
+          "mise exec node@22.21.1 -- npm run build",
+          "mise exec node@22.21.1 -- npm run lint",
+          "mise exec node@22.21.1 -- npm run lint:slow",
+          "mise exec node@22.21.1 -- npm run format:check",
+          "mise exec node@22.21.1 -- npm run knip",
+          "mise exec node@22.21.1 -- npm run test:unit",
+          "mise exec node@22.21.1 -- npm run test:cov",
+          "mise exec node@22.21.1 -- npm run test:integration",
+          "Named verbose focusedcases/actualCLI logs; no optin/skip/shardzero. Generatedbaselinehook/CIgap coordinatesroot prerequisite, no manualmanagedpatch/bypass."
+        ],
+        "skills": [
+          "lisa-implement",
+          "lisa-test-strategy",
+          "lisa-review-implementation",
+          "lisa-quality-review",
+          "lisa-verify"
+        ],
+        "learnings": [],
+        "required_access": [
+          {
+            "tool": "Git repository/main and bound tracker",
+            "probe": "git remote get-url origin; git ls-remote origin refs/heads/main; node /Users/cody/workspace/lisa/scripts/lisa-work-item.mjs current",
+            "status": "pass",
+            "result": "CodySwannGT/cdkstarter; main1111fbe; github#48 bound actual branch."
+          },
+          {
+            "tool": "Node22.21.1/npm/jq",
+            "probe": "mise exec node@22.21.1 -- node --version; mise exec node@22.21.1 -- npm --version; jq --version",
+            "status": "pass",
+            "result": "22.21.1/10.9.4/jq1.8.2; default22.22.0 is not selectedvalidationruntime."
+          },
+          {
+            "tool": "Npm exact targets and primary advisories",
+            "probe": "HTTP reads registry.npmjs.org exact CDK2.272.0/alpha2.272.0-alpha.0/CLI2.1132.0+2.1144.0/constructs10.8.1/brace5.0.12; web open primary rgw5/q2hr/qhr7/6j4f advisories",
+            "status": "pass",
+            "result": "All six registry200, four advisories accessible; peers/schema/fix floors verified."
+          },
+          {
+            "tool": "GitHub tracker/checks/Actions and permissions",
+            "probe": "gh api user; gh api repos/CodySwannGT/cdkstarter; gh api repos/CodySwannGT/cdkstarter/rules/branches/main; gh run list --repo CodySwannGT/cdkstarter --limit 2 --json databaseId,headSha,status,conclusion",
+            "status": "pass",
+            "result": "Immutable292923/User; actualrepo/main; pull/push/admin; live9requiredchecks; Actionsread. Earliermainfailures are not48proof."
+          }
+        ],
+        "verification": {
+          "type": "cli-test",
+          "command": "git diff 1111fbe6d1f0d56de3c0adb19b9aceee34271a4d --name-status; env -i PATH=/Users/cody/.local/share/mise/installs/node/22.21.1/bin:/opt/homebrew/bin:/usr/bin:/bin AWS_EC2_METADATA_DISABLED=true AWS_CONFIG_FILE=/tmp/cdkstarter-48-no-aws-config AWS_SHARED_CREDENTIALS_FILE=/tmp/cdkstarter-48-no-aws-credentials node node_modules/aws-cdk/bin/cdk synth --no-lookups --app \"node --import tsx test/fixtures/cdk-security-entrypoint.cjs MODE\" --output /tmp/cdkstarter-48-evidence/PHASE-MODE-UNIQUE (MODE=pipeline/frontend-only; PHASE=review); independently inspect actual audit/template/asset outputs",
+          "expected": "Independent review has zero unresolved concrete blockers, independently observed CLI 14/1 and stable identities/IAM. Required local gates pass with nonzero new-suite execution; the baseline integration limitation remains explicit."
+        },
+        "team_review": "Root/issue_validator independent review before complete; root learner records task-end MLD canonical ledger,[]valid."
+      },
+      "result": {
+        "independent_source_review_v2": "/tmp/cdkstarter-48-evidence/independent-source-review-v2.json",
+        "independent_source_review_v2_sha256": "272b094c3708dbd69d6b827310ae7fdd06cb7945f076d0a25aea093e51be37d0",
+        "frozen_original_review": "/tmp/cdkstarter-48-evidence/independent-source-review.json",
+        "frozen_original_review_sha256": "0a75e257e54e2f31125b2bdd5557ccc41695c517f0d6ee6adbcfa513619a9c05",
+        "quality_result": "/tmp/cdkstarter-48-evidence/quality/quality-result.json",
+        "quality_result_sha256": "0759018c425f12b6d20cdebfd8016fb53c6697fea8b7665440e6255d17a6d147",
+        "actual_commands": 13,
+        "unit_files": 40,
+        "unit_cases": 428,
+        "cov_files": 40,
+        "cov_cases": 428,
+        "named_security_cases_each_lane": 5,
+        "coverage_percent": {
+          "statements": 90.04,
+          "branches": 79.57,
+          "functions": 92.67,
+          "lines": 90.03
+        },
+        "all_non_audit_quality_exits": 0,
+        "raw_audit_exits": [1, 1],
+        "production_unexcluded_ids": [],
+        "normal_unexcluded_count": 11,
+        "reviewed_seven_source_hashes_preserved": true,
+        "inventory": "11 total = 2 primary + 9 linked",
+        "no_integration_zero_collection_claim": true
+      }
+    },
+    {
+      "id": "T5",
+      "title": "Independent final-commit/main verification",
+      "owner": "issue_validator",
+      "depends_on": ["T4"],
+      "status": "in_progress",
+      "description": "Perform two independent verification checkpoints: A after normal final commit and before push; B after T6 merge and source release. The verifier did not implement the change. Clean-install and run actual installed CLI, package graph and audits against the shipping commit; write and self-check the ignored schema-v2 verification verdict with correct boundaries, evidence kinds, head identity, digests and timestamps. After merge, verify remote ancestry and repeat source proof on clean merged main. Make no AWS deployment or runtime claim.\n\nRead /tmp/cdkstarter-48-implementation/.lisa/work-item-context.md IN FULL before acting. You are not alone; preserve others/originaldirtycheckout/#30/holds. No secret copying. Full resolver inventory:\n- #48 comment 5962210141 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T22:05:13Z | flags decision,constraint | AI filing/validation and graph disposition; available fix before finite residual evaluation; #39 scope retained; #23 hold preserved\n- #48 comment 5962266351 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T22:10:19Z | flags decision | Managed Lisa claim; authenticated actor assignment/lifecycle; no product or security waiver\n- #25 comment 5960666818 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:02Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above\n- #29 comment 5960670734 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:15Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above\n- #30 comment 5960671421 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:17Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above\n- #30 comment 5961005829 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:33:36Z | flags decision | Managed Lisa claim; authenticated actor assignment/lifecycle; no product or security waiver\n- #30 comment 5961221043 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:47:07Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above\n- #30 comment 5961721501 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T21:25:25Z | flags constraint,repro | Actual pre-push bundled-audit failure, source preserved, no bypass; original #39 ordering superseded by later comment\n- #30 comment 5962210635 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T22:05:15Z | flags decision,constraint | #48 supersedes #39 as delivery prerequisite; cycle removed; full #39 scope retained\n- #38 comment 5960675614 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:31Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above\n- #39 comment 5960676348 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:33Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above Checkpoint A establishes required local claims before push. CI/delivery/merge/release claims remain explicitly not-established or in_progress until checkpoint B; never demand remote evidence before a PR exists.",
+      "metadata": {
+        "plan": "Apply the available CDK security patch before composition delivery",
+        "type": "task",
+        "owner": "issue_validator",
+        "acceptance_criteria": [
+          "Checkpoint A establishes required LOCAL claims with exact shipping-head CLI and code-unit evidence; CI, merge and source-release claims remain explicitly not-established/in_progress until checkpoint B. Every local evidence kind/hash/head/time matches and not_established_reviewed is true.",
+          "Ignored schema-v2 verdict passes the current canonical verifier/self-check before push and is never staged.",
+          "Checkpoint B proves actual merge ancestry and the aligned graph/security disposition on merged main, with both CLI modes still passing and source-release terminal state observed.",
+          "No self-certification, unit-log-as-CLI evidence or AWS deploy-health claim. Preserve the separate #30 failure, full #39 batch and unrelated holds."
+        ],
+        "relevant_documentation": "/tmp/cdkstarter-48-implementation/.lisa/work-item-context.md\n/tmp/cdkstarter-48-implementation/.lisa/roster/CodySwannGT-cdkstarter-48.md\n/tmp/cdkstarter-48-implementation/package.json\n/tmp/cdkstarter-48-implementation/package-lock.json\n/tmp/cdkstarter-48-implementation/vitest.config.ts\n/tmp/cdkstarter-48-implementation/.husky/pre-push\n/tmp/cdkstarter-48-implementation/.github/workflows/ci.yml\n/tmp/cdkstarter-48-implementation/.github/workflows/deploy.yml\nhttps://github.com/CodySwannGT/cdkstarter/issues/48\n/Users/cody/workspace/lisa/plugins/src/base/skills/lisa-implement/SKILL.md\n/tmp/cdkstarter-security-prerequisite/probe-summary.json\n/tmp/cdkstarter-security-prerequisite/security-disposition.md\n/tmp/cdkstarter-security-prerequisite/upstream-quality.yml\n/tmp/cdkstarter-30-implementation/node_modules/@codyswann/lisa/dist/configs/vitest/cdk.js\n/tmp/cdkstarter-30-implementation/node_modules/@codyswann/lisa/plugins/src/base/rules/reference/security-audit-handling.md\n/tmp/cdkstarter-30-implementation/node_modules/@codyswann/lisa/plugins/src/base/rules/eager/security-audit-handling.md",
+        "work_item_context": "/tmp/cdkstarter-48-implementation/.lisa/work-item-context.md",
+        "primary_comment_inventory": [
+          {
+            "id": 5962210141,
+            "author": "CodySwannGT",
+            "immutable_author_id": 292923,
+            "type": "User",
+            "association": "OWNER",
+            "date": "2026-10-02T22:05:13Z",
+            "flags": ["decision", "constraint"],
+            "obligation": "AI filing/validation: available fix before exact all-occurrence residual non-exposure/owner/expiry/tracking; native25; blocks30; full39 retains29/38;23held unchanged; no AWS or human-hold release.",
+            "verification": "T1 live graph/binding; T3 installed/audit/asset proof; T4 independent review; T5 commit/main proof; T6 terminal graph/scope preservation."
+          },
+          {
+            "id": 5962266351,
+            "author": "CodySwannGT",
+            "immutable_author_id": 292923,
+            "type": "User",
+            "association": "OWNER",
+            "date": "2026-10-02T22:10:19Z",
+            "flags": ["decision"],
+            "obligation": "Verified managed Lisa claim; no product/security waiver.",
+            "verification": "T1 binding current; T4 normal commit linkage; T6 clear only after true completion."
+          }
+        ],
+        "comment_inventory": [
+          "- #48 comment 5962210141 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T22:05:13Z | flags decision,constraint | AI filing/validation and graph disposition; available fix before finite residual evaluation; #39 scope retained; #23 hold preserved",
+          "- #48 comment 5962266351 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T22:10:19Z | flags decision | Managed Lisa claim; authenticated actor assignment/lifecycle; no product or security waiver",
+          "- #25 comment 5960666818 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:02Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above",
+          "- #29 comment 5960670734 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:15Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above",
+          "- #30 comment 5960671421 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:17Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above",
+          "- #30 comment 5961005829 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:33:36Z | flags decision | Managed Lisa claim; authenticated actor assignment/lifecycle; no product or security waiver",
+          "- #30 comment 5961221043 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:47:07Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above",
+          "- #30 comment 5961721501 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T21:25:25Z | flags constraint,repro | Actual pre-push bundled-audit failure, source preserved, no bypass; original #39 ordering superseded by later comment",
+          "- #30 comment 5962210635 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T22:05:15Z | flags decision,constraint | #48 supersedes #39 as delivery prerequisite; cycle removed; full #39 scope retained",
+          "- #38 comment 5960675614 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:31Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above",
+          "- #39 comment 5960676348 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:33Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above"
+        ],
+        "comment_obligations": [
+          {
+            "id": 5960666818,
+            "issue": 25,
+            "obligation": "Coordination container, independently shippable48; T1/T6 verify."
+          },
+          {
+            "id": 5960670734,
+            "issue": 29,
+            "obligation": "Shared Lisa migration/runtime policy separate; no managed edits; T1/T3/T4/T6 verify."
+          },
+          {
+            "id": 5960671421,
+            "issue": 30,
+            "obligation": "Accepted composition source/evidence preserved; T1/T4/T6 verify."
+          },
+          {
+            "id": 5961005829,
+            "issue": 30,
+            "obligation": "Separate managed claim/binding preserved; T1/T6 verify."
+          },
+          {
+            "id": 5961221043,
+            "issue": 30,
+            "obligation": "30 owns directStage/integration correction,48 usesunit/cov; T2/T4/T6 verify."
+          },
+          {
+            "id": 5961721501,
+            "issue": 30,
+            "obligation": "Actual bundled audit rejected normal push; no bypass; old39edge superseded; T2/T3/T6 verify."
+          },
+          {
+            "id": 5962210635,
+            "issue": 30,
+            "obligation": "48 supersedes39deliveryblocker, cycle removed/full39retained; T1/T6 verify."
+          },
+          {
+            "id": 5960675614,
+            "issue": 38,
+            "obligation": "Broad handler/coverage/runner repair and sibling deps separate; T2/T4/T6 verify."
+          },
+          {
+            "id": 5960676348,
+            "issue": 39,
+            "obligation": "Full coordinated batch and29/38prerequisites retained; residualtracking39; T3/T4/T6 verify."
+          }
+        ],
+        "testing_requirements": [
+          "Cleaninstall selectedruntime; actualCLI separatelyfromVitest proofwrapper.",
+          "Focusedretestonlywhen finalcommit/newfailedgate/uncertainty justifies; currentheadevidencealways.",
+          "Independent renewed audit/alloccurrence/template proof; actualinstalledgraph notlockonly.",
+          "Required PRunitlog named suite/cases/actualCLI and GitHubmerge/main/release readbacks."
+        ],
+        "skills": [
+          "lisa-implement",
+          "lisa-test-strategy",
+          "lisa-review-implementation",
+          "lisa-quality-review",
+          "lisa-verify"
+        ],
+        "learnings": [],
+        "required_access": [
+          {
+            "tool": "Git repository/main and bound tracker",
+            "probe": "git remote get-url origin; git ls-remote origin refs/heads/main; node /Users/cody/workspace/lisa/scripts/lisa-work-item.mjs current",
+            "status": "pass",
+            "result": "CodySwannGT/cdkstarter; main1111fbe; github#48 bound actual branch."
+          },
+          {
+            "tool": "Node22.21.1/npm/jq",
+            "probe": "mise exec node@22.21.1 -- node --version; mise exec node@22.21.1 -- npm --version; jq --version",
+            "status": "pass",
+            "result": "22.21.1/10.9.4/jq1.8.2; default22.22.0 is not selectedvalidationruntime."
+          },
+          {
+            "tool": "Npm exact targets and primary advisories",
+            "probe": "HTTP reads registry.npmjs.org exact CDK2.272.0/alpha2.272.0-alpha.0/CLI2.1132.0+2.1144.0/constructs10.8.1/brace5.0.12; web open primary rgw5/q2hr/qhr7/6j4f advisories",
+            "status": "pass",
+            "result": "All six registry200, four advisories accessible; peers/schema/fix floors verified."
+          },
+          {
+            "tool": "GitHub tracker/checks/Actions and permissions",
+            "probe": "gh api user; gh api repos/CodySwannGT/cdkstarter; gh api repos/CodySwannGT/cdkstarter/rules/branches/main; gh run list --repo CodySwannGT/cdkstarter --limit 2 --json databaseId,headSha,status,conclusion",
+            "status": "pass",
+            "result": "Immutable292923/User; actualrepo/main; pull/push/admin; live9requiredchecks; Actionsread. Earliermainfailures are not48proof."
+          }
+        ],
+        "verification": {
+          "type": "cli-test",
+          "command": "mise exec node@22.21.1 -- env CI=1 npm ci; env -i PATH=/Users/cody/.local/share/mise/installs/node/22.21.1/bin:/opt/homebrew/bin:/usr/bin:/bin AWS_EC2_METADATA_DISABLED=true AWS_CONFIG_FILE=/tmp/cdkstarter-48-no-aws-config AWS_SHARED_CREDENTIALS_FILE=/tmp/cdkstarter-48-no-aws-credentials node node_modules/aws-cdk/bin/cdk synth --no-lookups --app \"node --import tsx test/fixtures/cdk-security-entrypoint.cjs MODE\" --output /tmp/cdkstarter-48-evidence/PHASE-MODE-UNIQUE (MODE=pipeline/frontend-only; PHASE=final-commit then main); mise exec node@22.21.1 -- npm ls aws-cdk-lib @aws-cdk/aws-amplify-alpha aws-cdk constructs brace-expansion; gh pr view PR --repo CodySwannGT/cdkstarter --json state,mergedAt,mergeCommit,headRefOid,baseRefName; git fetch origin; git merge-base --is-ancestor MERGE_SHA origin/main",
+          "expected": "Checkpoint A establishes exact-head empirical CLI 14/1, aligned installed packages, stable identities/IAM and honest audit disposition with valid schema-v2 evidence. Checkpoint B proves remote ancestry (exit 0), identical merged-main source proof and required terminal source-release outcome."
+        },
+        "team_review": "Root/issue_validator independent review before complete; root learner records task-end MLD canonical ledger,[]valid."
+      },
+      "result": {
+        "checkpoint_A": "in_progress: local quality/source review established; exact final commit empirical verification pending",
+        "checkpoint_B": "not_established: remote CI, merge/main and source-release proof pending"
+      }
+    },
+    {
+      "id": "T6",
+      "title": "Normal PR/merge/source closeout",
+      "owner": "root",
+      "depends_on": ["T4", "T5.checkpointA"],
+      "status": "pending",
+      "description": "Root applies current full submit-PR, drive-PR, tracker sync/evidence and usage contracts. Use normal commits and push hooks with keepalive; create a real main PR with Refs #48 and the required Work-Item line, without closing keywords. Establish mandatory backlink/discharge and lifecycle hold, babysitter, arm, reviews, threads, CI and ancestry conditions. Inspect named unit/coverage execution, monitor the normal push-main standard-version source release, then obtain T5 checkpoint B on merged main. Only root closes #48 after all terminal source evidence; preserve binding/context until then.\n\nRead /tmp/cdkstarter-48-implementation/.lisa/work-item-context.md IN FULL before acting. You are not alone; preserve others/originaldirtycheckout/#30/holds. No secret copying. Full resolver inventory:\n- #48 comment 5962210141 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T22:05:13Z | flags decision,constraint | AI filing/validation and graph disposition; available fix before finite residual evaluation; #39 scope retained; #23 hold preserved\n- #48 comment 5962266351 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T22:10:19Z | flags decision | Managed Lisa claim; authenticated actor assignment/lifecycle; no product or security waiver\n- #25 comment 5960666818 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:02Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above\n- #29 comment 5960670734 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:15Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above\n- #30 comment 5960671421 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:17Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above\n- #30 comment 5961005829 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:33:36Z | flags decision | Managed Lisa claim; authenticated actor assignment/lifecycle; no product or security waiver\n- #30 comment 5961221043 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:47:07Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above\n- #30 comment 5961721501 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T21:25:25Z | flags constraint,repro | Actual pre-push bundled-audit failure, source preserved, no bypass; original #39 ordering superseded by later comment\n- #30 comment 5962210635 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T22:05:15Z | flags decision,constraint | #48 supersedes #39 as delivery prerequisite; cycle removed; full #39 scope retained\n- #38 comment 5960675614 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:31Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above\n- #39 comment 5960676348 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:33Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above",
+      "metadata": {
+        "plan": "Apply the available CDK security patch before composition delivery",
+        "type": "task",
+        "owner": "root",
+        "acceptance_criteria": [
+          "A real main PR and two-way linkage exist on the shipping head after normal hooks. All nine live required checks pass; required unit/coverage logs name the suite/cases and show both actual CLI modes running with nonzero collection.",
+          "PR merge, main ancestry and required source-release terminal outcome are observed. Release skipped integration is not regression proof; no AWS deployment is claimed.",
+          "T5 checkpoint B passes. Three named artifacts, Implement usage/ancestor rollup and source evidence are attached before closure; unavailable usage metrics remain nullable.",
+          "Only root confirms terminal evidence and closes #48 using configured done state, then clears binding/context and verifies absence. #30 remains separate delivery, #39 is not narrowed/closed and #23 remains held. Blocked outcomes preserve binding/context and exact reasons."
+        ],
+        "relevant_documentation": "/tmp/cdkstarter-48-implementation/.lisa/work-item-context.md\n/tmp/cdkstarter-48-implementation/.lisa/roster/CodySwannGT-cdkstarter-48.md\n/tmp/cdkstarter-48-implementation/package.json\n/tmp/cdkstarter-48-implementation/package-lock.json\n/tmp/cdkstarter-48-implementation/vitest.config.ts\n/tmp/cdkstarter-48-implementation/.husky/pre-push\n/tmp/cdkstarter-48-implementation/.github/workflows/ci.yml\n/tmp/cdkstarter-48-implementation/.github/workflows/deploy.yml\nhttps://github.com/CodySwannGT/cdkstarter/issues/48\n/Users/cody/workspace/lisa/plugins/src/base/skills/lisa-implement/SKILL.md\n/tmp/cdkstarter-security-prerequisite/probe-summary.json\n/tmp/cdkstarter-security-prerequisite/security-disposition.md\n/tmp/cdkstarter-security-prerequisite/upstream-quality.yml\n/tmp/cdkstarter-30-implementation/node_modules/@codyswann/lisa/dist/configs/vitest/cdk.js\n/tmp/cdkstarter-30-implementation/node_modules/@codyswann/lisa/plugins/src/base/rules/reference/security-audit-handling.md\n/tmp/cdkstarter-30-implementation/node_modules/@codyswann/lisa/plugins/src/base/rules/eager/security-audit-handling.md",
+        "work_item_context": "/tmp/cdkstarter-48-implementation/.lisa/work-item-context.md",
+        "primary_comment_inventory": [
+          {
+            "id": 5962210141,
+            "author": "CodySwannGT",
+            "immutable_author_id": 292923,
+            "type": "User",
+            "association": "OWNER",
+            "date": "2026-10-02T22:05:13Z",
+            "flags": ["decision", "constraint"],
+            "obligation": "AI filing/validation: available fix before exact all-occurrence residual non-exposure/owner/expiry/tracking; native25; blocks30; full39 retains29/38;23held unchanged; no AWS or human-hold release.",
+            "verification": "T1 live graph/binding; T3 installed/audit/asset proof; T4 independent review; T5 commit/main proof; T6 terminal graph/scope preservation."
+          },
+          {
+            "id": 5962266351,
+            "author": "CodySwannGT",
+            "immutable_author_id": 292923,
+            "type": "User",
+            "association": "OWNER",
+            "date": "2026-10-02T22:10:19Z",
+            "flags": ["decision"],
+            "obligation": "Verified managed Lisa claim; no product/security waiver.",
+            "verification": "T1 binding current; T4 normal commit linkage; T6 clear only after true completion."
+          }
+        ],
+        "comment_inventory": [
+          "- #48 comment 5962210141 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T22:05:13Z | flags decision,constraint | AI filing/validation and graph disposition; available fix before finite residual evaluation; #39 scope retained; #23 hold preserved",
+          "- #48 comment 5962266351 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T22:10:19Z | flags decision | Managed Lisa claim; authenticated actor assignment/lifecycle; no product or security waiver",
+          "- #25 comment 5960666818 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:02Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above",
+          "- #29 comment 5960670734 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:15Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above",
+          "- #30 comment 5960671421 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:17Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above",
+          "- #30 comment 5961005829 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:33:36Z | flags decision | Managed Lisa claim; authenticated actor assignment/lifecycle; no product or security waiver",
+          "- #30 comment 5961221043 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:47:07Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above",
+          "- #30 comment 5961721501 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T21:25:25Z | flags constraint,repro | Actual pre-push bundled-audit failure, source preserved, no bypass; original #39 ordering superseded by later comment",
+          "- #30 comment 5962210635 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T22:05:15Z | flags decision,constraint | #48 supersedes #39 as delivery prerequisite; cycle removed; full #39 scope retained",
+          "- #38 comment 5960675614 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:31Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above",
+          "- #39 comment 5960676348 | author CodySwannGT (ID 292923, type User, association OWNER) | 2026-10-02T20:11:33Z | flags constraint | Accepted scope, evidence or separate prerequisite/plan constraints; see full comment above"
+        ],
+        "comment_obligations": [
+          {
+            "id": 5960666818,
+            "issue": 25,
+            "obligation": "Coordination container, independently shippable48; T1/T6 verify."
+          },
+          {
+            "id": 5960670734,
+            "issue": 29,
+            "obligation": "Shared Lisa migration/runtime policy separate; no managed edits; T1/T3/T4/T6 verify."
+          },
+          {
+            "id": 5960671421,
+            "issue": 30,
+            "obligation": "Accepted composition source/evidence preserved; T1/T4/T6 verify."
+          },
+          {
+            "id": 5961005829,
+            "issue": 30,
+            "obligation": "Separate managed claim/binding preserved; T1/T6 verify."
+          },
+          {
+            "id": 5961221043,
+            "issue": 30,
+            "obligation": "30 owns directStage/integration correction,48 usesunit/cov; T2/T4/T6 verify."
+          },
+          {
+            "id": 5961721501,
+            "issue": 30,
+            "obligation": "Actual bundled audit rejected normal push; no bypass; old39edge superseded; T2/T3/T6 verify."
+          },
+          {
+            "id": 5962210635,
+            "issue": 30,
+            "obligation": "48 supersedes39deliveryblocker, cycle removed/full39retained; T1/T6 verify."
+          },
+          {
+            "id": 5960675614,
+            "issue": 38,
+            "obligation": "Broad handler/coverage/runner repair and sibling deps separate; T2/T4/T6 verify."
+          },
+          {
+            "id": 5960676348,
+            "issue": 39,
+            "obligation": "Full coordinated batch and29/38prerequisites retained; residualtracking39; T3/T4/T6 verify."
+          }
+        ],
+        "testing_requirements": [
+          "mise exec node@22.21.1 -- git push -u origin codex/48-cdk-security-prerequisite (normalhooks)",
+          "gh pr checks PR --repo CodySwannGT/cdkstarter --required; gh run view RUN --repo CodySwannGT/cdkstarter --log (namedsuite/cases/nonzerosynth)",
+          "Observe existingdeploy.yml pushmain release.yml standard-version/Node22.21.1/npm; test:e2e,test:integration skipped not48proof.",
+          "Resync/newfixhead invalidates staleproof; localgreenfirst; noAWSaccessrequired."
+        ],
+        "skills": [
+          "lisa-implement",
+          "lisa-test-strategy",
+          "lisa-review-implementation",
+          "lisa-quality-review",
+          "lisa-verify",
+          "lisa-git-submit-pr",
+          "lisa-drive-pr-to-merge",
+          "lisa-tracker-sync",
+          "lisa-tracker-evidence",
+          "lisa-usage-accounting"
+        ],
+        "learnings": [],
+        "required_access": [
+          {
+            "tool": "Git repository/main and bound tracker",
+            "probe": "git remote get-url origin; git ls-remote origin refs/heads/main; node /Users/cody/workspace/lisa/scripts/lisa-work-item.mjs current",
+            "status": "pass",
+            "result": "CodySwannGT/cdkstarter; main1111fbe; github#48 bound actual branch."
+          },
+          {
+            "tool": "Node22.21.1/npm/jq",
+            "probe": "mise exec node@22.21.1 -- node --version; mise exec node@22.21.1 -- npm --version; jq --version",
+            "status": "pass",
+            "result": "22.21.1/10.9.4/jq1.8.2; default22.22.0 is not selectedvalidationruntime."
+          },
+          {
+            "tool": "Npm exact targets and primary advisories",
+            "probe": "HTTP reads registry.npmjs.org exact CDK2.272.0/alpha2.272.0-alpha.0/CLI2.1132.0+2.1144.0/constructs10.8.1/brace5.0.12; web open primary rgw5/q2hr/qhr7/6j4f advisories",
+            "status": "pass",
+            "result": "All six registry200, four advisories accessible; peers/schema/fix floors verified."
+          },
+          {
+            "tool": "GitHub tracker/checks/Actions and permissions",
+            "probe": "gh api user; gh api repos/CodySwannGT/cdkstarter; gh api repos/CodySwannGT/cdkstarter/rules/branches/main; gh run list --repo CodySwannGT/cdkstarter --limit 2 --json databaseId,headSha,status,conclusion",
+            "status": "pass",
+            "result": "Immutable292923/User; actualrepo/main; pull/push/admin; live9requiredchecks; Actionsread. Earliermainfailures are not48proof."
+          }
+        ],
+        "verification": {
+          "type": "cli-test",
+          "command": "gh pr view PR --repo CodySwannGT/cdkstarter --json url,state,mergedAt,mergeCommit,headRefOid,baseRefName; gh pr checks PR --repo CodySwannGT/cdkstarter --required; gh run view RUN --repo CodySwannGT/cdkstarter --json headSha,status,conclusion,url; git fetch origin; git merge-base --is-ancestor MERGE_SHA origin/main; env -i PATH=/Users/cody/.local/share/mise/installs/node/22.21.1/bin:/opt/homebrew/bin:/usr/bin:/bin AWS_EC2_METADATA_DISABLED=true AWS_CONFIG_FILE=/tmp/cdkstarter-48-no-aws-config AWS_SHARED_CREDENTIALS_FILE=/tmp/cdkstarter-48-no-aws-credentials node node_modules/aws-cdk/bin/cdk synth --no-lookups --app \"node --import tsx test/fixtures/cdk-security-entrypoint.cjs MODE\" --output /tmp/cdkstarter-48-evidence/PHASE-MODE-UNIQUE (MODE=pipeline/frontend-only; PHASE=main cleancheckout); gh issue view 48 --repo CodySwannGT/cdkstarter --json state,labels,comments",
+          "expected": "Actual PR merged into main, all nine required checks passed with named nonzero unit/coverage proof, required source release reached its terminal outcome and independent main CLI 14/1/package/audit proof passed. Three artifacts, backlink and usage are recorded. Root confirms configured #48 done, then binding/context are absent. No AWS behavior is claimed."
+        },
+        "team_review": "Root/issue_validator independent review before complete; root learner records task-end MLD canonical ledger,[]valid."
+      }
+    }
+  ],
+  "baseline_direct_locked_versions": {
+    "@aws-cdk/aws-amplify-alpha": "2.263.0-alpha.0",
+    "aws-cdk-github-oidc": "2.4.1",
+    "aws-cdk-lib": "2.263.0",
+    "constructs": "10.6.0",
+    "source-map-support": "0.5.21",
+    "zod": "4.4.3",
+    "@ast-grep/cli": "0.40.5",
+    "@codyswann/lisa": "2.217.1",
+    "@commitlint/cli": "20.5.3",
+    "@commitlint/config-conventional": "20.5.3",
+    "@eslint-community/eslint-plugin-eslint-comments": "4.7.2",
+    "@eslint/eslintrc": "3.3.5",
+    "@eslint/js": "9.39.4",
+    "@jest/globals": "30.4.1",
+    "@jest/test-sequencer": "30.4.1",
+    "@types/fs-extra": "11.0.4",
+    "@types/jest": "30.0.0",
+    "@types/lodash.merge": "4.6.9",
+    "@types/node": "22.19.19",
+    "@typescript-eslint/parser": "8.60.0",
+    "@vitest/coverage-v8": "4.1.8",
+    "aws-cdk": "2.1132.0",
+    "esbuild": "0.28.1",
+    "esbuild-register": "3.6.0",
+    "eslint": "9.39.4",
+    "eslint-config-prettier": "10.1.8",
+    "eslint-import-resolver-typescript": "4.4.5",
+    "eslint-plugin-functional": "9.0.5",
+    "eslint-plugin-import": "2.32.0",
+    "eslint-plugin-jsdoc": "61.7.1",
+    "eslint-plugin-oxlint": "1.67.0",
+    "eslint-plugin-prettier": "5.5.6",
+    "eslint-plugin-sonarjs": "3.0.7",
+    "globals": "17.6.0",
+    "husky": "8.0.3",
+    "jest": "30.4.2",
+    "jiti": "2.7.0",
+    "jscodeshift": "0.15.2",
+    "knip": "5.88.1",
+    "lint-staged": "16.4.0",
+    "oxlint": "1.67.0",
+    "oxlint-tsgolint": "0.22.1",
+    "prettier": "3.8.3",
+    "standard-version": "9.5.0",
+    "ts-jest": "29.4.11",
+    "ts-morph": "27.0.2",
+    "ts-node": "10.9.2",
+    "tsx": "4.22.4",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.60.0",
+    "vite": "8.0.16",
+    "vitest": "4.1.8"
+  },
+  "plan_review": "Root independent plan review PASS; issue_validator owns independent source/security review T4 and exact empirical evidence T5. No redundant second plan gate.",
+  "inventory_accounting": {
+    "total": 11,
+    "primary": 2,
+    "linked": 9,
+    "no_comment_omitted": true
+  },
+  "learner_disposition": {
+    "contract": "/Users/cody/workspace/lisa/plugins/src/base/agents/learner.md",
+    "captured_completed_tasks": ["T1", "T2", "T3", "T4"],
+    "telemetry": "Completed task metadata uses kind/note/evidence; no recurring class invented",
+    "canonical_export_probe": "mise exec node@22.21.1 -- node -e import(\"@codyswann/lisa/learnings\")",
+    "terminal_disposition": "capture-unavailable-nonblocking",
+    "error_code": "ERR_PACKAGE_PATH_NOT_EXPORTED",
+    "reason": "Retained installed Lisa 2.217.1 does not export the executable learnings contract; no hand-written or stub ledger permitted. Tooling adoption remains #29.",
+    "ledger_written": false,
+    "codex_memory_written": false,
+    "upstream_or_tracker_writes": false,
+    "recurrence_claim": "none",
+    "no_new_source_policy": true
+  }
+}

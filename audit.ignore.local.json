@@ -54,6 +54,26 @@
       "id": "GHSA-v39h-62p7-jpjc",
       "package": "fast-uri",
       "reason": "Host confusion via percent-encoded authority delimiters in fast-uri parser. Reachable transitively via eslint > @eslint/eslintrc > ajv > fast-uri and via aws-cdk-lib's bundled JSON Schema validator. aws-cdk-lib is invoked only at build/synth/deploy time — its ajv usage validates CloudFormation/CDK schemas authored by the developer, not attacker-controlled URIs. No runtime/production code path passes attacker-controlled URIs through ajv schema validation that relies on fast-uri parsing."
+    },
+    {
+      "id": "GHSA-q2hr-2g5m-vwhr",
+      "package": "brace-expansion",
+      "reason": "CPU denial of service from quadratic rewrite scanning of malicious {a},b}-shaped patterns. Checked 2026-10-02: the only affected installed occurrence is aws-cdk-lib 2.272.0 bundled node_modules/aws-cdk-lib/node_modules/brace-expansion 5.0.9. Available CDK update fixes GHSA-rgw5-rvv9-x895; compatible nonbundled leaf overrides install 1.1.21/2.1.7/5.0.12, but npm retains the bundled 5.0.9. Its three CDK callers consume trusted CLI bundling context, developer-authored asset exclusions, or unused developer-authored construct selectors; filenames are match subjects, not patterns. No application request/event supplies a pattern. Actual pipeline assets (three directories/four JS files) and both optional observability handlers exclude CDK/minimatch/brace-expansion. Scope is this installed occurrence, not general CDK safety. Owner CodySwannGT; expires 2026-10-16T23:59:59Z; tracking https://github.com/CodySwannGT/cdkstarter/issues/39. Reassess on dependency, glob/context, asset or trust-boundary changes; remove when CDK bundles a compatible patch. Details: docs/security/cdk-bundled-advisories.md."
+    },
+    {
+      "id": "GHSA-qhr7-859c-m2p7",
+      "package": "brace-expansion",
+      "reason": "stack exhaustion from deeply nested brace-group patterns. Checked 2026-10-02: the only affected installed occurrence is aws-cdk-lib 2.272.0 bundled node_modules/aws-cdk-lib/node_modules/brace-expansion 5.0.9. Available CDK update fixes GHSA-rgw5-rvv9-x895; compatible nonbundled leaf overrides install 1.1.21/2.1.7/5.0.12, but npm retains the bundled 5.0.9. Its three CDK callers consume trusted CLI bundling context, developer-authored asset exclusions, or unused developer-authored construct selectors; filenames are match subjects, not patterns. No application request/event supplies a pattern. Actual pipeline assets (three directories/four JS files) and both optional observability handlers exclude CDK/minimatch/brace-expansion. Scope is this installed occurrence, not general CDK safety. Owner CodySwannGT; expires 2026-10-16T23:59:59Z; tracking https://github.com/CodySwannGT/cdkstarter/issues/39. Reassess on dependency, glob/context, asset or trust-boundary changes; remove when CDK bundles a compatible patch. Details: docs/security/cdk-bundled-advisories.md."
+    },
+    {
+      "id": "GHSA-6j4f-fj2g-mc7p",
+      "package": "brace-expansion",
+      "reason": "stack exhaustion from recursively parsed nested comma-list patterns. Checked 2026-10-02: the only affected installed occurrence is aws-cdk-lib 2.272.0 bundled node_modules/aws-cdk-lib/node_modules/brace-expansion 5.0.9. Available CDK update fixes GHSA-rgw5-rvv9-x895; compatible nonbundled leaf overrides install 1.1.21/2.1.7/5.0.12, but npm retains the bundled 5.0.9. Its three CDK callers consume trusted CLI bundling context, developer-authored asset exclusions, or unused developer-authored construct selectors; filenames are match subjects, not patterns. No application request/event supplies a pattern. Actual pipeline assets (three directories/four JS files) and both optional observability handlers exclude CDK/minimatch/brace-expansion. Scope is this installed occurrence, not general CDK safety. Owner CodySwannGT; expires 2026-10-16T23:59:59Z; tracking https://github.com/CodySwannGT/cdkstarter/issues/39. Reassess on dependency, glob/context, asset or trust-boundary changes; remove when CDK bundles a compatible patch. Details: docs/security/cdk-bundled-advisories.md."
+    },
+    {
+      "id": "GHSA-vfj7-8cjw-p6xm",
+      "package": "braces",
+      "reason": "Starter-specific accepted availability/resource-exhaustion risk in development and CI. Reviewed installed root occurrence node_modules/braces 3.0.3: Knip manifest entry/bin patterns and Vite import.meta.glob source patterns from pull requests reach the braces parser; this is affected, not a false positive. No patched release is available in the reviewed registry observations. Owner CodySwannGT explicitly approved this starter risk on 2026-10-04. Manual review deadline 2026-10-16T23:59:59Z is not automatic expiry; tracking https://github.com/CodySwannGT/cdkstarter/issues/39. The audit loader matches GHSA ID only, so package, installed path, owner and review date do not enforce scope. Reassess or remove on dependency graph, caller, manifest/glob input or trust-boundary changes; remove when a compatible patch or tested caller fix becomes available. Copied or forked starters must independently reassess this local acceptance because the copied ID would still match. Details: docs/security/starter-braces-advisory.md."
     }
   ]
 }
