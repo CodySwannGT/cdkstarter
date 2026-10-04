@@ -3,6 +3,7 @@
  *
  * @module test/stacks/support/pipeline-stack.test
  */
+import { rmSync } from "node:fs";
 import * as cdk from "aws-cdk-lib";
 import { Match, Template } from "aws-cdk-lib/assertions";
 import type {
@@ -18,6 +19,18 @@ import {
   PipelineStack,
   shouldAddManualApproval,
 } from "../../../lib/stacks/support/pipeline-stack";
+
+const outputs: string[] = [];
+/** Track each assembly so fail-fast and successful synths both clean up. */
+const createApp = (props?: cdk.AppProps): cdk.App => {
+  const app = new cdk.App(props);
+  outputs.push(app.outdir);
+  return app;
+};
+afterEach(() => {
+  for (const output of outputs.splice(0))
+    rmSync(output, { recursive: true, force: true });
+});
 
 describe("PipelineStack", () => {
   const devEnvironment: StageEnvironment = {
@@ -88,7 +101,10 @@ describe("PipelineStack", () => {
     codeConnectionArn:
       "arn:aws:codestar-connections:us-east-1:999999999999:connection/test-connection",
     deployRoleName: "DeployServiceRole",
-    deployRepoPattern: "*",
+    ownerId: "123456",
+    deployRepositories: [
+      { name: "backend", id: "456789", refs: ["refs/heads/main"] },
+    ],
     migrationRunnerRepo: "backend",
   };
 
@@ -131,7 +147,7 @@ describe("PipelineStack", () => {
   };
 
   const createStack = (props: Partial<typeof defaultProps> = {}): Template => {
-    const app = new cdk.App();
+    const app = createApp();
     const stack = new PipelineStack(app, "TestStack", {
       ...defaultProps,
       ...props,
@@ -156,7 +172,7 @@ describe("PipelineStack", () => {
     });
 
     it("should throw when the connection ARN is a placeholder", () => {
-      const app = new cdk.App();
+      const app = createApp();
 
       expect(
         () =>

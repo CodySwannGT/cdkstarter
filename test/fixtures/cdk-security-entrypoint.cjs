@@ -7,6 +7,12 @@ const { domainConfig } = require("../../config/domains.ts");
 const { githubConfig } = require("../../config/github.ts");
 const { agentOperationsConfig } = require("../../config/agent-operations.ts");
 
+githubConfig.owner = "example";
+githubConfig.ownerId = "123456";
+githubConfig.deployRepositories = [
+  { name: "backend", id: "456789", refs: ["refs/heads/main"] },
+];
+
 const mode = process.argv[2];
 if (!["direct", "pipeline", "frontend-only"].includes(mode)) {
   throw new Error("Expected direct, pipeline, or frontend-only fixture mode");

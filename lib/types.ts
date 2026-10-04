@@ -911,12 +911,22 @@ export interface GitHubConfig {
    */
   readonly deployRoleName: string;
 
-  /**
-   * Repository pattern allowed to assume the deploy role.
-   * "*" allows every repo in the organization; narrow to a specific
-   * repo name to restrict.
-   */
-  readonly deployRepoPattern: string;
+  /** Numeric immutable GitHub owner ID; required when OIDC deployment is enabled. */
+  readonly ownerId?: string;
+
+  /** Explicit repository IDs and exact ref/environment subjects allowed to deploy. */
+  readonly deployRepositories?: readonly {
+    readonly name: string;
+    readonly id: string;
+    readonly refs?: readonly string[];
+    readonly environments?: readonly string[];
+  }[];
+
+  /** Accept matching name-only subjects during a deliberate legacy transition. */
+  readonly allowLegacyDeploySubjects?: boolean;
+
+  /** @deprecated Ignored. Replace with deployRepositories; wildcard trust is rejected. */
+  readonly deployRepoPattern?: string;
 
   /**
    * Optional pre-existing IAM user used by GitHub Actions (legacy

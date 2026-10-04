@@ -68,6 +68,7 @@ export class IamDeployRoleStack extends cdk.Stack {
     super(scope, id, props);
 
     const { github } = props;
+    const subjects = deploymentSubjects(github);
 
     // Account-level service role letting API Gateway push execution logs to
     // CloudWatch. Serverless framework deploys fail without one configured.
@@ -97,7 +98,10 @@ export class IamDeployRoleStack extends cdk.Stack {
     this.deployRole = new GithubActionsRole(this, "DeployServiceRole", {
       provider,
       owner: github.owner,
-      repo: github.deployRepoPattern,
+      repo: github.deployRepositories![0]!.name,
+      ownerId: github.ownerId,
+      repoId: github.deployRepositories![0]!.id,
+      filter: "ref:refs/heads/never-implicitly-allowed",
       roleName: github.deployRoleName,
       description:
         "Deploys application repos from GitHub Actions via OIDC (no stored keys)",
@@ -107,6 +111,29 @@ export class IamDeployRoleStack extends cdk.Stack {
       },
     });
 
+    // Replace the construct's single subject with the validated exact allowlist.
+    const role = this.deployRole.node.defaultChild as iam.CfnRole;
+    role.assumeRolePolicyDocument = new iam.PolicyDocument({
+      statements: [
+        new iam.PolicyStatement({
+          actions: ["sts:AssumeRoleWithWebIdentity"],
+          principals: [
+            new iam.FederatedPrincipal(
+              provider.oidcProviderArn,
+              {},
+              "sts:AssumeRoleWithWebIdentity"
+            ),
+          ],
+          conditions: {
+            StringEquals: {
+              "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
+              "token.actions.githubusercontent.com:sub": subjects,
+            },
+          },
+        }),
+      ],
+    });
+
     new cdk.CfnOutput(this, "DeployRoleArn", {
       value: this.deployRole.roleArn,
       description: "ARN of the GitHub Actions OIDC deploy role",
@@ -114,3 +141,53 @@ export class IamDeployRoleStack extends cdk.Stack {
     });
   }
 }
+
+/**
+ * Validate exact immutable subjects before creating deploy resources.
+ * @param github - Explicit repository identity and filter configuration
+ * @returns Exact allowed OIDC subject strings
+ */
+const deploymentSubjects = (github: GitHubConfig): string[] => {
+  if (
+    !/^[1-9]\d*$/.test(github.ownerId ?? "") ||
+    !/^[A-Za-z0-9-]+$/.test(github.owner)
+  ) {
+    throw new Error(
+      "OIDC deployment requires a valid owner and numeric ownerId"
+    );
+  }
+  if (!github.deployRepositories?.length)
+    throw new Error("OIDC deployment requires explicit deployRepositories");
+  return github.deployRepositories.flatMap(repository => {
+    if (
+      !/^[A-Za-z0-9_.-]+$/.test(repository.name) ||
+      !/^[1-9]\d*$/.test(repository.id)
+    ) {
+      throw new Error(
+        "OIDC deployment requires exact repository names and numeric IDs"
+      );
+    }
+    const filters = [
+      ...(repository.refs ?? []).map(ref => {
+        if (!/^refs\/(heads|tags)\/[^*?:\s]+$/.test(ref))
+          throw new Error("OIDC refs must be exact heads or tags");
+        return `ref:${ref}`;
+      }),
+      ...(repository.environments ?? []).map(environment => {
+        if (!environment.trim() || /[*?\s]/.test(environment))
+          throw new Error("OIDC environments must be exact names");
+        return `environment:${environment.replace(/:/g, "%3A")}`;
+      }),
+    ];
+    if (!filters.length)
+      throw new Error(
+        "OIDC repositories require explicit refs or environments"
+      );
+    return filters.flatMap(filter => [
+      `repo:${github.owner}@${github.ownerId}/${repository.name}@${repository.id}:${filter}`,
+      ...(github.allowLegacyDeploySubjects
+        ? [`repo:${github.owner}/${repository.name}:${filter}`]
+        : []),
+    ]);
+  });
+};
