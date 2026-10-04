@@ -2,6 +2,7 @@
 import * as cdk from "aws-cdk-lib";
 import { Template } from "aws-cdk-lib/assertions";
 import { resolve } from "node:path";
+import { rmSync } from "node:fs";
 import { stageEnvironments } from "../../config/environments";
 import { alarmThresholds } from "../../config/observability";
 import { EnvironmentStage } from "../../lib/stages/environment-stage";
@@ -15,6 +16,12 @@ const bootstrapModule = async () =>
   ).catch(() => ({ bootstrapDatabaseUsers: undefined }));
 
 describe("starter application database access", () => {
+  const outdirs: string[] = [];
+  afterEach(() => {
+    for (const outdir of outdirs.splice(0)) {
+      rmSync(outdir, { recursive: true, force: true });
+    }
+  });
   it("grants only the configured proxy user and application secret, with separate read-only credentials", () => {
     const app = new cdk.App({
       context: {
@@ -24,6 +31,7 @@ describe("starter application database access", () => {
         ],
       },
     });
+    outdirs.push(app.outdir);
     const environment = {
       ...stageEnvironments[0],
       accountId: "111111111111",
