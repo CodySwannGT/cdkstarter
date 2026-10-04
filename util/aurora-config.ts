@@ -1,14 +1,45 @@
 import type { AuroraConfig } from "../lib/types";
 
 /**
+ * Identify dedicated, non-administrative PostgreSQL runtime users.
+ * @param username - Database role name used by runtime grants
+ * @returns Whether the name is a supported runtime identifier
+ */
+export const isRuntimeDatabaseUsername = (username: string): boolean =>
+  /^[a-z][a-z0-9_]{0,62}$/.test(username) &&
+  username !== "clusteradmin" &&
+  !username.startsWith("pg_") &&
+  !username.startsWith("rds_");
+
+/**
+ * Validate optional runtime users before a cluster or runtime role is created.
+ * @param aurora - Configured application and optional read-only usernames
+ */
+const validateAuroraUsernames = (aurora: AuroraConfig): void => {
+  const users = [
+    aurora.applicationUsername ?? "application",
+    ...(aurora.readOnlyUsername !== undefined ? [aurora.readOnlyUsername] : []),
+  ];
+  if (
+    !users.every(isRuntimeDatabaseUsername) ||
+    new Set(users).size !== users.length
+  ) {
+    throw new Error(
+      "Aurora application/read-only usernames must be distinct non-administrative PostgreSQL identifiers."
+    );
+  }
+};
+
+/**
  * Validate the starter's supported Aurora settings before creating resources.
  * @param aurora - Aurora capacity, instance and retention settings
  */
 export const validateAuroraConfig = (aurora: AuroraConfig): void => {
+  const { minCapacity, maxCapacity } = aurora;
+  validateAuroraUsernames(aurora);
   if (!Number.isInteger(aurora.instanceCount) || aurora.instanceCount < 1) {
     throw new Error("Aurora instanceCount must be an integer of at least 1.");
   }
-  const { minCapacity, maxCapacity } = aurora;
   if (
     ![minCapacity, maxCapacity].every(
       value => Number.isFinite(value) && value * 2 === Math.trunc(value * 2)

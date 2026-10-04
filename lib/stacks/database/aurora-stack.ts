@@ -139,24 +139,6 @@ export class AuroraStack extends cdk.Stack {
     this.secret = this.cluster.secret;
     this.applicationUsername = aurora.applicationUsername ?? "application";
     this.readOnlyUsername = aurora.readOnlyUsername;
-    const users = [
-      this.applicationUsername,
-      ...(aurora.readOnlyUsername ? [aurora.readOnlyUsername] : []),
-    ];
-    if (
-      users.some(
-        user =>
-          !/^[a-z][a-z0-9_]{0,62}$/.test(user) ||
-          user === "clusteradmin" ||
-          user.startsWith("pg_") ||
-          user.startsWith("rds_")
-      ) ||
-      new Set(users).size !== users.length
-    ) {
-      throw new Error(
-        "Aurora application/read-only usernames must be distinct non-administrative PostgreSQL identifiers."
-      );
-    }
     this.applicationSecret = new secretsmanager.Secret(
       this,
       "ApplicationCredentials",

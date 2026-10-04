@@ -93,8 +93,10 @@ describe("Aurora saturation alarm contract", () => {
       );
       expect(alarms).toHaveLength(2);
       expect(
-        alarms.map(([, alarm]) => alarm.Properties.Threshold).sort()
-      ).toEqual([ceiling * 0.8, ceiling * 0.9].sort());
+        alarms
+          .map(([, alarm]) => alarm.Properties.Threshold)
+          .sort((left, right) => left - right)
+      ).toEqual([ceiling * 0.8, ceiling * 0.9]);
       alarms.forEach(([, alarm]) => {
         expect(alarm.Properties.ComparisonOperator).toBe(
           "GreaterThanOrEqualToThreshold"
@@ -127,13 +129,19 @@ describe("Aurora saturation alarm contract", () => {
       expect(alarm.Properties.TreatMissingData).toBe("notBreaching");
     });
   });
-  it("uses configured capacity percentages independently of unrelated storage GB", () => {
-    expect(
-      capacityAlarms(synth(32, false, 75, 95))
-        .map(([, alarm]) => alarm.Properties.Threshold)
-        .sort()
-    ).toEqual([24, 30.4]);
-  });
+  it.each([
+    [32, 75, 95, [24, 30.4]],
+    [10, 90, 100, [9, 10]],
+  ] as const)(
+    "orders capacity thresholds numerically for %s ACUs with %s/%s percentages",
+    (ceiling, warning, critical, expected) => {
+      expect(
+        capacityAlarms(synth(ceiling, false, warning, critical))
+          .map(([, alarm]) => alarm.Properties.Threshold)
+          .sort((left, right) => left - right)
+      ).toEqual(expected);
+    }
+  );
   it.each([
     [80, 80],
     [90, 80],

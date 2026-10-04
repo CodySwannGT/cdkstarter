@@ -3,6 +3,7 @@
  *
  * @module test/stacks/auth/iam-stack.test
  */
+import { rmSync } from "node:fs";
 import * as cdk from "aws-cdk-lib";
 import { Match, Template } from "aws-cdk-lib/assertions";
 import * as rds from "aws-cdk-lib/aws-rds";
@@ -10,6 +11,12 @@ import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager";
 import { IamStack } from "../../../lib/stacks/auth/iam-stack";
 
 describe("IamStack", () => {
+  const outdirs: string[] = [];
+  afterEach(() => {
+    outdirs
+      .splice(0)
+      .forEach(outdir => rmSync(outdir, { recursive: true, force: true }));
+  });
   const defaultProps = {
     stageName: "test",
     databaseProxyArn:
@@ -24,6 +31,7 @@ describe("IamStack", () => {
 
   const createStack = (props: Partial<typeof defaultProps> = {}): Template => {
     const app = new cdk.App();
+    outdirs.push(app.outdir);
     const imports = new cdk.Stack(app, "Imports", { env: defaultProps.env });
     const stack = new IamStack(app, "TestStack", {
       ...defaultProps,
@@ -46,6 +54,23 @@ describe("IamStack", () => {
     });
     return Template.fromStack(stack);
   };
+
+  it.each([
+    "",
+    "*",
+    "clusteradmin",
+    "pg_operator",
+    "rds_operator",
+    "A_user",
+    "a".repeat(64),
+  ])(
+    "rejects unsupported runtime usernames before IAM grants: %s",
+    applicationUsername => {
+      expect(() => createStack({ applicationUsername })).toThrow(
+        /Runtime IAM requires a specific non-administrative database username/
+      );
+    }
+  );
 
   describe("Lambda Execution Role", () => {
     it("should create Lambda execution role", () => {

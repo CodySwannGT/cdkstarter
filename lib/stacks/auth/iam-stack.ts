@@ -35,6 +35,7 @@ import * as iam from "aws-cdk-lib/aws-iam";
 import type * as rds from "aws-cdk-lib/aws-rds";
 import type * as secretsmanager from "aws-cdk-lib/aws-secretsmanager";
 import type { Construct } from "constructs";
+import { isRuntimeDatabaseUsername } from "../../../util/aurora-config";
 
 /**
  * Configuration properties for IamStack.
@@ -95,12 +96,7 @@ export class IamStack extends cdk.Stack {
       cognitoUserPoolArn,
     } = props;
 
-    if (
-      !/^[a-z][a-z0-9_]{0,62}$/.test(applicationUsername) ||
-      applicationUsername === "clusteradmin" ||
-      applicationUsername.startsWith("pg_") ||
-      applicationUsername.startsWith("rds_")
-    ) {
+    if (!isRuntimeDatabaseUsername(applicationUsername)) {
       throw new Error(
         "Runtime IAM requires a specific non-administrative database username."
       );

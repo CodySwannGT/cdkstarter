@@ -117,6 +117,42 @@ describe("starter configuration contract", () => {
     }
   });
 
+  it.each([
+    { applicationUsername: "" },
+    { applicationUsername: "*" },
+    { applicationUsername: "clusteradmin" },
+    { applicationUsername: "pg_operator" },
+    { applicationUsername: "rds_operator" },
+    { applicationUsername: "A_user" },
+    { applicationUsername: "a".repeat(64) },
+    { readOnlyUsername: "" },
+    { readOnlyUsername: "clusteradmin" },
+    { readOnlyUsername: "pg_reader" },
+    { readOnlyUsername: "application" },
+    { applicationUsername: "app_user", readOnlyUsername: "app_user" },
+  ])(
+    "rejects invalid runtime database usernames before synthesis: %j",
+    users => {
+      const base = environment();
+      expect(() =>
+        validate([{ ...base, aurora: { ...base.aurora, ...users } }])
+      ).toThrow(/Aurora.*usernames/);
+    }
+  );
+
+  it("accepts default, distinct and maximum-length runtime database usernames", () => {
+    const base = environment();
+    for (const users of [
+      {},
+      { applicationUsername: "app_user", readOnlyUsername: "reader_user" },
+      { applicationUsername: "a".repeat(63), readOnlyUsername: "r".repeat(63) },
+    ]) {
+      expect(() =>
+        validate([{ ...base, aurora: { ...base.aurora, ...users } }])
+      ).not.toThrow();
+    }
+  });
+
   it("renders an explicit engine and three unique instances while preserving the writer and first-reader identities", () => {
     const base = environment();
     const two = template(
