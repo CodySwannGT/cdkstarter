@@ -84,10 +84,19 @@ and security-group references inside one cloud assembly. CI/CD and shared-accoun
 stages stay separate. Frontend-only environments use the same composition with
 their backend features disabled.
 
-For existing direct consumers, assembly selections change from
+For existing direct consumers, Stage IDs change from
 `<environment>-network`, `<environment>-app` and `<environment>-observability` to
-`Env-<environment>`. Explicit CloudFormation stack names remain the same. Review
-`cdk list` and `cdk diff` before adopting this change: CDK paths/metadata,
+`Env-<environment>`. Select the nested stacks with a quoted pattern such as
+`'Env-dev/*'`, rather than the Stage ID alone:
+
+```sh
+npx cdk list
+npx cdk diff 'Env-dev/*'
+npx cdk deploy 'Env-dev/*'
+```
+
+Explicit CloudFormation stack names remain the same. Review `cdk list` and
+`cdk diff` before adopting this change: CDK paths/metadata,
 scope-derived Name tags (including VPCs, subnets and SSM launch templates),
 generated logical IDs (including security-group ingress rules and an Aurora
 secret) and cross-stack imports/exports can differ even when physical stack names

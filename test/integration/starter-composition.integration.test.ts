@@ -109,6 +109,12 @@ describe("starter entrypoint composition", () => {
             .map(([id, artifact]) => artifact.properties?.stackName ?? id)
         );
 
+        const stackPaths = manifests.flatMap(manifest =>
+          Object.values(manifest.artifacts).map(
+            artifact => artifact.displayName
+          )
+        );
+
         expect(templates.length).toBeGreaterThan(0);
         expect(resourceTypes.length).toBeGreaterThan(0);
         manifests.forEach(manifest =>
@@ -117,6 +123,7 @@ describe("starter entrypoint composition", () => {
 
         if (mode === "frontend-only") {
           expect(stackNames).toEqual(["dev-amplify-hosting"]);
+          expect(stackPaths).toContain("Env-dev/AmplifyHostingStack");
           expect(resourceTypes).toContain("AWS::Amplify::App");
           expect(resourceTypes).not.toContain("AWS::EC2::VPC");
           expect(resourceTypes).not.toContain("AWS::RDS::DBCluster");
@@ -154,11 +161,6 @@ describe("starter entrypoint composition", () => {
           expect(resourceTypes).toContain("AWS::RDS::DBCluster");
           const stagePrefix =
             mode === "pipeline" ? "PipelineStack/Env-dev" : "Env-dev";
-          const stackPaths = manifests.flatMap(manifest =>
-            Object.values(manifest.artifacts).map(
-              artifact => artifact.displayName
-            )
-          );
           expect(stackPaths).toEqual(
             expect.arrayContaining([
               `${stagePrefix}/VpcStack`,
