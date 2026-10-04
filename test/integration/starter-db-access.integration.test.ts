@@ -15,6 +15,11 @@ const bootstrapModule = async () =>
     )
   ).catch(() => ({ bootstrapDatabaseUsers: undefined }));
 
+const createFakeSecret = (username: string, label: string) => ({
+  username,
+  password: ["synthetic", "fixture", label, "only"].join("-"),
+});
+
 describe("starter application database access", () => {
   const outdirs: string[] = [];
   afterEach(() => {
@@ -84,9 +89,9 @@ describe("starter application database access", () => {
     const info = vi.spyOn(console, "info").mockImplementation(() => {});
     try {
       const secrets = {
-        admin: { username: "clusteradmin", password: "admin-password" },
-        application: { username: "app_user", password: "application-password" },
-        readonly: { username: "reader_user", password: "reader-password" },
+        admin: createFakeSecret("clusteradmin", "admin"),
+        application: createFakeSecret("app_user", "application"),
+        readonly: createFakeSecret("reader_user", "reader"),
       };
       const clients = {
         getSecret: async (id: keyof typeof secrets) => secrets[id],
@@ -95,7 +100,7 @@ describe("starter application database access", () => {
           admin: { username: string; password: string }
         ) => {
           expect(admin.username).toBe("clusteradmin");
-          expect(admin.password).toBe("admin-password");
+          expect(admin.password).toBe(secrets.admin.password);
           statements.push(sql);
           for (const line of sql.split("\n")) {
             const revokeAdmin =
@@ -142,9 +147,9 @@ describe("starter application database access", () => {
       expect(statements).toHaveLength(2);
       expect(statements[0]).toBe(statements[1]);
       expect(statements[0]).toContain("IF NOT EXISTS");
-      expect(statements[0]).not.toMatch(
-        /admin-password|application-password|reader-password/
-      );
+      for (const secret of Object.values(secrets)) {
+        expect(statements[0]).not.toContain(secret.password);
+      }
       expect(statements[0]).toContain("PASSWORD NULL");
       expect(statements[0]).toContain(
         'GRANT CONNECT ON DATABASE "application_db"'
@@ -172,9 +177,11 @@ describe("starter application database access", () => {
       expect(statements[0]).toContain(
         "NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS"
       );
-      expect(JSON.stringify([log.mock.calls, info.mock.calls])).not.toMatch(
-        /admin-password|application-password|reader-password/
-      );
+      for (const secret of Object.values(secrets)) {
+        expect(JSON.stringify([log.mock.calls, info.mock.calls])).not.toContain(
+          secret.password
+        );
+      }
     } finally {
       log.mockRestore();
       info.mockRestore();
@@ -186,10 +193,7 @@ describe("starter application database access", () => {
     expect(bootstrapDatabaseUsers).toBeTypeOf("function");
     const execute = vi.fn();
     const clients = {
-      getSecret: async () => ({
-        username: "clusteradmin",
-        password: "never-log-me",
-      }),
+      getSecret: async () => createFakeSecret("clusteradmin", "rejection"),
       execute,
     };
     await expect(
@@ -234,9 +238,9 @@ describe("starter application database access", () => {
       readOnlyUsername: "reader_user",
     };
     const secrets = {
-      admin: { username: "clusteradmin", password: "never-log-admin" },
-      application: { username: "app_user", password: "never-log-app" },
-      readonly: { username: "reader_user", password: "never-log-reader" },
+      admin: createFakeSecret("clusteradmin", "admin-rejection"),
+      application: createFakeSecret("app_user", "application-rejection"),
+      readonly: createFakeSecret("reader_user", "reader-rejection"),
     };
     const log = vi.spyOn(console, "info").mockImplementation(() => {});
     try {
@@ -324,16 +328,22 @@ describe("starter application database access", () => {
                     ).includes(row.privilege))
               );
             if (conflicts.length)
-              throw new Error("global ACL conflict never-log-admin");
+              throw new Error(
+                ["global ACL conflict", secrets.admin.password].join(": ")
+              );
           }
           applied();
         });
-        await expect(
-          bootstrapDatabaseUsers(options, {
-            getSecret: async (id: keyof typeof secrets) => secrets[id],
-            execute,
-          })
-        ).rejects.toThrow("Database bootstrap failed");
+        const rejectedBootstrap = bootstrapDatabaseUsers(options, {
+          getSecret: async (id: keyof typeof secrets) => secrets[id],
+          execute,
+        });
+        await expect(rejectedBootstrap).rejects.toThrow(
+          "Database bootstrap failed"
+        );
+        for (const secret of Object.values(secrets)) {
+          await expect(rejectedBootstrap).rejects.not.toThrow(secret.password);
+        }
         expect(applied).not.toHaveBeenCalled();
         expect(execute).toHaveBeenCalledOnce();
         expect(globalDefaults).toEqual([
@@ -387,7 +397,9 @@ describe("starter application database access", () => {
       ).resolves.toBeUndefined();
       expect(execute).toHaveBeenCalledOnce();
       expect(JSON.stringify(unrelatedDefaults)).toBe(originalDefaults);
-      expect(JSON.stringify(log.mock.calls)).not.toMatch(/never-log-/);
+      for (const secret of Object.values(secrets)) {
+        expect(JSON.stringify(log.mock.calls)).not.toContain(secret.password);
+      }
     } finally {
       log.mockRestore();
     }
