@@ -301,6 +301,32 @@ describe("optional SMS account spend controller", () => {
       core().recover(enforce, { account, region, limit: 80 }, f.deps)
     ).rejects.toThrow("manual-reconciliation");
   });
+  it("rejects reconciliation outside an exact pending recovery without mutation", async () => {
+    const f = fixture();
+    await core().evaluate(enforce, f.deps);
+    for (const status of [
+      "TRIPPED",
+      "READY",
+      "TRIPPING",
+      "NEEDS_RECONCILIATION",
+      "RECOVERING",
+    ]) {
+      f.state.value = { ...f.state.value, status };
+      const retained = structuredClone(f.state.value);
+      const mutations = f.deps.setPreference.mock.calls.length;
+      const writes = f.deps.store.compareAndSet.mock.calls.length;
+      await expect(
+        core().recover(
+          enforce,
+          { account, region, limit: 80, reconcile: true },
+          f.deps
+        )
+      ).rejects.toThrow("manual-reconciliation");
+      expect(f.state.value).toEqual(retained);
+      expect(f.deps.setPreference.mock.calls).toHaveLength(mutations);
+      expect(f.deps.store.compareAndSet.mock.calls).toHaveLength(writes);
+    }
+  });
   it("sends an exact tiny positive target once and reports service rejection without an invented floor", async () => {
     const f = fixture({
       samples: samples(0.00000002).map((point, index) => ({

@@ -361,12 +361,15 @@ const recover = async (config, request, deps) => {
     throw new Error("recovery-identity-or-ceiling-invalid");
   }
   const current = await currentPreference(deps);
-  if (
-    state.status === "RECOVERING" &&
-    request.reconcile === true &&
-    state.targetLimit === limit &&
-    current === limit
-  ) {
+  if (request.reconcile === true) {
+    if (
+      state.status !== "RECOVERING" ||
+      state.targetLimit !== limit ||
+      current !== limit
+    )
+      throw new Error(
+        "manual-reconciliation-required; recovery-readback-mismatch"
+      );
     const saved = await transition(deps, state, {
       status: "READY",
       notificationPending: false,
