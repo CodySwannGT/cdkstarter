@@ -8,6 +8,7 @@
  */
 import * as amplify from "@aws-cdk/aws-amplify-alpha";
 import * as cdk from "aws-cdk-lib";
+import * as amplifyResources from "aws-cdk-lib/aws-amplify";
 import * as codebuild from "aws-cdk-lib/aws-codebuild";
 import * as events from "aws-cdk-lib/aws-events";
 import * as targets from "aws-cdk-lib/aws-events-targets";
@@ -69,11 +70,9 @@ export class AmplifyHostingStack extends cdk.Stack {
             status: rule.status as amplify.RedirectStatus,
           })
       ),
-      customResponseHeaders: hosting.customHeaders?.map(group => ({
-        pattern: group.pattern,
-        headers: { ...group.headers },
-      })),
     });
+
+    this.createCustomHeaders(hosting);
 
     this.branch = this.app.addBranch("SourceBranch", {
       branchName: hosting.branch,
@@ -87,6 +86,24 @@ export class AmplifyHostingStack extends cdk.Stack {
     this.domain = this.createDomain(hosting);
     this.createOutputs(stageName);
     this.createBuildFailureNotifications(hosting);
+  }
+
+  /**
+   * Render opt-in headers with a YAML serializer rather than alpha's string interpolation.
+   * @param hosting - Validated explicit header groups
+   */
+  private createCustomHeaders(hosting: AmplifyHostingConfig): void {
+    if (!hosting.customHeaders?.length) return;
+    const resource = this.app.node.defaultChild as amplifyResources.CfnApp;
+    resource.customHeaders = codebuild.BuildSpec.fromObjectToYaml({
+      customHeaders: hosting.customHeaders.map(group => ({
+        pattern: group.pattern,
+        headers: Object.entries(group.headers).map(([key, value]) => ({
+          key,
+          value,
+        })),
+      })),
+    }).toBuildSpec(this);
   }
 
   /**

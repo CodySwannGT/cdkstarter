@@ -2,7 +2,7 @@
 import type { AmplifyCustomRule, AmplifyHostingConfig } from "../lib/types";
 
 /** AWS SPA pattern extended to preserve real exported HTML callbacks. */
-export const SPA_FALLBACK_SOURCE = String.raw`</^[^.]+$|\.(?!(css|gif|html|ico|jpg|jpeg|js|json|map|otf|png|svg|ttf|txt|webp|webmanifest|woff2?)$)([^.]+$)/>`;
+export const SPA_FALLBACK_SOURCE = String.raw`</^[^.]+$|\.(?!(css|gif|htm|html|ico|jpg|jpeg|js|json|map|otf|png|svg|ttf|txt|webp|webmanifest|woff2?)$)([^.]+$)/>`;
 const statuses = new Set(["200", "301", "302", "404", "404-200"]);
 const multiline = /[\r\n\0\u2028\u2029]/;
 const headerName = /^[!#$%&'*+.^_`|~\da-z-]+$/i;

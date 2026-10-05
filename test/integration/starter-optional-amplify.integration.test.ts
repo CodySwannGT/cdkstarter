@@ -8,7 +8,7 @@ import { stageEnvironments } from "../../config/environments";
 import { dashboardWidgets } from "../../config/observability";
 import { validateConfiguration } from "../../util/config-loader";
 
-const fallback = String.raw`</^[^.]+$|\.(?!(css|gif|html|ico|jpg|jpeg|js|json|map|otf|png|svg|ttf|txt|webp|webmanifest|woff2?)$)([^.]+$)/>`;
+const fallback = String.raw`</^[^.]+$|\.(?!(css|gif|htm|html|ico|jpg|jpeg|js|json|map|otf|png|svg|ttf|txt|webp|webmanifest|woff2?)$)([^.]+$)/>`;
 const topic = "arn:aws:sns:us-east-1:111111111111:frontend-builds";
 const hosting = {
   owner: "example",
@@ -164,6 +164,43 @@ describe("optional Amplify hosting", () => {
       ],
     });
   });
+  it.each([
+    {
+      pattern: "/downloads/*",
+      headers: { "Content-Disposition": 'attachment; filename="report.json"' },
+    },
+    {
+      pattern: '/assets/"quoted"/*',
+      headers: { "X-Path": "C:\\reports\\files" },
+    },
+  ])("roundtrips valid quoted/backslash custom header YAML %j", group => {
+    const headers = properties(
+      render({ customHeaders: [group] }),
+      "AWS::Amplify::App"
+    ).CustomHeaders;
+    expect(load(headers)).toEqual({
+      customHeaders: [
+        {
+          pattern: group.pattern,
+          headers: Object.entries(group.headers).map(([key, value]) => ({
+            key,
+            value,
+          })),
+        },
+      ],
+    });
+  });
+
+  it("preserves a real HTM callback from the SPA fallback", () => {
+    const rules = properties(
+      render({ spaFallback: { enabled: true } }),
+      "AWS::Amplify::App"
+    ).CustomRules;
+    expect(
+      new RegExp(rules[0].Source.slice(2, -2)).test("/auth/callback.htm")
+    ).toBe(false);
+  });
+
   it.each(["307", "500", "bad"])(
     "rejects unsupported redirect status %s at config and constructor boundaries",
     status => {

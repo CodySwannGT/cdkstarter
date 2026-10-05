@@ -43,7 +43,7 @@ amplifyHosting: {
 
 SPA fallback defaults off. When enabled, it appends a `200` rewrite to
 `/index.html` after the ordered explicit rules. The pattern excludes known
-static extensions including `html`, so a real `/auth/callback.html` asset is
+static extensions including `htm` and `html`, so a real `/auth/callback.html` asset is
 served normally. An explicit rule with the same source pattern, destination,
 status and no condition suppresses the appended duplicate. Other caller rules
 are preserved exactly. Explicit rules work even when SPA fallback is off.
@@ -51,6 +51,7 @@ are preserved exactly. Explicit rules work even when SPA fallback is off.
 The supported statuses are `200`, `301`, `302`, `404` and `404-200`. Source,
 target and optional country condition must be nonempty single-line strings.
 Header names must be HTTP token names and values must be single-line strings.
+Header YAML is serialized so quoted values and backslashes roundtrip unchanged.
 Headers are rendered into Amplify's `CustomHeaders` property for their exact
 caller-defined patterns, separate from the build specification. No CSP or
 other security policy is selected implicitly. A frontend `customHttp.yml`
