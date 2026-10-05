@@ -326,3 +326,5 @@ Optional Amplify routing, response headers and scoped failed-build notifications
 are documented in [Amplify hosting](docs/amplify-hosting.md). These additions default off.
 
 Optional standard queues, DLQs and existing Lambda workers: [configuration and operational contract](docs/queues.md).
+
+Optional GraphQL operation alarms and explicit cause grouping are described in [the backend metric contract and setup guide](docs/setup/graphql-monitoring.md).

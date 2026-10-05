@@ -75,6 +75,9 @@ export interface SnsStackProps extends cdk.StackProps {
    * Requires `sentryDsn` — the events ride the same forwarder Lambda.
    */
   readonly backupFailureAlerts?: boolean;
+
+  /** Opt-in explicit alarm-cause grouping in the existing forwarder. */
+  readonly causeGrouping?: boolean;
 }
 
 /**
@@ -140,7 +143,11 @@ export class SnsStack extends cdk.Stack {
     this.infoTopic = this.createTopic(stageName, "info", infoEmails, topicKey);
 
     if (sentryDsn) {
-      const forwarder = this.createSentryForwarder(stageName, sentryDsn);
+      const forwarder = this.createSentryForwarder(
+        stageName,
+        sentryDsn,
+        props.causeGrouping
+      );
       if (props.backupFailureAlerts) {
         new events.Rule(this, "BackupFailureRule", {
           description: `${stageName}: forward failed AWS Backup jobs to Sentry`,
@@ -162,11 +169,13 @@ export class SnsStack extends cdk.Stack {
    * subscribes it to all three severity topics.
    * @param stageName - Stage name (becomes the Sentry environment tag)
    * @param sentryDsn - The Sentry DSN (publishable client key) to send events to
+   * @param causeGrouping - Enable explicit cause metadata fingerprints
    * @returns The forwarder function, reusable as an EventBridge target
    */
   private createSentryForwarder(
     stageName: string,
-    sentryDsn: string
+    sentryDsn: string,
+    causeGrouping?: boolean
   ): lambda.Function {
     const forwarder = new lambda.Function(this, "SentryForwarder", {
       runtime: lambda.Runtime.NODEJS_20_X,
@@ -176,6 +185,7 @@ export class SnsStack extends cdk.Stack {
       environment: {
         SENTRY_DSN: sentryDsn,
         STAGE: stageName,
+        ...(causeGrouping ? { CAUSE_GROUPING: "true" } : {}),
       },
       logGroup: new logs.LogGroup(this, "SentryForwarderLogs", {
         retention: logs.RetentionDays.ONE_MONTH,

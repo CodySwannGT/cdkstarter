@@ -31,6 +31,7 @@
 import { getDnsDelegations } from "./dns-delegation";
 import { validateAmplifyHosting } from "./amplify-hosting";
 import { validateQueues } from "./queues";
+import { validateGraphqlMonitoring } from "./graphql-monitoring";
 import { validateAuroraConfig } from "./aurora-config";
 import { agentOperationsConfig } from "../config/agent-operations";
 import { domainConfig } from "../config/domains";
@@ -197,6 +198,15 @@ export const validateConfiguration = (
     dashboardWidgets,
   }
 ): void => {
+  for (const stage of input.stages) {
+    if (
+      validateGraphqlMonitoring(stage.observability.graphqlMonitoring) &&
+      stage.features.observability === false
+    )
+      throw new ConfigurationError(
+        "graphqlMonitoring requires features.observability enabled."
+      );
+  }
   validateEnvironmentContracts(
     input.stages,
     input.supports,
@@ -239,6 +249,7 @@ export const findObservabilityConfigErrors = (
       canaryIntervalMinutes,
       sentryDsn,
       backupFailureAlerts,
+      causeGrouping,
       costAnomalyThresholdUsd,
     } = env.observability;
     return [
@@ -252,6 +263,12 @@ export const findObservabilityConfigErrors = (
         ? [
             `Stage "${env.name}" has an invalid observability.sentryDsn — ` +
               "expected a URL like https://<key>@<org>.ingest.sentry.io/<project>.",
+          ]
+        : []),
+      ...(causeGrouping &&
+      (sentryDsn === undefined || env.features.observability === false)
+        ? [
+            `Stage "${env.name}" sets observability.causeGrouping but needs sentryDsn and enabled observability.`,
           ]
         : []),
       ...(backupFailureAlerts && sentryDsn === undefined

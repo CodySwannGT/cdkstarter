@@ -233,6 +233,39 @@ export interface ValkeyConfig {
   readonly numCacheNodes: number;
 }
 
+/** Caller-owned GraphQL custom-metric monitoring contract. */
+export interface GraphqlMonitoringConfig {
+  /** Only explicit true enables monitoring. */
+  readonly enabled?: boolean;
+  /** Backend-published CloudWatch namespace. */
+  readonly namespace: string;
+  /** Exact value of the backend's Stage metric dimension. */
+  readonly stageDimension: string;
+  /** Positive invocation count required in each five-minute interval. */
+  readonly minimumInvocations: number;
+  /** Error percentages (0..100), warning strictly below critical. */
+  readonly errorRatePercent: {
+    readonly warning: number;
+    readonly critical: number;
+  };
+  /** Duration thresholds in milliseconds, warning strictly below critical. */
+  readonly latencyMilliseconds: {
+    readonly warning: number;
+    readonly critical: number;
+  };
+  /** Caller-selected Duration latency statistic. */
+  readonly latencyStatistic: "Average" | "Maximum" | "p95" | "p99";
+  /** Explicit caller manifest; the starter supplies no application operations. */
+  readonly operations: readonly {
+    /** GraphQL operation name. */
+    readonly name: string;
+    /** Exact OperationType metric dimension. */
+    readonly type: "query" | "mutation";
+    /** Public operations include all traffic, including anonymous calls. */
+    readonly public: boolean;
+  }[];
+}
+
 /**
  * Monitoring and alerting configuration for an environment.
  *
@@ -241,6 +274,10 @@ export interface ValkeyConfig {
  * mean time to detection (MTTD) for incidents.
  */
 export interface ObservabilityConfig {
+  /** Default-off GraphQL custom metric alarms. */
+  readonly graphqlMonitoring?: GraphqlMonitoringConfig;
+  /** Default-off explicit cause metadata grouping in the Sentry forwarder. */
+  readonly causeGrouping?: boolean;
   /**
    * Email addresses to receive alarm notifications.
    * Empty array disables email notifications.

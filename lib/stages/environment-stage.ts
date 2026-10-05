@@ -37,6 +37,8 @@ import {
   delegateChildZone,
   DnsDelegationStack,
 } from "../stacks/support/dns-delegation-stack";
+import { validateGraphqlMonitoring } from "../../util/graphql-monitoring";
+import { GraphqlAlarmsStack } from "../stacks/observability/graphql-alarms-stack";
 import { resolveCdnForStage } from "../../util/cdn";
 import { CognitoStack } from "../stacks/auth/cognito-stack";
 import { CdnStack } from "../stacks/edge/cdn-stack";
@@ -136,6 +138,13 @@ export class EnvironmentStage extends cdk.Stage {
           entry.trustedChildAccountIds.includes(environment.accountId)
         )
       : [];
+    const graphql = validateGraphqlMonitoring(
+      environment.observability.graphqlMonitoring
+    );
+    if (graphql && features.observability === false)
+      throw new Error(
+        "graphqlMonitoring requires features.observability enabled."
+      );
 
     // --- Network (optional) ----------------------------------------------
     if (features.network !== false) {
@@ -381,10 +390,22 @@ export class EnvironmentStage extends cdk.Stage {
       infoEmails: [],
       sentryDsn: observability.sentryDsn,
       backupFailureAlerts: observability.backupFailureAlerts,
+      causeGrouping: observability.causeGrouping,
       stackName: `${stageName}-sns`,
     });
 
     const allAlarms: cloudwatch.Alarm[] = [];
+    if (observability.graphqlMonitoring?.enabled === true) {
+      const graphqlStack = new GraphqlAlarmsStack(this, "GraphqlAlarmsStack", {
+        stageName,
+        config: observability.graphqlMonitoring,
+        warningTopic: snsStack.warningTopic,
+        criticalTopic: snsStack.criticalTopic,
+        stackName: `${stageName}-graphql-alarms`,
+      });
+      graphqlStack.addDependency(snsStack);
+      allAlarms.push(...graphqlStack.alarms);
+    }
 
     if (observability.canaryUrls?.length) {
       const canaryStack = new CanaryStack(this, "CanaryStack", {

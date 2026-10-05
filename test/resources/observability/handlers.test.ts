@@ -142,11 +142,11 @@ describe("Sentry deployed forwarder", () => {
     }
   );
   it.each([
-    new TypeError("network unavailable"),
-    new DOMException("request timed out", "TimeoutError"),
+    [new TypeError("network unavailable"), "network"],
+    [new DOMException("request timed out", "TimeoutError"), "timeout"],
   ])(
     "propagates transport failure %s and accepts an external reinvocation",
-    async error => {
+    async (error, category) => {
       const handler = load("sentry-forwarder");
       const event = sns({
         source: "aws.backup",
@@ -160,7 +160,9 @@ describe("Sentry deployed forwarder", () => {
         },
       });
       vi.mocked(fetch).mockRejectedValueOnce(error);
-      await expect(handler.handler(event)).rejects.toBe(error);
+      await expect(handler.handler(event)).rejects.toThrow(
+        `Sentry transport failed (${category})`
+      );
       expect(fetch).toHaveBeenCalledTimes(1);
       expect(await handler.handler(event)).toEqual({ forwarded: 1 });
       expect(fetch).toHaveBeenCalledTimes(2);
@@ -181,7 +183,7 @@ describe("Sentry deployed forwarder", () => {
     });
     vi.mocked(fetch).mockResolvedValueOnce(response(false, 429));
     await expect(handler.handler(event)).rejects.toThrow(
-      "Sentry responded 429"
+      "Sentry ingestion failed (HTTP 429)"
     );
     expect(fetch).toHaveBeenCalledTimes(1);
     expect(await handler.handler(event)).toEqual({ forwarded: 1 });
@@ -315,7 +317,7 @@ describe("Sentry deployed forwarder", () => {
     vi.mocked(fetch).mockResolvedValue(response(false, 429));
     await expect(
       load("sentry-forwarder").handler(sns("alert"))
-    ).rejects.toThrow("Sentry responded 429: rejected");
+    ).rejects.toThrow("Sentry ingestion failed (HTTP 429)");
     vi.stubEnv("SENTRY_DSN", "invalid");
     await expect(
       load("sentry-forwarder").handler(sns("alert"))
