@@ -488,6 +488,36 @@ export interface AmplifyCustomHeaders {
   readonly headers: Readonly<Record<string, string>>;
 }
 
+/** Identifier-only source/destination mapping. No secret values belong here. */
+export interface SecretCopyMapping {
+  /** Unique caller-owned mapping key. */
+  readonly key: string;
+  /** Absolute SSM parameter name in the owning account and region. */
+  readonly parameterName: string;
+  /** Complete destination secret ARN, including its six-character suffix. */
+  readonly secretArn: string;
+  /** Customer-managed source key, when the SecureString uses one. */
+  readonly sourceKeyArn?: string;
+  /** Customer-managed destination key, when the secret uses one. */
+  readonly targetKeyArn?: string;
+}
+
+/** Default-off metadata-only secret delivery. */
+export interface SecretCopyConfig {
+  /** Nonempty uniquely keyed mappings to existing secrets. */
+  readonly mappings: readonly SecretCopyMapping[];
+  /** Subscribe to exact parameter Create/Update events; defaults false. */
+  readonly synchronizeChanges?: boolean;
+}
+
+/** Generic named-command adapter, with its version only in the tool manifest. */
+export interface AmplifyBuildTool {
+  /** npm package providing the executable. */
+  readonly packageName: string;
+  /** Executable name whose --version returns the exact pin (optionally prefixed v). */
+  readonly executable: string;
+}
+
 /**
  * Configuration for a static frontend hosted by AWS Amplify Hosting.
  *
@@ -510,6 +540,9 @@ export interface AmplifyHostingConfig {
 
   /** Optional custom domain. The Amplify default domain is used when absent. */
   readonly customDomain?: string;
+
+  /** Explicit executable selections, versioned only in config/amplify-build-tools. */
+  readonly buildTools?: readonly AmplifyBuildTool[];
 
   /** Commands run before the frontend build. */
   readonly preBuildCommands?: readonly string[];
@@ -662,6 +695,8 @@ export interface StageEnvironment {
 
   /** Optional generic queues, DLQs and existing worker bindings. */
   readonly queues?: QueuesConfig;
+  /** Optional secret copying to existing same-account, same-region secrets. */
+  readonly secretCopy?: SecretCopyConfig;
 }
 
 /**

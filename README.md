@@ -207,6 +207,11 @@ full-stack starter behavior. Network-dependent features are rejected when
 `network` is false. Amplify build commands, artifact directory, environment
 variables, and custom domain are independently configurable.
 
+The ordinary Amplify defaults use `npm ci` and `npm run build`. Caller command
+arrays remain explicit overrides. [Exact optional executable pins](config/amplify-build-tools/README.md)
+replace downloaded CLI defaults. [Optional secret copying](docs/modules/secret-copy.md)
+uses same-account identifier mappings and stays absent until configured.
+
 ### Diff Against Deployed Stacks
 
 > Ask Claude: "Run CDK diff to show what changes would be deployed compared to the current stacks."

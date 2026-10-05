@@ -17,6 +17,7 @@ import {
   amplifyCustomRules,
   validateAmplifyHosting,
 } from "../../../util/amplify-hosting";
+import { renderBuildToolCommands } from "../../../util/amplify-build-tools";
 import type { Construct } from "constructs";
 import type { AmplifyHostingConfig } from "../../types";
 
@@ -146,14 +147,12 @@ export class AmplifyHostingStack extends cdk.Stack {
         phases: {
           preBuild: {
             commands: [
-              ...(hosting.preBuildCommands ?? [
-                "npm install -g bun",
-                "bun install --frozen-lockfile",
-              ]),
+              ...renderBuildToolCommands(hosting.buildTools),
+              ...(hosting.preBuildCommands ?? ["npm ci"]),
             ],
           },
           build: {
-            commands: [...(hosting.buildCommands ?? ["bun run export:web"])],
+            commands: [...(hosting.buildCommands ?? ["npm run build"])],
           },
         },
         artifacts: {

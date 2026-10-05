@@ -32,6 +32,8 @@ import { getDnsDelegations } from "./dns-delegation";
 import { validateAmplifyHosting } from "./amplify-hosting";
 import { validateQueues } from "./queues";
 import { validateGraphqlMonitoring } from "./graphql-monitoring";
+import { renderBuildToolCommands } from "./amplify-build-tools";
+import { validateSecretCopyConfig } from "./secret-copy-config";
 import { validateAuroraConfig } from "./aurora-config";
 import { agentOperationsConfig } from "../config/agent-operations";
 import { domainConfig } from "../config/domains";
@@ -319,6 +321,8 @@ export const loadDeployableEnvironments = (config: {
  */
 const validateStageFeatures = (env: StageEnvironment): void => {
   if (env.features.aurora) validateAuroraConfig(env.aurora);
+  validateSecretCopyConfig(env.secretCopy);
+  renderBuildToolCommands(env.amplifyHosting?.buildTools);
   if (env.features.shieldAdvanced) {
     throw new ConfigurationError(
       `Stage "${env.name}" shieldAdvanced is unsupported; disable it until Shield resources are implemented.`

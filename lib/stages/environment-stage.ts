@@ -40,6 +40,7 @@ import {
 import { validateGraphqlMonitoring } from "../../util/graphql-monitoring";
 import { GraphqlAlarmsStack } from "../stacks/observability/graphql-alarms-stack";
 import { resolveCdnForStage } from "../../util/cdn";
+import { SecretCopier } from "../constructs/secret-copier";
 import { CognitoStack } from "../stacks/auth/cognito-stack";
 import { CdnStack } from "../stacks/edge/cdn-stack";
 import { IamStack } from "../stacks/auth/iam-stack";
@@ -206,6 +207,13 @@ export class EnvironmentStage extends cdk.Stage {
 
     // --- Application -----------------------------------------------------
     this.createApplicationStacks(environment);
+
+    if (environment.secretCopy) {
+      const secretStack = new cdk.Stack(this, "SecretCopyStack", {
+        stackName: `${stageName}-secret-copy`,
+      });
+      new SecretCopier(secretStack, "SecretCopier", environment.secretCopy);
+    }
 
     this.amplifyHostingStack = this.createAmplifyHostingStack(environment);
     this.queuesStack = this.createQueuesStack(environment);
