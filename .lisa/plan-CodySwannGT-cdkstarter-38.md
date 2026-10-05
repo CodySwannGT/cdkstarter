@@ -28,3 +28,7 @@ Scenario: Runtime handler errors
 5. Root semantically adopts per-leaf verification and closes natively only after the complete lifecycle, then updates parents. No AWS deployment or downstream adoption claims.
 
 Ownership: runtime tests, actual app execution coverage, minimal handler error fixes and supported host test overrides. Earlier#29 already includes bin/config/resources in coverage; preserve that work. Execute a real bounded mutation smoke against util/lib source without weakening managed thresholds or enabling a decorative disabled gate.
+
+## Batch unit-coverage follow-up
+
+The first normal push of the complete ten-ticket batch ran 474 passing unit tests but refused the unchanged global coverage floor: statements 64.43%, branches 47.98%, functions 68.82%, and lines 64.41%. The fresh generated project's complete suite passed, but integration coverage alone did not satisfy the separate required unit gate. Preserve that refusal with its actual source `8b9d45d`, and add direct unit contracts for the optional configuration validators, existing-destination secret-copy runtime, and SMS SDK/invocation boundaries. Keep the production source, integration cases, coverage scope, and thresholds unchanged. Review and execute the additions through ordinary hooks before retrying the single batch PR.
