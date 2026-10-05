@@ -324,3 +324,5 @@ Optional cross-account DNS delegation is configured in `domainConfig.dnsDelegati
 
 Optional Amplify routing, response headers and scoped failed-build notifications
 are documented in [Amplify hosting](docs/amplify-hosting.md). These additions default off.
+
+Optional standard queues, DLQs and existing Lambda workers: [configuration and operational contract](docs/queues.md).

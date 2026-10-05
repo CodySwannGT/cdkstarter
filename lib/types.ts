@@ -503,6 +503,48 @@ export interface AmplifyHostingConfig {
   };
 }
 
+/** Explicit binding to an existing same-account, same-region Lambda worker. */
+export interface QueueWorkerConfig {
+  /** Unqualified ARN of the existing Lambda function. */
+  readonly functionArn: string;
+  /** Existing execution role ARN; this module attaches only source-queue consume rights. */
+  readonly executionRoleArn: string;
+  /** Actual worker timeout, in seconds, used to validate retry visibility. */
+  readonly timeoutSeconds: number;
+  /** Optional worker signals; notifications require explicit queue topic ARNs. */
+  readonly alarms?: { readonly errors?: boolean; readonly throttles?: boolean };
+}
+
+/** One standard source queue and its dedicated dead-letter queue. */
+export interface QueueDefinition {
+  /** Stable construct key, independent of array ordering. */
+  readonly key: string;
+  /** Source queue name; defaults to stage-key. DLQ appends -dlq. */
+  readonly queueName?: string;
+  /** Source retention in seconds; default four days. */
+  readonly retentionSeconds?: number;
+  /** DLQ retention in seconds; default fourteen days. */
+  readonly deadLetterRetentionSeconds?: number;
+  /** Source visibility in seconds; default 180, at least six worker timeouts. */
+  readonly visibilityTimeoutSeconds?: number;
+  /** Receive attempts before dead lettering; default three. */
+  readonly maxReceiveCount?: number;
+  /** Oldest-source-message alarm threshold in seconds; default 300. */
+  readonly backlogAgeThresholdSeconds?: number;
+  /** Existing standard SNS topic ARNs for this queue's alarms. */
+  readonly notificationTopicArns?: readonly string[];
+  /** Optional existing worker; absence creates no function or mapping. */
+  readonly worker?: QueueWorkerConfig;
+}
+
+/** Default-off standard queues, DLQs and optional existing-worker bindings. */
+export interface QueuesConfig {
+  /** Explicit opt-in; omitted or false emits no module resources. */
+  readonly enabled: boolean;
+  /** Nonempty queue definitions when enabled. */
+  readonly definitions?: readonly QueueDefinition[];
+}
+
 /**
  * Complete configuration for a stage environment (dev, staging, production).
  *
@@ -580,6 +622,9 @@ export interface StageEnvironment {
    * {@link StageFeatures.amplifyHosting} is enabled.
    */
   readonly amplifyHosting?: AmplifyHostingConfig;
+
+  /** Optional generic queues, DLQs and existing worker bindings. */
+  readonly queues?: QueuesConfig;
 }
 
 /**

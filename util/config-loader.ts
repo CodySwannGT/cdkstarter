@@ -30,6 +30,7 @@
  */
 import { getDnsDelegations } from "./dns-delegation";
 import { validateAmplifyHosting } from "./amplify-hosting";
+import { validateQueues } from "./queues";
 import { validateAuroraConfig } from "./aurora-config";
 import { agentOperationsConfig } from "../config/agent-operations";
 import { domainConfig } from "../config/domains";
@@ -210,6 +211,13 @@ export const validateConfiguration = (
   input.stages.forEach(stage => {
     if (stage.amplifyHosting) validateAmplifyHosting(stage.amplifyHosting);
   });
+  input.stages.forEach(stage =>
+    validateQueues(stage.queues, {
+      stageName: stage.name,
+      account: stage.accountId,
+      region: stage.region,
+    })
+  );
   validateObservabilityExtras(input.stages);
 };
 

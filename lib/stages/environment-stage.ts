@@ -45,6 +45,8 @@ import { MigrationRunnerStack } from "../stacks/cicd/migration-runner-stack";
 import { AuroraStack } from "../stacks/database/aurora-stack";
 import { BackupStack } from "../stacks/database/backup-stack";
 import { ValkeyStack } from "../stacks/database/valkey-stack";
+import { QueuesStack } from "../stacks/messaging/queues-stack";
+import { validateQueues } from "../../util/queues";
 import { AmplifyHostingStack } from "../stacks/edge/amplify-hosting-stack";
 import { SecurityGroupsStack } from "../stacks/network/security-groups-stack";
 import { SsmRelayStack } from "../stacks/network/ssm-relay-stack";
@@ -105,6 +107,9 @@ export class EnvironmentStage extends cdk.Stage {
    * The security groups stack.
    */
   public readonly securityGroupsStack?: SecurityGroupsStack;
+
+  /** The generic queue stack, when explicitly enabled. */
+  public readonly queuesStack?: QueuesStack;
 
   /** The Amplify Hosting stack, when enabled. */
   public readonly amplifyHostingStack?: AmplifyHostingStack;
@@ -194,6 +199,7 @@ export class EnvironmentStage extends cdk.Stage {
     this.createApplicationStacks(environment);
 
     this.amplifyHostingStack = this.createAmplifyHostingStack(environment);
+    this.queuesStack = this.createQueuesStack(environment);
 
     // --- Edge (conditional CloudFront + WAF) -----------------------------
     this.cdnStack = this.createEdgeStack(environment, domainConfig);
@@ -315,6 +321,27 @@ export class EnvironmentStage extends cdk.Stage {
         stackName: `${stageName}-backup`,
       });
     }
+  }
+
+  /**
+   * Validate optional queues before creating their owning stack.
+   * @param environment - Stage configuration and owning identity
+   * @returns Queue stack or undefined when omitted/disabled
+   */
+  private createQueuesStack(
+    environment: StageEnvironment
+  ): QueuesStack | undefined {
+    validateQueues(environment.queues, {
+      stageName: environment.name,
+      account: this.account ?? environment.accountId,
+      region: this.region ?? environment.region,
+    });
+    if (!environment.queues?.enabled) return undefined;
+    return new QueuesStack(this, "QueuesStack", {
+      stageName: environment.name,
+      queues: environment.queues,
+      stackName: `${environment.name}-queues`,
+    });
   }
 
   /**
