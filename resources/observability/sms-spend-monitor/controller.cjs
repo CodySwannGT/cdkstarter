@@ -45,7 +45,7 @@ const decimal = value => {
  * Derive bounded estimates from timestamped same-month cumulative readings.
  * @param {object[]} points - CloudWatch cumulative counter points
  * @param {Date} now - Current UTC clock
- * @returns {object} Observed MTD and conservative day/surge estimates
+ * @returns {object} Valid estimates, or metadata-only early-day warmup
  */
 const spendEstimates = (points, now) => {
   const current = now.getTime();
@@ -62,7 +62,6 @@ const spendEstimates = (points, now) => {
     }))
     .sort((left, right) => left.timestamp - right.timestamp);
   if (
-    ordered.length < 2 ||
     ordered.some(
       (point, index) =>
         !Number.isFinite(point.timestamp) ||
@@ -84,12 +83,21 @@ const spendEstimates = (points, now) => {
   const preceding = ordered.find(
     point => point.timestamp === latest.timestamp - 300000
   );
+  if (latest && current - latest.timestamp > 600000)
+    throw new Error("spend-window-missing-or-stale");
   if (
-    current - latest.timestamp > 600000 ||
+    ordered.length < 2 ||
     !anchor ||
     !preceding ||
     latest.timestamp < anchor.timestamp
   ) {
+    // Allow the ten-minute anchor window plus one 300-second sample period.
+    // Counter validity and freshness above still fail closed; no spend is invented.
+    if (
+      current < day + 900000 &&
+      ordered.every(point => point.timestamp >= day)
+    )
+      return { status: "WARMING_UP" };
     throw new Error("spend-window-missing-or-stale");
   }
   return {
@@ -305,6 +313,8 @@ const evaluate = async (config, deps) => {
     throw new Error(`counter-read:${errorCategory(error)}`);
   });
   const estimates = spendEstimates(points, deps.now());
+  if (estimates.status === "WARMING_UP")
+    return retained ? { ...retained, spendStatus: "WARMING_UP" } : estimates;
   await deps.writeMetrics(estimates).catch(error => {
     throw new Error(`metric-write:${errorCategory(error)}`);
   });

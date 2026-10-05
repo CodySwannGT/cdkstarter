@@ -146,6 +146,160 @@ describe("optional SMS account spend controller", () => {
       resources(templates, "AWS::CloudFormation::CustomResource")
     ).toHaveLength(0);
   });
+  it.each([
+    { clock: "2026-10-04T00:00:00Z", points: [] },
+    {
+      clock: "2026-10-04T00:00:00Z",
+      points: [{ timestamp: "2026-10-04T00:00:00Z", value: 20 }],
+    },
+    {
+      clock: "2026-10-04T00:05:00Z",
+      points: [{ timestamp: "2026-10-04T00:00:00Z", value: 20 }],
+    },
+    {
+      clock: "2026-10-04T00:10:00Z",
+      points: [{ timestamp: "2026-10-04T00:10:00Z", value: 20 }],
+    },
+  ])(
+    "warms up insufficient fresh early-day samples without effects: $clock / $points",
+    async ({ clock, points }) => {
+      for (const settings of [observe, enforce]) {
+        const f = fixture({ now: new Date(clock), samples: points });
+        await expect(core().evaluate(settings, f.deps)).resolves.toEqual({
+          status: "WARMING_UP",
+        });
+        expect(f.deps.writeMetrics).not.toHaveBeenCalled();
+        expect(f.deps.getPreference).not.toHaveBeenCalled();
+        expect(f.deps.setPreference).not.toHaveBeenCalled();
+        expect(f.deps.store.compareAndSet).not.toHaveBeenCalled();
+        expect(f.deps.notify).not.toHaveBeenCalled();
+      }
+    }
+  );
+  it("processes a usable early two-point breach rather than masking it as warmup", async () => {
+    const f = fixture({
+      now: new Date("2026-10-04T00:05:00Z"),
+      samples: [
+        { timestamp: "2026-10-04T00:00:00Z", value: 20 },
+        { timestamp: "2026-10-04T00:05:00Z", value: 32 },
+      ],
+    });
+    await expect(core().evaluate(enforce, f.deps)).resolves.toMatchObject({
+      status: "TRIPPED",
+    });
+    expect(f.deps.writeMetrics).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({ dailyUsd: 12, surgeUsd: 12 })
+    );
+    expect(f.deps.setPreference).toHaveBeenCalledExactlyOnceWith(32);
+  });
+  it.each([
+    { clock: "2026-10-04T00:15:00Z", points: [] },
+    {
+      clock: "2026-10-04T00:05:00Z",
+      points: [{ timestamp: "2026-10-04T00:00:00Z", value: NaN }],
+    },
+    {
+      clock: "2026-10-04T00:05:00Z",
+      points: [{ timestamp: "bad-time", value: 20 }],
+    },
+    {
+      clock: "2026-10-04T00:05:00Z",
+      points: [{ timestamp: "2026-10-04T00:10:00Z", value: 20 }],
+    },
+    {
+      clock: "2026-10-04T00:05:00Z",
+      points: [{ timestamp: "2026-09-30T23:55:00Z", value: 20 }],
+    },
+    {
+      clock: "2026-10-04T00:05:00Z",
+      points: [{ timestamp: "2026-10-03T23:50:00Z", value: 20 }],
+    },
+    {
+      clock: "2026-10-04T00:05:00Z",
+      points: [
+        { timestamp: "2026-10-04T00:00:00Z", value: 20 },
+        { timestamp: "2026-10-04T00:05:00Z", value: 19 },
+      ],
+    },
+    {
+      clock: "2026-10-04T00:05:00Z",
+      points: [
+        { timestamp: "2026-10-04T00:00:00Z", value: 20 },
+        { timestamp: "2026-10-04T00:00:00Z", value: 20 },
+      ],
+    },
+  ])(
+    "never treats malformed/reset/stale or late missing data as warmup: $clock / $points",
+    async ({ clock, points }) => {
+      const f = fixture({ now: new Date(clock), samples: points });
+      await expect(core().evaluate(enforce, f.deps)).rejects.toThrow(/spend-/);
+      expect(f.deps.writeMetrics).not.toHaveBeenCalled();
+      expect(f.deps.setPreference).not.toHaveBeenCalled();
+      expect(f.deps.store.compareAndSet).not.toHaveBeenCalled();
+    }
+  );
+  it("retains a confirmed trip and delivers its pending notification during warmup", async () => {
+    const state = {
+      version: 1,
+      status: "TRIPPED",
+      account,
+      region,
+      targetLimit: 32,
+      previousLimit: 100,
+      configuredCeiling: 100,
+      notificationPending: true,
+      operationId: "retained-trip",
+    };
+    const f = fixture({
+      state,
+      now: new Date("2026-10-04T00:05:00Z"),
+      samples: [],
+    });
+    await expect(core().evaluate(enforce, f.deps)).resolves.toMatchObject({
+      status: "TRIPPED",
+      spendStatus: "WARMING_UP",
+      notificationPending: false,
+    });
+    expect(f.deps.notify).toHaveBeenCalledOnce();
+    expect(f.deps.setPreference).not.toHaveBeenCalled();
+    expect(f.state.value.status).toBe("TRIPPED");
+    expect(f.deps.writeMetrics).not.toHaveBeenCalled();
+  });
+  it("does not warm up past an uncertain recovery or bypass exact trip readback", async () => {
+    const state = {
+      version: 1,
+      status: "RECOVERING",
+      account,
+      region,
+      targetLimit: 32,
+      previousLimit: 100,
+      configuredCeiling: 100,
+      notificationPending: false,
+    };
+    const recovering = fixture({
+      state,
+      now: new Date("2026-10-04T00:00:00Z"),
+      samples: [],
+    });
+    await expect(core().evaluate(enforce, recovering.deps)).rejects.toThrow(
+      "explicit-recovery-readback"
+    );
+    expect(recovering.deps.readSpend).not.toHaveBeenCalled();
+    expect(recovering.deps.setPreference).not.toHaveBeenCalled();
+    expect(recovering.deps.store.compareAndSet).not.toHaveBeenCalled();
+    const pending = fixture({
+      state: { ...state, status: "TRIPPING" },
+      current: 32,
+      now: new Date("2026-10-04T00:00:00Z"),
+      samples: [],
+    });
+    await expect(core().evaluate(enforce, pending.deps)).resolves.toMatchObject(
+      { status: "TRIPPED" }
+    );
+    expect(pending.deps.getPreference).toHaveBeenCalledOnce();
+    expect(pending.deps.readSpend).not.toHaveBeenCalled();
+    expect(pending.deps.setPreference).not.toHaveBeenCalled();
+  });
   it("processes an observed cap breach with no preference API calls", async () => {
     const f = fixture();
     const result = await core().evaluate(observe, f.deps);
