@@ -155,11 +155,16 @@ export class GraphqlAlarmsStack extends cdk.Stack {
       ] as const
     ).flatMap(definition =>
       (["warning", "critical"] as const).map(severity => {
+        const alarmName = `${props.stageName}-graphql-${operation.type}-${operation.name}-${definition.cause}-${severity}`;
+        if (alarmName.length > 255)
+          throw new Error(
+            "GraphQL alarm name exceeds CloudWatch's 255-character limit."
+          );
         const alarm = new cloudwatch.Alarm(
           this,
           `${stableId}-${definition.cause}-${severity}`,
           {
-            alarmName: `${props.stageName}-graphql-${operation.type}-${operation.name}-${definition.cause}-${severity}`,
+            alarmName,
             alarmDescription: JSON.stringify({
               version: 1,
               environment: props.stageName,

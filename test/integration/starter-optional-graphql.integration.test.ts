@@ -4,13 +4,18 @@ import { createRequire } from "node:module";
 import { resolve } from "node:path";
 import * as cdk from "aws-cdk-lib";
 import { Template } from "aws-cdk-lib/assertions";
+import * as sns from "aws-cdk-lib/aws-sns";
+import { GraphqlAlarmsStack } from "../../lib/stacks/observability/graphql-alarms-stack";
 import { stageEnvironments } from "../../config/environments";
 import { alarmThresholds, dashboardWidgets } from "../../config/observability";
 import { EnvironmentStage } from "../../lib/stages/environment-stage";
 import { validateConfiguration } from "../../util/config-loader";
-import type { StageEnvironment } from "../../lib/types";
+import type {
+  GraphqlMonitoringConfig,
+  StageEnvironment,
+} from "../../lib/types";
 
-const monitoring = {
+const monitoring: GraphqlMonitoringConfig = {
   enabled: true,
   namespace: "Fixture/GraphQL",
   stageDimension: "fixture-dev",
@@ -171,6 +176,62 @@ afterEach(() => {
 });
 
 describe("starter optional GraphQL monitoring", () => {
+  it.each(["query", "mutation"] as const)(
+    "synthesizes an exact 255-character %s alarm name without changing its identity",
+    type => {
+      const name = "O".repeat(128);
+      const suffix = `-graphql-${type}-${name}-error-rate-critical`;
+      const stageName = "s".repeat(255 - suffix.length);
+      const app = new cdk.App({ autoSynth: false });
+      apps.push(app);
+      const routes = new cdk.Stack(app, "Routes");
+      const topic = new sns.Topic(routes, "Alerts");
+      const props = {
+        stageName,
+        config: { ...monitoring, operations: [{ name, type, public: false }] },
+        warningTopic: topic,
+        criticalTopic: topic,
+      };
+      const first = new GraphqlAlarmsStack(app, "Graphql", props);
+      const emitted = Object.entries(
+        Template.fromStack(first).findResources("AWS::CloudWatch::Alarm")
+      );
+      expect(emitted).toHaveLength(4);
+      expect(emitted.map(([, alarm]) => alarm.Properties.AlarmName)).toEqual([
+        `${stageName}-graphql-${type}-${name}-error-rate-warning`,
+        `${stageName}${suffix}`,
+        `${stageName}-graphql-${type}-${name}-latency-warning`,
+        `${stageName}-graphql-${type}-${name}-latency-critical`,
+      ]);
+      expect(emitted[1][1].Properties.AlarmName).toHaveLength(255);
+      expect(app.synth().manifest.missing ?? []).toEqual([]);
+    }
+  );
+  it.each(["query", "mutation"] as const)(
+    "rejects a composed 256-character %s alarm name before synthesis",
+    type => {
+      const name = "O".repeat(128);
+      const suffix = `-graphql-${type}-${name}-error-rate-critical`;
+      const stageName = "s".repeat(256 - suffix.length);
+      expect(`${stageName}${suffix}`).toHaveLength(256);
+      const app = new cdk.App({ autoSynth: false });
+      apps.push(app);
+      const routes = new cdk.Stack(app, "Routes");
+      const topic = new sns.Topic(routes, "Alerts");
+      expect(
+        () =>
+          new GraphqlAlarmsStack(app, "Graphql", {
+            stageName,
+            config: {
+              ...monitoring,
+              operations: [{ name, type, public: false }],
+            },
+            warningTopic: topic,
+            criticalTopic: topic,
+          })
+      ).toThrow(/GraphQL alarm name.*255/);
+    }
+  );
   it("keeps default-off complete templates and forwarder fingerprint unchanged", async () => {
     expect(
       templates(environment({ ...monitoring, enabled: false }, false))
