@@ -133,14 +133,14 @@ describe("starter Lisa adoption", () => {
     );
     expect(
       readFileSync(join(root, ".github/workflows/ci.yml"), "utf8")
-    ).toContain("quality.yml@995f533b00d9b8a60256096bf6d28940164cd893");
+    ).toContain("quality.yml@694f06d31be324bfc6675bb818d73f77904afd89");
     expect(existsSync(join(root, ".github/workflows/lisa-update.yml"))).toBe(
       false
     );
   });
 
   it("applies the public release twice while preserving host defaults and customizations", () => {
-    expect(json(join(lisa, "package.json")).version).toBe("4.69.1");
+    expect(json(join(lisa, "package.json")).version).toBe("4.69.4");
     fixture(directory => {
       put(
         directory,
@@ -158,7 +158,7 @@ describe("starter Lisa adoption", () => {
               constructs: "^10.4.5",
             },
             devDependencies: {
-              "@codyswann/lisa": "4.69.1",
+              "@codyswann/lisa": "4.69.4",
               "aws-cdk": "^2.1132.0",
             },
             overrides: {
@@ -272,7 +272,7 @@ describe("starter Lisa adoption", () => {
     });
   }, 600_000);
 
-  it("reports empty integration as SKIP and executes populated passing and failing suites", () => {
+  it("fails closed on empty integration and executes populated passing and failing suites", () => {
     expect(existsSync(join(root, "scripts/test-integration.mjs"))).toBe(true);
     fixture(directory => {
       symlinkSync(
@@ -297,9 +297,9 @@ describe("starter Lisa adoption", () => {
       );
       const args = [join(root, "scripts/test-integration.mjs")];
       const empty = run(directory, args);
-      expect(empty.status, empty.stdout + empty.stderr).toBe(0);
-      expect(empty.stdout).toContain(
-        "SKIP: integration collection is empty (0 files)"
+      expect(empty.status, empty.stdout + empty.stderr).toBe(1);
+      expect(empty.stdout + empty.stderr).toContain(
+        "FAIL: integration collection is empty (0 files)"
       );
       expect(empty.stdout).not.toContain("Tests  ");
       put(

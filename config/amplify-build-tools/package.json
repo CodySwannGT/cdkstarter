@@ -1,0 +1,5 @@
+{
+  "private": true,
+  "description": "Exact opt-in executable versions. No tools are installed unless selected by Amplify configuration.",
+  "dependencies": {}
+}

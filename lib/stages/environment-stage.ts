@@ -32,7 +32,15 @@ import {
   toAuroraAlarmsThresholds,
   toValkeyAlarmsThresholds,
 } from "../../util/alarm-threshold-mapping";
+import { getDnsDelegations, normalizeDnsName } from "../../util/dns-delegation";
+import {
+  delegateChildZone,
+  DnsDelegationStack,
+} from "../stacks/support/dns-delegation-stack";
+import { validateGraphqlMonitoring } from "../../util/graphql-monitoring";
+import { GraphqlAlarmsStack } from "../stacks/observability/graphql-alarms-stack";
 import { resolveCdnForStage } from "../../util/cdn";
+import { SecretCopier } from "../constructs/secret-copier";
 import { CognitoStack } from "../stacks/auth/cognito-stack";
 import { CdnStack } from "../stacks/edge/cdn-stack";
 import { IamStack } from "../stacks/auth/iam-stack";
@@ -40,6 +48,8 @@ import { MigrationRunnerStack } from "../stacks/cicd/migration-runner-stack";
 import { AuroraStack } from "../stacks/database/aurora-stack";
 import { BackupStack } from "../stacks/database/backup-stack";
 import { ValkeyStack } from "../stacks/database/valkey-stack";
+import { QueuesStack } from "../stacks/messaging/queues-stack";
+import { validateQueues } from "../../util/queues";
 import { AmplifyHostingStack } from "../stacks/edge/amplify-hosting-stack";
 import { SecurityGroupsStack } from "../stacks/network/security-groups-stack";
 import { SsmRelayStack } from "../stacks/network/ssm-relay-stack";
@@ -101,6 +111,9 @@ export class EnvironmentStage extends cdk.Stage {
    */
   public readonly securityGroupsStack?: SecurityGroupsStack;
 
+  /** The generic queue stack, when explicitly enabled. */
+  public readonly queuesStack?: QueuesStack;
+
   /** The Amplify Hosting stack, when enabled. */
   public readonly amplifyHostingStack?: AmplifyHostingStack;
 
@@ -121,6 +134,18 @@ export class EnvironmentStage extends cdk.Stage {
 
     const { environment, alarmThresholds, github, domainConfig } = props;
     const { name: stageName, features } = environment;
+    const delegations = domainConfig
+      ? getDnsDelegations(domainConfig).filter(entry =>
+          entry.trustedChildAccountIds.includes(environment.accountId)
+        )
+      : [];
+    const graphql = validateGraphqlMonitoring(
+      environment.observability.graphqlMonitoring
+    );
+    if (graphql && features.observability === false)
+      throw new Error(
+        "graphqlMonitoring requires features.observability enabled."
+      );
 
     // --- Network (optional) ----------------------------------------------
     if (features.network !== false) {
@@ -183,10 +208,33 @@ export class EnvironmentStage extends cdk.Stage {
     // --- Application -----------------------------------------------------
     this.createApplicationStacks(environment);
 
+    if (environment.secretCopy) {
+      const secretStack = new cdk.Stack(this, "SecretCopyStack", {
+        stackName: `${stageName}-secret-copy`,
+      });
+      new SecretCopier(secretStack, "SecretCopier", environment.secretCopy);
+    }
+
     this.amplifyHostingStack = this.createAmplifyHostingStack(environment);
+    this.queuesStack = this.createQueuesStack(environment);
 
     // --- Edge (conditional CloudFront + WAF) -----------------------------
     this.cdnStack = this.createEdgeStack(environment, domainConfig);
+    const additionalZones = delegations.filter(entry => {
+      if (
+        this.cdnStack &&
+        entry.childZoneName ===
+          normalizeDnsName(this.cdnStack.hostedZone.zoneName)
+      ) {
+        delegateChildZone(this.cdnStack, this.cdnStack.hostedZone, entry);
+        return false;
+      }
+      return true;
+    });
+    if (additionalZones.length > 0)
+      new DnsDelegationStack(this, "DnsDelegationStack", additionalZones, {
+        stackName: `${stageName}-dns-delegation`,
+      });
 
     // --- Observability ---------------------------------------------------
     if (features.observability !== false) {
@@ -293,6 +341,27 @@ export class EnvironmentStage extends cdk.Stage {
   }
 
   /**
+   * Validate optional queues before creating their owning stack.
+   * @param environment - Stage configuration and owning identity
+   * @returns Queue stack or undefined when omitted/disabled
+   */
+  private createQueuesStack(
+    environment: StageEnvironment
+  ): QueuesStack | undefined {
+    validateQueues(environment.queues, {
+      stageName: environment.name,
+      account: this.account ?? environment.accountId,
+      region: this.region ?? environment.region,
+    });
+    if (!environment.queues?.enabled) return undefined;
+    return new QueuesStack(this, "QueuesStack", {
+      stageName: environment.name,
+      queues: environment.queues,
+      stackName: `${environment.name}-queues`,
+    });
+  }
+
+  /**
    * Creates Amplify Hosting when enabled and configured.
    * @param environment - Stage environment configuration
    * @returns Hosting stack or undefined when disabled
@@ -329,10 +398,22 @@ export class EnvironmentStage extends cdk.Stage {
       infoEmails: [],
       sentryDsn: observability.sentryDsn,
       backupFailureAlerts: observability.backupFailureAlerts,
+      causeGrouping: observability.causeGrouping,
       stackName: `${stageName}-sns`,
     });
 
     const allAlarms: cloudwatch.Alarm[] = [];
+    if (observability.graphqlMonitoring?.enabled === true) {
+      const graphqlStack = new GraphqlAlarmsStack(this, "GraphqlAlarmsStack", {
+        stageName,
+        config: observability.graphqlMonitoring,
+        warningTopic: snsStack.warningTopic,
+        criticalTopic: snsStack.criticalTopic,
+        stackName: `${stageName}-graphql-alarms`,
+      });
+      graphqlStack.addDependency(snsStack);
+      allAlarms.push(...graphqlStack.alarms);
+    }
 
     if (observability.canaryUrls?.length) {
       const canaryStack = new CanaryStack(this, "CanaryStack", {

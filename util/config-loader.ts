@@ -28,13 +28,20 @@
  * @see config/observability.ts - Alarm thresholds and dashboard widgets
  * @module util/config-loader
  */
+import { getDnsDelegations } from "./dns-delegation";
+import { validateAmplifyHosting } from "./amplify-hosting";
+import { validateQueues } from "./queues";
+import { validateGraphqlMonitoring } from "./graphql-monitoring";
+import { renderBuildToolCommands } from "./amplify-build-tools";
+import { validateSecretCopyConfig } from "./secret-copy-config";
+import { validateSmsMonitoring } from "./sms-monitoring";
 import { validateAuroraConfig } from "./aurora-config";
 import { agentOperationsConfig } from "../config/agent-operations";
 import { domainConfig } from "../config/domains";
 import { stageEnvironments, supportEnvironments } from "../config/environments";
 import { githubConfig } from "../config/github";
 import { alarmThresholds, dashboardWidgets } from "../config/observability";
-import { findDeadWafFlags } from "./cdn";
+import { findDeadWafFlags, resolveCdnForStage } from "./cdn";
 import type {
   AgentOperationsConfig,
   AlarmThresholds,
@@ -115,8 +122,7 @@ export const getSupportEnvironments = (): readonly SupportEnvironment[] =>
  * @returns The shared environment, or undefined if PLACEHOLDER
  */
 export const getDeployableSharedEnvironment = ():
-  | SupportEnvironment
-  | undefined =>
+  SupportEnvironment | undefined =>
   supportEnvironments.find(
     env => env.name === "shared" && isDeployableAccountId(env.accountId)
   );
@@ -194,15 +200,50 @@ export const validateConfiguration = (
     dashboardWidgets,
   }
 ): void => {
+  for (const stage of input.stages) {
+    if (
+      validateGraphqlMonitoring(stage.observability.graphqlMonitoring) &&
+      stage.features.observability === false
+    )
+      throw new ConfigurationError(
+        "graphqlMonitoring requires features.observability enabled."
+      );
+  }
+  const owners = input.supports
+    .filter(support => support.smsMonitoring?.enabled)
+    .map(support => `${support.accountId}:${support.region}`);
   validateEnvironmentContracts(
     input.stages,
     input.supports,
     input.dashboardWidgets
   );
+  getDnsDelegations(domainConfig, input.stages);
+  input.supports.forEach(support =>
+    validateSmsMonitoring(
+      support.smsMonitoring,
+      support.accountId,
+      support.region
+    )
+  );
+  if (new Set(owners).size !== owners.length)
+    throw new Error(
+      "smsMonitoring requires one controller per account and region."
+    );
   validatePrimaryDomain();
   validateWafFlag(input.stages);
+  validateEdgeRegions(input.stages);
   validateNetworkDependencies(input.stages);
   validateAmplifyHostingFlag(input.stages);
+  input.stages.forEach(stage => {
+    if (stage.amplifyHosting) validateAmplifyHosting(stage.amplifyHosting);
+  });
+  input.stages.forEach(stage =>
+    validateQueues(stage.queues, {
+      stageName: stage.name,
+      account: stage.accountId,
+      region: stage.region,
+    })
+  );
   validateObservabilityExtras(input.stages);
 };
 
@@ -224,6 +265,7 @@ export const findObservabilityConfigErrors = (
       canaryIntervalMinutes,
       sentryDsn,
       backupFailureAlerts,
+      causeGrouping,
       costAnomalyThresholdUsd,
     } = env.observability;
     return [
@@ -237,6 +279,12 @@ export const findObservabilityConfigErrors = (
         ? [
             `Stage "${env.name}" has an invalid observability.sentryDsn — ` +
               "expected a URL like https://<key>@<org>.ingest.sentry.io/<project>.",
+          ]
+        : []),
+      ...(causeGrouping &&
+      (sentryDsn === undefined || env.features.observability === false)
+        ? [
+            `Stage "${env.name}" sets observability.causeGrouping but needs sentryDsn and enabled observability.`,
           ]
         : []),
       ...(backupFailureAlerts && sentryDsn === undefined
@@ -287,6 +335,8 @@ export const loadDeployableEnvironments = (config: {
  */
 const validateStageFeatures = (env: StageEnvironment): void => {
   if (env.features.aurora) validateAuroraConfig(env.aurora);
+  validateSecretCopyConfig(env.secretCopy);
+  renderBuildToolCommands(env.amplifyHosting?.buildTools);
   if (env.features.shieldAdvanced) {
     throw new ConfigurationError(
       `Stage "${env.name}" shieldAdvanced is unsupported; disable it until Shield resources are implemented.`
@@ -437,6 +487,27 @@ const validateWafFlag = (stages: readonly StageEnvironment[]): void => {
         "Configure a domain mapping for the stage (config/domains.ts) or set " +
         "waf: false."
     );
+  }
+};
+
+/**
+ * Reject effective CloudFront edges outside the region required by their WAF.
+ * Production activates from its domain even when the waf flag is false.
+ * @param stages - Stage environments to inspect
+ */
+const validateEdgeRegions = (stages: readonly StageEnvironment[]): void => {
+  for (const stage of stages) {
+    if (
+      resolveCdnForStage(stage, domainConfig) &&
+      stage.region !== "us-east-1"
+    ) {
+      throw new ConfigurationError(
+        `Stage "${stage.name}" in "${stage.region}" enables CloudFront WAF; ` +
+          "this edge requires us-east-1. Set the stage region to us-east-1 " +
+          "or remove its effective edge configuration. Regional stages " +
+          "without an edge may use other regions."
+      );
+    }
   }
 };
 

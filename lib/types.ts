@@ -233,6 +233,39 @@ export interface ValkeyConfig {
   readonly numCacheNodes: number;
 }
 
+/** Caller-owned GraphQL custom-metric monitoring contract. */
+export interface GraphqlMonitoringConfig {
+  /** Only explicit true enables monitoring. */
+  readonly enabled?: boolean;
+  /** Backend-published CloudWatch namespace. */
+  readonly namespace: string;
+  /** Exact value of the backend's Stage metric dimension. */
+  readonly stageDimension: string;
+  /** Positive invocation count required in each five-minute interval. */
+  readonly minimumInvocations: number;
+  /** Error percentages (0..100), warning strictly below critical. */
+  readonly errorRatePercent: {
+    readonly warning: number;
+    readonly critical: number;
+  };
+  /** Duration thresholds in milliseconds, warning strictly below critical. */
+  readonly latencyMilliseconds: {
+    readonly warning: number;
+    readonly critical: number;
+  };
+  /** Caller-selected Duration latency statistic. */
+  readonly latencyStatistic: "Average" | "Maximum" | "p95" | "p99";
+  /** Explicit caller manifest; the starter supplies no application operations. */
+  readonly operations: readonly {
+    /** GraphQL operation name. */
+    readonly name: string;
+    /** Exact OperationType metric dimension. */
+    readonly type: "query" | "mutation";
+    /** Public operations include all traffic, including anonymous calls. */
+    readonly public: boolean;
+  }[];
+}
+
 /**
  * Monitoring and alerting configuration for an environment.
  *
@@ -241,6 +274,10 @@ export interface ValkeyConfig {
  * mean time to detection (MTTD) for incidents.
  */
 export interface ObservabilityConfig {
+  /** Default-off GraphQL custom metric alarms. */
+  readonly graphqlMonitoring?: GraphqlMonitoringConfig;
+  /** Default-off explicit cause metadata grouping in the Sentry forwarder. */
+  readonly causeGrouping?: boolean;
   /**
    * Email addresses to receive alarm notifications.
    * Empty array disables email notifications.
@@ -364,12 +401,7 @@ export interface DisasterRecoveryConfig {
  * - `ssmmessages` - SSM Session Manager
  */
 export type VpcEndpointType =
-  | "s3"
-  | "dynamodb"
-  | "secretsmanager"
-  | "logs"
-  | "ssm"
-  | "ssmmessages";
+  "s3" | "dynamodb" | "secretsmanager" | "logs" | "ssm" | "ssmmessages";
 
 /**
  * VPC network configuration.
@@ -431,6 +463,56 @@ export interface WafOptions {
   readonly countOnly?: boolean;
 }
 
+/** An ordered Amplify redirect/rewrite, rendered without changing caller precedence. */
+export interface AmplifyCustomRule {
+  /** Amplify source path, wildcard or regular expression. */
+  readonly source: string;
+  /** Explicit destination. */
+  readonly target: string;
+  /** Amplify-supported status; no implicit redirect status. */
+  readonly status: "200" | "301" | "302" | "404" | "404-200";
+  /** Optional country condition. */
+  readonly condition?: string;
+}
+
+/** Explicit response headers for matching paths. */
+export interface AmplifyCustomHeaders {
+  /** Amplify path pattern. */
+  readonly pattern: string;
+  /** Header names and single-line values. */
+  readonly headers: Readonly<Record<string, string>>;
+}
+
+/** Identifier-only source/destination mapping. No secret values belong here. */
+export interface SecretCopyMapping {
+  /** Unique caller-owned mapping key. */
+  readonly key: string;
+  /** Absolute SSM parameter name in the owning account and region. */
+  readonly parameterName: string;
+  /** Complete destination secret ARN, including its six-character suffix. */
+  readonly secretArn: string;
+  /** Customer-managed source key, when the SecureString uses one. */
+  readonly sourceKeyArn?: string;
+  /** Customer-managed destination key, when the secret uses one. */
+  readonly targetKeyArn?: string;
+}
+
+/** Default-off metadata-only secret delivery. */
+export interface SecretCopyConfig {
+  /** Nonempty uniquely keyed mappings to existing secrets. */
+  readonly mappings: readonly SecretCopyMapping[];
+  /** Subscribe to exact parameter Create/Update events; defaults false. */
+  readonly synchronizeChanges?: boolean;
+}
+
+/** Generic named-command adapter, with its version only in the tool manifest. */
+export interface AmplifyBuildTool {
+  /** npm package providing the executable. */
+  readonly packageName: string;
+  /** Executable name whose --version returns the exact pin (optionally prefixed v). */
+  readonly executable: string;
+}
+
 /**
  * Configuration for a static frontend hosted by AWS Amplify Hosting.
  *
@@ -454,6 +536,9 @@ export interface AmplifyHostingConfig {
   /** Optional custom domain. The Amplify default domain is used when absent. */
   readonly customDomain?: string;
 
+  /** Explicit executable selections, versioned only in config/amplify-build-tools. */
+  readonly buildTools?: readonly AmplifyBuildTool[];
+
   /** Commands run before the frontend build. */
   readonly preBuildCommands?: readonly string[];
 
@@ -465,6 +550,64 @@ export interface AmplifyHostingConfig {
 
   /** Environment variables attached to the Amplify branch. */
   readonly environmentVariables?: Readonly<Record<string, string>>;
+
+  /** Default-off SPA fallback after explicit rules, excluding static extensions. */
+  readonly spaFallback?: { readonly enabled: boolean };
+  /** Ordered explicit rules; honored independently of SPA fallback. */
+  readonly customRules?: readonly AmplifyCustomRule[];
+  /** Explicit response headers, separate from the build specification. */
+  readonly customHeaders?: readonly AmplifyCustomHeaders[];
+  /** Default-off failed-deployment routing to an existing standard SNS topic. */
+  readonly buildFailureNotifications?: {
+    /** Create a rule only when true. */
+    readonly enabled: boolean;
+    /** Existing topic ARN, mandatory when enabled. */
+    readonly topicArn?: string;
+    /** Exact branch names; defaults to the configured source branch. */
+    readonly branches?: readonly string[];
+  };
+}
+
+/** Explicit binding to an existing same-account, same-region Lambda worker. */
+export interface QueueWorkerConfig {
+  /** Unqualified ARN of the existing Lambda function. */
+  readonly functionArn: string;
+  /** Existing execution role ARN; this module attaches only source-queue consume rights. */
+  readonly executionRoleArn: string;
+  /** Actual worker timeout, in seconds, used to validate retry visibility. */
+  readonly timeoutSeconds: number;
+  /** Optional worker signals; notifications require explicit queue topic ARNs. */
+  readonly alarms?: { readonly errors?: boolean; readonly throttles?: boolean };
+}
+
+/** One standard source queue and its dedicated dead-letter queue. */
+export interface QueueDefinition {
+  /** Stable construct key, independent of array ordering. */
+  readonly key: string;
+  /** Source queue name; defaults to stage-key. DLQ appends -dlq. */
+  readonly queueName?: string;
+  /** Source retention in seconds; default four days. */
+  readonly retentionSeconds?: number;
+  /** DLQ retention in seconds; default fourteen days. */
+  readonly deadLetterRetentionSeconds?: number;
+  /** Source visibility in seconds; default 180, at least six worker timeouts. */
+  readonly visibilityTimeoutSeconds?: number;
+  /** Receive attempts before dead lettering; default three. */
+  readonly maxReceiveCount?: number;
+  /** Oldest-source-message alarm threshold in seconds; default 300. */
+  readonly backlogAgeThresholdSeconds?: number;
+  /** Existing standard SNS topic ARNs for this queue's alarms. */
+  readonly notificationTopicArns?: readonly string[];
+  /** Optional existing worker; absence creates no function or mapping. */
+  readonly worker?: QueueWorkerConfig;
+}
+
+/** Default-off standard queues, DLQs and optional existing-worker bindings. */
+export interface QueuesConfig {
+  /** Explicit opt-in; omitted or false emits no module resources. */
+  readonly enabled: boolean;
+  /** Nonempty queue definitions when enabled. */
+  readonly definitions?: readonly QueueDefinition[];
 }
 
 /**
@@ -544,6 +687,11 @@ export interface StageEnvironment {
    * {@link StageFeatures.amplifyHosting} is enabled.
    */
   readonly amplifyHosting?: AmplifyHostingConfig;
+
+  /** Optional generic queues, DLQs and existing worker bindings. */
+  readonly queues?: QueuesConfig;
+  /** Optional secret copying to existing same-account, same-region secrets. */
+  readonly secretCopy?: SecretCopyConfig;
 }
 
 /**
@@ -573,6 +721,24 @@ export interface SupportPurpose {
    * stage accounts.
    */
   readonly flowLogs: boolean;
+}
+
+/** Explicit default-off monitoring of one support account's SNS SMS spend. */
+export interface SmsMonitoringConfig {
+  /** Enable only after the account owner reviews the account-wide effects. */
+  readonly enabled: boolean;
+  /** Configured monthly preference/restore ceiling, not an approved quota increase. */
+  readonly monthlyPreferenceUsd?: number;
+  /** Monthly warning percentage, strictly between zero and 100. */
+  readonly warningPercent?: number;
+  /** Positive daily estimated spend cap, no greater than monthly preference. */
+  readonly dailyCapUsd?: number;
+  /** Positive five-minute estimated spend alert threshold. */
+  readonly fiveMinuteSurgeUsd?: number;
+  /** Existing standard same-account/region notification topic ARN. */
+  readonly notificationTopicArn?: string;
+  /** Defaults to observe; only enforce can change account SMS preferences. */
+  readonly mode?: "observe" | "enforce";
 }
 
 /**
@@ -609,6 +775,9 @@ export interface SupportEnvironment {
    * Flags indicating which centralized resources this account hosts.
    */
   readonly purpose: SupportPurpose;
+
+  /** Optional account-level SMS controller; absent/false emits no resources. */
+  readonly smsMonitoring?: SmsMonitoringConfig;
 }
 
 /**
@@ -653,6 +822,22 @@ export interface Domain {
   readonly environments: Readonly<Record<string, DomainEnvironmentMapping>>;
 }
 
+/** Explicit parent-zone authorization and child-zone delegation. */
+export interface DnsDelegationEntry {
+  /** Parent DNS suffix; the child must be strictly below it. */
+  readonly parentDomain: string;
+  /** Existing parent hosted zone ID, without the /hostedzone/ prefix. */
+  readonly parentHostedZoneId: string;
+  /** Twelve-digit account that owns the parent zone and delegation role. */
+  readonly parentAccountId: string;
+  /** Explicit IAM role name in the parent account. */
+  readonly delegationRoleName: string;
+  /** Child zone created in a trusted stage account. */
+  readonly childZoneName: string;
+  /** Only these account principals may assume the parent role. */
+  readonly trustedChildAccountIds: readonly string[];
+}
+
 /**
  * Top-level domain configuration wrapper.
  *
@@ -664,6 +849,14 @@ export interface DomainConfig {
    * List of domains to configure.
    */
   readonly domains: readonly Domain[];
+
+  /** Default off; explicit enabled:true activates the supplied entries. */
+  readonly dnsDelegation?: {
+    /** Activate delegation only when explicitly true. */
+    readonly enabled?: boolean;
+    /** Parent authorization and child zone settings. */
+    readonly entries: readonly DnsDelegationEntry[];
+  };
 }
 
 /**

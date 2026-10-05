@@ -4,7 +4,7 @@
       "path": "wiki"
     }
   },
-  "harness": "fleet",
+  "harness": "codex",
   "tracker": "github",
   "source": "github",
   "github": {

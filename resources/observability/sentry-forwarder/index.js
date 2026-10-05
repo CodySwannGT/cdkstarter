@@ -18,12 +18,35 @@ const STAGE = process.env.STAGE || "unknown";
  * @returns {{publicKey: string, host: string, projectId: string}} DSN parts.
  */
 const parseDsn = dsn => {
-  const url = new URL(dsn);
+  const url = (() => {
+    try {
+      return new URL(dsn);
+    } catch {
+      throw new Error("Invalid Sentry DSN configuration");
+    }
+  })();
   return {
     publicKey: url.username,
     host: url.host,
     projectId: url.pathname.replace(/^\//, ""),
   };
+};
+
+/**
+ * Reject transport failures without exposing request data or raw error causes.
+ * @param {string} url - Ingestion endpoint.
+ * @param {object} options - Fetch request options.
+ * @returns {Promise<object>} HTTP response.
+ */
+const postToSentry = async (url, options) => {
+  try {
+    return await fetch(url, options);
+  } catch (error) {
+    const category = ["TimeoutError", "AbortError"].includes(error?.name)
+      ? "timeout"
+      : "network";
+    throw new Error(`Sentry transport failed (${category})`);
+  }
 };
 
 /**
@@ -33,10 +56,8 @@ const parseDsn = dsn => {
  */
 const sendToSentry = async event => {
   const { publicKey, host, projectId } = parseDsn(process.env.SENTRY_DSN);
-  const res = await fetch(`https://${host}/api/${projectId}/store/`, {
+  const res = await postToSentry(`https://${host}/api/${projectId}/store/`, {
     method: "POST",
-    // Bound well below the Lambda timeout so a slow Sentry ingest fails this
-    // event instead of consuming the whole invocation and triggering retries.
     signal: AbortSignal.timeout(10000),
     headers: {
       "Content-Type": "application/json",
@@ -45,7 +66,11 @@ const sendToSentry = async event => {
     body: JSON.stringify(event),
   });
   if (!res.ok) {
-    throw new Error(`Sentry responded ${res.status}: ${await res.text()}`);
+    const status =
+      Number.isInteger(res.status) && res.status >= 100 && res.status <= 599
+        ? res.status
+        : "unknown";
+    throw new Error(`Sentry ingestion failed (HTTP ${status})`);
   }
 };
 
@@ -79,12 +104,45 @@ const baseEvent = (message, level, tags, extra, fingerprint) => ({
 });
 
 /**
+ * Read bounded versioned cause metadata, otherwise preserve legacy grouping.
+ * @param {object} msg - Alarm notification.
+ * @returns {string[]} Stable fingerprint without severity.
+ */
+const alarmFingerprint = msg => {
+  if (
+    process.env.CAUSE_GROUPING !== "true" ||
+    typeof msg.AlarmDescription !== "string" ||
+    msg.AlarmDescription.length > 1024
+  )
+    return [msg.AlarmName];
+  const metadata = parseJson(msg.AlarmDescription);
+  const validKey = value =>
+    typeof value === "string" &&
+    value.length > 0 &&
+    value.length <= 512 &&
+    value.trim() === value &&
+    !/[\u0000-\u001f\u007f]/.test(value);
+  if (
+    !metadata ||
+    metadata.version !== 1 ||
+    metadata.environment !== STAGE ||
+    !validKey(metadata.identity) ||
+    !validKey(metadata.cause)
+  )
+    return [msg.AlarmName];
+  return ["infra-cause-v1", STAGE, metadata.identity, metadata.cause];
+};
+
+/**
  * Maps a CloudWatch alarm state-change notification to a Sentry event.
  * @param {object} msg - The parsed SNS alarm message.
  * @param {string} severity - Severity derived from the source topic.
  * @returns {object} A Sentry event payload.
  */
 const alarmEvent = (msg, severity) => {
+  if (!["ALARM", "OK", "INSUFFICIENT_DATA"].includes(msg.NewStateValue)) {
+    throw new Error("Invalid CloudWatch alarm state");
+  }
   const region = msg.AlarmArn ? msg.AlarmArn.split(":")[3] : "us-east-1";
   const consoleUrl = `https://${region}.console.aws.amazon.com/cloudwatch/home?region=${region}#alarmsV2:alarm/${encodeURIComponent(msg.AlarmName)}`;
   const inAlarm = msg.NewStateValue === "ALARM";
@@ -104,7 +162,7 @@ const alarmEvent = (msg, severity) => {
       account: msg.AWSAccountId,
       console_url: consoleUrl,
     },
-    [msg.AlarmName]
+    alarmFingerprint(msg)
   );
 };
 
@@ -156,8 +214,25 @@ const backupEvent = (event, severity = "critical") => {
  * @param {object} event - Backup state-change event.
  * @returns {boolean} Whether this state needs an alert.
  */
-const isBackupFailure = event =>
-  ["FAILED", "ABORTED", "EXPIRED"].includes(event.detail?.state);
+const isBackupFailure = event => {
+  const detail = event.detail;
+  if (
+    !detail ||
+    typeof detail !== "object" ||
+    typeof detail.state !== "string" ||
+    !detail.state
+  ) {
+    throw new Error("Invalid Backup job detail/state");
+  }
+  const failure = ["FAILED", "ABORTED", "EXPIRED"].includes(detail.state);
+  if (
+    failure &&
+    (typeof detail.backupJobId !== "string" || !detail.backupJobId)
+  ) {
+    throw new Error("Invalid Backup job identifier");
+  }
+  return failure;
+};
 
 /**
  * Parses a JSON string, returning null instead of throwing.
@@ -178,6 +253,9 @@ const parseJson = raw => {
  * @returns {object|null} A Sentry event payload, or an ignored Backup state.
  */
 const snsRecordEvent = record => {
+  if (!record?.Sns || typeof record.Sns.Message !== "string") {
+    throw new Error("Invalid SNS record: Message must be a string");
+  }
   const msg = parseJson(record.Sns.Message);
   const severity = severityFromTopic(record.Sns.TopicArn);
   if (
@@ -206,9 +284,15 @@ const snsRecordEvent = record => {
  * @returns {Promise<{forwarded: number}>} How many events were sent.
  */
 exports.handler = async event => {
+  if (!event || typeof event !== "object") {
+    throw new Error("Invalid notification event");
+  }
+  if (event.Records !== undefined && !Array.isArray(event.Records)) {
+    throw new Error("Invalid SNS records: expected an array");
+  }
   const events = event.Records
     ? event.Records.map(snsRecordEvent).filter(Boolean)
-    : event.source === "aws.backup" && event.detail && isBackupFailure(event)
+    : event.source === "aws.backup" && isBackupFailure(event)
       ? [backupEvent(event)]
       : [];
   await Promise.all(events.map(sendToSentry));

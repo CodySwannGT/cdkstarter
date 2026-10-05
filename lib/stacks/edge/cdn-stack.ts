@@ -121,6 +121,14 @@ export class CdnStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: CdnStackProps) {
     super(scope, id, props);
 
+    if (cdk.Token.isUnresolved(this.region) || this.region !== "us-east-1") {
+      throw new Error(
+        `CloudFront WAF for stage "${props.stageName}" requires an explicit ` +
+          "us-east-1 stack region (including an inherited stage region). " +
+          "This stack also colocates the viewer certificate and regional origin."
+      );
+    }
+
     const { stageName, cdn, wafOptions } = props;
     const apiContractPrefix = props.apiContractPrefix ?? `/app/${stageName}`;
 

@@ -9,6 +9,19 @@
 
 exports.handler = async () => {
   const urls = JSON.parse(process.env.CANARY_URLS || "[]");
+  if (
+    !Array.isArray(urls) ||
+    !urls.every(url => {
+      if (typeof url !== "string") return false;
+      try {
+        return ["http:", "https:"].includes(new URL(url).protocol);
+      } catch {
+        return false;
+      }
+    })
+  ) {
+    throw new Error("CANARY_URLS must be an array of HTTP(S) URLs");
+  }
   const failures = [];
 
   await Promise.all(
