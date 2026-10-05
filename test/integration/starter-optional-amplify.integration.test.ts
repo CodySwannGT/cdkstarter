@@ -224,6 +224,41 @@ describe("optional Amplify hosting", () => {
     expect(() => validate(options)).toThrow(/topic/i);
     expect(() => render(options)).toThrow(/topic/i);
   });
+  it("rejects case-insensitive duplicate headers at config and constructor boundaries", () => {
+    const options = {
+      customHeaders: [
+        {
+          pattern: "/*",
+          headers: {
+            "Cache-Control": "no-store",
+            "cache-control": "max-age=3600",
+          },
+        },
+      ],
+    };
+    expect(() => validate(options)).toThrow(/duplicate header/i);
+    expect(() => render(options)).toThrow(/duplicate header/i);
+  });
+  it("preserves differently cased header names across separate path groups", () => {
+    const customHeaders = [
+      { pattern: "/private/*", headers: { "Cache-Control": "no-store" } },
+      { pattern: "/assets/*", headers: { "cache-control": "max-age=3600" } },
+    ];
+    expect(() => validate({ customHeaders })).not.toThrow();
+    const rendered = properties(
+      render({ customHeaders }),
+      "AWS::Amplify::App"
+    ).CustomHeaders;
+    expect(load(rendered)).toEqual({
+      customHeaders: customHeaders.map(group => ({
+        pattern: group.pattern,
+        headers: Object.entries(group.headers).map(([key, value]) => ({
+          key,
+          value,
+        })),
+      })),
+    });
+  });
   it.each([
     { spaFallback: { enabled: "false" } },
     { buildFailureNotifications: { enabled: "false" } },

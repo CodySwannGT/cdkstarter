@@ -184,6 +184,36 @@ describe("optional Amplify public configuration", () => {
     ).not.toThrow();
     expect(headers["X-Path"]).toBe("a\\b");
   });
+  it("rejects case-insensitive duplicate headers within one path group", () => {
+    expect(() =>
+      validateAmplifyHosting({
+        ...hosting,
+        customHeaders: [
+          {
+            pattern: "/*",
+            headers: {
+              "Cache-Control": "no-store",
+              "cache-control": "max-age=3600",
+            },
+          },
+        ],
+      })
+    ).toThrow(/duplicate header/i);
+  });
+  it("allows differently cased headers in separate path groups", () => {
+    expect(() =>
+      validateAmplifyHosting({
+        ...hosting,
+        customHeaders: [
+          { pattern: "/private/*", headers: { "Cache-Control": "no-store" } },
+          {
+            pattern: "/assets/*",
+            headers: { "cache-control": "max-age=3600" },
+          },
+        ],
+      })
+    ).not.toThrow();
+  });
   it("appends fallback last, deduplicates only an unconditional equivalent", () => {
     const equivalent = {
       source: SPA_FALLBACK_SOURCE,

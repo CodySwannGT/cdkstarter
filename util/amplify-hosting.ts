@@ -77,6 +77,11 @@ export function validateAmplifyHosting(hosting: AmplifyHostingConfig): void {
           "Invalid Amplify header name/value: use a valid token name and single-line value"
         );
     });
+    const names = Object.keys(group.headers).map(name => name.toLowerCase());
+    if (new Set(names).size !== names.length)
+      throw new Error(
+        "Invalid Amplify header name/value: duplicate header name"
+      );
   });
   validateNotifications(hosting);
 }
