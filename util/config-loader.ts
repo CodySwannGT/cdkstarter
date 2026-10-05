@@ -122,8 +122,7 @@ export const getSupportEnvironments = (): readonly SupportEnvironment[] =>
  * @returns The shared environment, or undefined if PLACEHOLDER
  */
 export const getDeployableSharedEnvironment = ():
-  | SupportEnvironment
-  | undefined =>
+  SupportEnvironment | undefined =>
   supportEnvironments.find(
     env => env.name === "shared" && isDeployableAccountId(env.accountId)
   );

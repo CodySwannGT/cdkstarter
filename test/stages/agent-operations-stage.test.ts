@@ -87,8 +87,8 @@ describe("AgentOperationsStage", () => {
       Properties?: { ManagedPolicyArns?: Array<{ Ref: string }> };
     };
 
-    return (role.Properties?.ManagedPolicyArns ?? []).map(
-      reference => policyNamesByLogicalId.get(reference.Ref)!
+    return (role.Properties?.ManagedPolicyArns ?? []).map(reference =>
+      policyNamesByLogicalId.get(reference.Ref)!
     );
   };
 

@@ -401,12 +401,7 @@ export interface DisasterRecoveryConfig {
  * - `ssmmessages` - SSM Session Manager
  */
 export type VpcEndpointType =
-  | "s3"
-  | "dynamodb"
-  | "secretsmanager"
-  | "logs"
-  | "ssm"
-  | "ssmmessages";
+  "s3" | "dynamodb" | "secretsmanager" | "logs" | "ssm" | "ssmmessages";
 
 /**
  * VPC network configuration.
