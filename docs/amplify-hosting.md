@@ -2,11 +2,13 @@
 
 ## Context
 
-Existing static hosting remains unchanged when the new options are omitted.
+The routing, header and notification options preserve existing static hosting
+when omitted.
 SPA routing, explicit response headers and failed-build notifications are
 independent options. This module does not add frontend framework assumptions,
 source-map uploads, Sentry connections, or build tools. Caller-provided build
 commands retain their exact order. Build-tool defaults are maintained separately.
+The new npm defaults require [explicit migration for existing Bun builds](../config/amplify-build-tools/README.md#migrating-existing-bun-builds).
 
 ## Goal
 
