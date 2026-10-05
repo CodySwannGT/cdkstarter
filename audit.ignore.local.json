@@ -1,61 +1,6 @@
 {
   "exclusions": [
     {
-      "id": "GHSA-3mfm-83xf-c92r",
-      "package": "handlebars",
-      "reason": "JavaScript injection via AST type confusion (@partial-block) — transitive via ts-jest and standard-version > conventional-changelog, devDeps only, no untrusted template input"
-    },
-    {
-      "id": "GHSA-2w6w-674q-4c4q",
-      "package": "handlebars",
-      "reason": "JavaScript injection via AST type confusion — transitive via ts-jest and standard-version, devDeps only; handlebars 4.7.8 is latest with no patch available"
-    },
-    {
-      "id": "GHSA-xjpj-3mr7-gcpf",
-      "package": "handlebars",
-      "reason": "JavaScript injection via CLI precompiler unescaped names — transitive via ts-jest and standard-version, devDeps only"
-    },
-    {
-      "id": "GHSA-xhpv-hc6g-r9c6",
-      "package": "handlebars",
-      "reason": "JavaScript injection via AST type confusion (partial) — transitive via ts-jest and standard-version, devDeps only"
-    },
-    {
-      "id": "GHSA-9cx6-37pm-9jff",
-      "package": "handlebars",
-      "reason": "DoS via malformed decorator syntax — transitive via ts-jest and standard-version, devDeps only"
-    },
-    {
-      "id": "GHSA-r5fr-rjxr-66jc",
-      "package": "lodash",
-      "reason": "Code injection via _.template — transitive via @commitlint and standard-version, devDeps only; not using _.template with untrusted input"
-    },
-    {
-      "id": "GHSA-25h7-pfq9-p65f",
-      "package": "flatted",
-      "reason": "Unbounded recursion DoS in parse() revive phase — transitive via eslint > file-entry-cache > flat-cache > flatted, devDep only"
-    },
-    {
-      "id": "GHSA-rf6f-7fwh-wjgh",
-      "package": "flatted",
-      "reason": "Prototype pollution in parse() — transitive via eslint flat-cache, devDeps only"
-    },
-    {
-      "id": "GHSA-c2c7-rcm5-vvqj",
-      "package": "picomatch",
-      "reason": "ReDoS via extglob quantifiers — transitive via knip, vitest, ts-jest, micromatch, and many others; devDeps only, not processing untrusted glob patterns"
-    },
-    {
-      "id": "GHSA-q3j6-qgpj-74h6",
-      "package": "fast-uri",
-      "reason": "Path traversal via percent-encoded dot segments in fast-uri parser. Reachable transitively via eslint > @eslint/eslintrc > ajv > fast-uri and via aws-cdk-lib's bundled JSON Schema validator. aws-cdk-lib is invoked only at build/synth/deploy time — its ajv usage validates CloudFormation/CDK schemas authored by the developer, not attacker-controlled URIs. No runtime/production code path passes attacker-controlled URIs through ajv schema validation that relies on fast-uri parsing."
-    },
-    {
-      "id": "GHSA-v39h-62p7-jpjc",
-      "package": "fast-uri",
-      "reason": "Host confusion via percent-encoded authority delimiters in fast-uri parser. Reachable transitively via eslint > @eslint/eslintrc > ajv > fast-uri and via aws-cdk-lib's bundled JSON Schema validator. aws-cdk-lib is invoked only at build/synth/deploy time — its ajv usage validates CloudFormation/CDK schemas authored by the developer, not attacker-controlled URIs. No runtime/production code path passes attacker-controlled URIs through ajv schema validation that relies on fast-uri parsing."
-    },
-    {
       "id": "GHSA-q2hr-2g5m-vwhr",
       "package": "brace-expansion",
       "reason": "CPU denial of service from quadratic rewrite scanning of malicious {a},b}-shaped patterns. Checked 2026-10-02: the only affected installed occurrence is aws-cdk-lib 2.272.0 bundled node_modules/aws-cdk-lib/node_modules/brace-expansion 5.0.9. Available CDK update fixes GHSA-rgw5-rvv9-x895; compatible nonbundled leaf overrides install 1.1.21/2.1.7/5.0.12, but npm retains the bundled 5.0.9. Its three CDK callers consume trusted CLI bundling context, developer-authored asset exclusions, or unused developer-authored construct selectors; filenames are match subjects, not patterns. No application request/event supplies a pattern. Actual pipeline assets (three directories/four JS files) and both optional observability handlers exclude CDK/minimatch/brace-expansion. Scope is this installed occurrence, not general CDK safety. Owner CodySwannGT; expires 2026-10-16T23:59:59Z; tracking https://github.com/CodySwannGT/cdkstarter/issues/39. Reassess on dependency, glob/context, asset or trust-boundary changes; remove when CDK bundles a compatible patch. Details: docs/security/cdk-bundled-advisories.md."
