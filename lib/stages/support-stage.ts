@@ -29,6 +29,8 @@
 import { getDnsDelegations } from "../../util/dns-delegation";
 import * as cdk from "aws-cdk-lib";
 import type { Construct } from "constructs";
+import { SmsSpendMonitoringStack } from "../stacks/observability/sms-spend-monitoring-stack";
+import { validateSmsMonitoring } from "../../util/sms-monitoring";
 import { CodeConnectionsShareStack } from "../stacks/support/codeconnections-share-stack";
 import { DnsStack } from "../stacks/support/dns-stack";
 import { FlowLogsStack } from "../stacks/support/flow-logs-stack";
@@ -119,6 +121,9 @@ export class SupportStage extends cdk.Stage {
    */
   public readonly supportEnvironment: SupportEnvironment;
 
+  /** Optional support-account SMS monitoring/controller stack. */
+  public readonly smsMonitoringStack?: SmsSpendMonitoringStack;
+
   /**
    * Creates a new SupportStage.
    * @param scope - Parent construct
@@ -137,6 +142,22 @@ export class SupportStage extends cdk.Stage {
     } = props;
 
     this.supportEnvironment = supportEnvironment;
+    validateSmsMonitoring(
+      supportEnvironment.smsMonitoring,
+      this.account ?? supportEnvironment.accountId,
+      this.region ?? supportEnvironment.region
+    );
+    if (supportEnvironment.smsMonitoring?.enabled) {
+      this.smsMonitoringStack = new SmsSpendMonitoringStack(
+        this,
+        "SmsSpendMonitoringStack",
+        {
+          controllerName: supportEnvironment.name,
+          monitoring: supportEnvironment.smsMonitoring,
+          stackName: `${supportEnvironment.name}-sms-spend`,
+        }
+      );
+    }
 
     // Create DNS only when the support account opts in and domains exist.
     if (

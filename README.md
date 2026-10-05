@@ -333,3 +333,5 @@ are documented in [Amplify hosting](docs/amplify-hosting.md). These additions de
 Optional standard queues, DLQs and existing Lambda workers: [configuration and operational contract](docs/queues.md).
 
 Optional GraphQL operation alarms and explicit cause grouping are described in [the backend metric contract and setup guide](docs/setup/graphql-monitoring.md).
+
+Optional support-account SMS spend monitoring and manual recovery: [configuration and account-wide limitations](docs/sms-spend-monitoring.md).

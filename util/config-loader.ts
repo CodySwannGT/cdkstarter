@@ -34,6 +34,7 @@ import { validateQueues } from "./queues";
 import { validateGraphqlMonitoring } from "./graphql-monitoring";
 import { renderBuildToolCommands } from "./amplify-build-tools";
 import { validateSecretCopyConfig } from "./secret-copy-config";
+import { validateSmsMonitoring } from "./sms-monitoring";
 import { validateAuroraConfig } from "./aurora-config";
 import { agentOperationsConfig } from "../config/agent-operations";
 import { domainConfig } from "../config/domains";
@@ -209,12 +210,26 @@ export const validateConfiguration = (
         "graphqlMonitoring requires features.observability enabled."
       );
   }
+  const owners = input.supports
+    .filter(support => support.smsMonitoring?.enabled)
+    .map(support => `${support.accountId}:${support.region}`);
   validateEnvironmentContracts(
     input.stages,
     input.supports,
     input.dashboardWidgets
   );
   getDnsDelegations(domainConfig, input.stages);
+  input.supports.forEach(support =>
+    validateSmsMonitoring(
+      support.smsMonitoring,
+      support.accountId,
+      support.region
+    )
+  );
+  if (new Set(owners).size !== owners.length)
+    throw new Error(
+      "smsMonitoring requires one controller per account and region."
+    );
   validatePrimaryDomain();
   validateWafFlag(input.stages);
   validateEdgeRegions(input.stages);

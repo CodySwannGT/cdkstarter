@@ -728,6 +728,24 @@ export interface SupportPurpose {
   readonly flowLogs: boolean;
 }
 
+/** Explicit default-off monitoring of one support account's SNS SMS spend. */
+export interface SmsMonitoringConfig {
+  /** Enable only after the account owner reviews the account-wide effects. */
+  readonly enabled: boolean;
+  /** Configured monthly preference/restore ceiling, not an approved quota increase. */
+  readonly monthlyPreferenceUsd?: number;
+  /** Monthly warning percentage, strictly between zero and 100. */
+  readonly warningPercent?: number;
+  /** Positive daily estimated spend cap, no greater than monthly preference. */
+  readonly dailyCapUsd?: number;
+  /** Positive five-minute estimated spend alert threshold. */
+  readonly fiveMinuteSurgeUsd?: number;
+  /** Existing standard same-account/region notification topic ARN. */
+  readonly notificationTopicArn?: string;
+  /** Defaults to observe; only enforce can change account SMS preferences. */
+  readonly mode?: "observe" | "enforce";
+}
+
 /**
  * Configuration for a support environment (shared infrastructure).
  *
@@ -762,6 +780,9 @@ export interface SupportEnvironment {
    * Flags indicating which centralized resources this account hosts.
    */
   readonly purpose: SupportPurpose;
+
+  /** Optional account-level SMS controller; absent/false emits no resources. */
+  readonly smsMonitoring?: SmsMonitoringConfig;
 }
 
 /**
