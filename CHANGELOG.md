@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.3](https://github.com/CodySwannGT/cdkstarter/compare/v0.0.2...v0.0.3) (2026-10-05)
+
+
+### Features
+
+* **amplify:** add explicit routing headers and failed-build alerts ([9e26aa7](https://github.com/CodySwannGT/cdkstarter/commit/9e26aa784340b5349739011e6e5f00becf889cd3)), closes [#43](https://github.com/CodySwannGT/cdkstarter/issues/43) [CodySwannGT/cdkstarter#43](https://github.com/CodySwannGT/cdkstarter/issues/43)
+* **dns:** add retained cross-account child delegation ([8bd92f2](https://github.com/CodySwannGT/cdkstarter/commit/8bd92f24cf4eb7c958fce266def05f582cce38a1)), closes [CodySwannGT/cdkstarter#42](https://github.com/CodySwannGT/cdkstarter/issues/42)
+* **observability:** add optional GraphQL alarms and cause grouping ([d6f08d3](https://github.com/CodySwannGT/cdkstarter/commit/d6f08d3c1517062995ef0ee225297b3322619baa)), closes [CodySwannGT/cdkstarter#45](https://github.com/CodySwannGT/cdkstarter/issues/45)
+* **onboarding:** verify clean generated starter projects ([a483e0d](https://github.com/CodySwannGT/cdkstarter/commit/a483e0dc5196a8860887ebe7b53b8243cfec8f3d)), closes [#41](https://github.com/CodySwannGT/cdkstarter/issues/41) [CodySwannGT/cdkstarter#41](https://github.com/CodySwannGT/cdkstarter/issues/41)
+* **optional:** add scoped secret delivery and exact build tool pins ([e9a6e6d](https://github.com/CodySwannGT/cdkstarter/commit/e9a6e6d04b2478529ead4801271c7657cd78062b)), closes [CodySwannGT/cdkstarter#46](https://github.com/CodySwannGT/cdkstarter/issues/46)
+* **queues:** add optional DLQs and existing worker bindings ([5600764](https://github.com/CodySwannGT/cdkstarter/commit/5600764ad2d7bcb666efb9ba879582dbe03555fb)), closes [#44](https://github.com/CodySwannGT/cdkstarter/issues/44) [CodySwannGT/cdkstarter#44](https://github.com/CodySwannGT/cdkstarter/issues/44)
+* **sms:** add optional account spend monitoring and recovery ([4f624d6](https://github.com/CodySwannGT/cdkstarter/commit/4f624d652b759da520d7c6e1ac97afe03721f797)), closes [#47](https://github.com/CodySwannGT/cdkstarter/issues/47) [CodySwannGT/cdkstarter#47](https://github.com/CodySwannGT/cdkstarter/issues/47)
+
+
+### Bug Fixes
+
+* allow bounded SMS counter startup warmup ([bf10996](https://github.com/CodySwannGT/cdkstarter/commit/bf10996fa940808c51648cbe5f31da6d92cb1e06)), closes [CodySwannGT/cdkstarter#47](https://github.com/CodySwannGT/cdkstarter/issues/47)
+* **amplify:** preserve quoted headers and static htm callbacks ([a5f211f](https://github.com/CodySwannGT/cdkstarter/commit/a5f211f3a401cfa249083a00259042fd6517d15a)), closes [#43](https://github.com/CodySwannGT/cdkstarter/issues/43) [CodySwannGT/cdkstarter#43](https://github.com/CodySwannGT/cdkstarter/issues/43)
+* **edge:** reject unsupported CloudFront WAF regions ([8da1717](https://github.com/CodySwannGT/cdkstarter/commit/8da1717cb8cd2556f502f7205109256fcef6a1d6)), closes [#40](https://github.com/CodySwannGT/cdkstarter/issues/40) [CodySwannGT/cdkstarter#40](https://github.com/CodySwannGT/cdkstarter/issues/40)
+* reject duplicate Amplify header names ([6ae7e48](https://github.com/CodySwannGT/cdkstarter/commit/6ae7e487975f901b666bb01f397b4ec06b7937b0)), closes [CodySwannGT/cdkstarter#43](https://github.com/CodySwannGT/cdkstarter/issues/43)
+* **sms:** restrict reconciliation to pending recovery ([7a5086f](https://github.com/CodySwannGT/cdkstarter/commit/7a5086f40e0cf2378f410717b177abddd7c567be)), closes [#47](https://github.com/CodySwannGT/cdkstarter/issues/47) [CodySwannGT/cdkstarter#47](https://github.com/CodySwannGT/cdkstarter/issues/47)
+* validate complete GraphQL alarm names ([7167670](https://github.com/CodySwannGT/cdkstarter/commit/7167670a32bc6e78cd3de3e5cdfdcda2a0ea54da)), closes [CodySwannGT/cdkstarter#45](https://github.com/CodySwannGT/cdkstarter/issues/45)
+
+
+### Documentation
+
+* explain Amplify build command migration ([e831c95](https://github.com/CodySwannGT/cdkstarter/commit/e831c9567366e4c51086085ffc553d6c66dceb9e)), closes [CodySwannGT/cdkstarter#46](https://github.com/CodySwannGT/cdkstarter/issues/46)
+
 ### [0.0.2](https://github.com/CodySwannGT/cdkstarter/compare/v0.0.1...v0.0.2) (2026-10-04)
 
 
