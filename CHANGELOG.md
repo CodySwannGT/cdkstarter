@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.4](https://github.com/CodySwannGT/cdkstarter/compare/v0.0.3...v0.0.4) (2026-10-11)
+
+
+### Documentation
+
+* **reviews:** add 2026-10-02 starter review and implementation issues ([eb1b523](https://github.com/CodySwannGT/cdkstarter/commit/eb1b5238d3fa62d6635af529175ab7d28849ea04)), closes [CodySwannGT/cdkstarter#24](https://github.com/CodySwannGT/cdkstarter/issues/24)
+
 ### [0.0.3](https://github.com/CodySwannGT/cdkstarter/compare/v0.0.2...v0.0.3) (2026-10-05)
 
 
