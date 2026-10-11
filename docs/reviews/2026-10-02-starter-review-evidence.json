@@ -1,0 +1,1278 @@
+{
+  "review_date": "2026-10-02",
+  "projects": {
+    "starter": {
+      "path": "/Users/cody/workspace/cdkstarter",
+      "main_sha": "1111fbe6d1f0d56de3c0adb19b9aceee34271a4d",
+      "local_head": "1111fbe6d1f0d56de3c0adb19b9aceee34271a4d",
+      "local_branch": "main",
+      "status": [" M AGENTS.md"],
+      "repository": "CodySwannGT/cdkstarter"
+    },
+    "gemini": {
+      "path": "/Users/cody/workspace/geminisportsai/projects/infrastructure-v2",
+      "main_sha": "d38ab78f69b56d53f90e6d27f9abcc15647456e5",
+      "local_head": "83999da28850071a4d081094dc22a385f058388e",
+      "local_branch": "feat/se-6902-daily-spend-breaker",
+      "status": [
+        " M .claude/settings.json",
+        "?? aws-support-sms-limit-request.txt"
+      ],
+      "repository": "geminisportsai/infrastructure-v2"
+    },
+    "propswap": {
+      "path": "/Users/cody/workspace/propswap/projects/infrastructure",
+      "main_sha": "f8ea7673c04acae9f5946b9634f617213d85d302",
+      "local_head": "74cdafe8bc41f07cc55b3787b18660e8e7f7293d",
+      "local_branch": "se-520-gen1-waf-load-bearing",
+      "status": [" M .claude/settings.json", "?? scripts/enable-pitr.sh"],
+      "repository": "propswapllc/infrastructure"
+    },
+    "tunnl": {
+      "path": "/Users/cody/workspace/tunnlai/projects/tunnl-infrastructure",
+      "main_sha": "404c8f7e46aa75b5e10ef08cf16180c1acea7aa6",
+      "local_head": "f6301a6dde9279731377d56cd1333f58d5601e36",
+      "local_branch": "main",
+      "status": [
+        " M .claude/settings.json",
+        " M config/environments.ts",
+        " M test/config/environments.test.ts",
+        "?? docs/standby-capacity.md",
+        "?? evidence/TUN-963/",
+        "?? evidence/standby-2026-09-10/"
+      ],
+      "repository": "TunnlAI/infrastructure"
+    }
+  },
+  "baseline_runtime": {
+    "node": "22.22.0",
+    "npm": "10.9.4"
+  },
+  "commands": {
+    "format": 0,
+    "install-dry-run": 0,
+    "integration": 0,
+    "knip": 0,
+    "lint-slow": 0,
+    "lint": 0,
+    "synth-default": 1,
+    "test-cov": 0,
+    "typecheck": 0
+  },
+  "coverage": {
+    "test_files": 39,
+    "tests": 423,
+    "statements": 90.04,
+    "branches": 79.57,
+    "functions": 92.67,
+    "lines": 90.03,
+    "include": ["lib/**/*.ts", "util/**/*.ts"]
+  },
+  "outdated": {
+    "@ast-grep/cli": {
+      "current": "0.40.5",
+      "wanted": "0.40.5",
+      "latest": "0.45.3",
+      "dependent": "cdkstarter",
+      "location": "/Users/cody/workspace/cdkstarter/node_modules/@ast-grep/cli"
+    },
+    "@aws-cdk/aws-amplify-alpha": {
+      "current": "2.263.0-alpha.0",
+      "wanted": "2.263.0-alpha.0",
+      "latest": "2.272.0-alpha.0",
+      "dependent": "cdkstarter",
+      "location": "/Users/cody/workspace/cdkstarter/node_modules/@aws-cdk/aws-amplify-alpha"
+    },
+    "@codyswann/lisa": {
+      "current": "2.217.1",
+      "wanted": "2.353.0",
+      "latest": "4.66.5",
+      "dependent": "cdkstarter",
+      "location": "/Users/cody/workspace/cdkstarter/node_modules/@codyswann/lisa"
+    },
+    "@commitlint/cli": {
+      "current": "20.5.3",
+      "wanted": "20.5.3",
+      "latest": "21.2.3",
+      "dependent": "cdkstarter",
+      "location": "/Users/cody/workspace/cdkstarter/node_modules/@commitlint/cli"
+    },
+    "@commitlint/config-conventional": {
+      "current": "20.5.3",
+      "wanted": "20.5.3",
+      "latest": "21.2.3",
+      "dependent": "cdkstarter",
+      "location": "/Users/cody/workspace/cdkstarter/node_modules/@commitlint/config-conventional"
+    },
+    "@eslint-community/eslint-plugin-eslint-comments": {
+      "current": "4.7.2",
+      "wanted": "4.8.1",
+      "latest": "4.8.1",
+      "dependent": "cdkstarter",
+      "location": "/Users/cody/workspace/cdkstarter/node_modules/@eslint-community/eslint-plugin-eslint-comments"
+    },
+    "@eslint/eslintrc": {
+      "current": "3.3.5",
+      "wanted": "3.3.7",
+      "latest": "3.3.7",
+      "dependent": "cdkstarter",
+      "location": "/Users/cody/workspace/cdkstarter/node_modules/@eslint/eslintrc"
+    },
+    "@eslint/js": {
+      "current": "9.39.4",
+      "wanted": "9.39.5",
+      "latest": "10.0.1",
+      "dependent": "cdkstarter",
+      "location": "/Users/cody/workspace/cdkstarter/node_modules/@eslint/js"
+    },
+    "@jest/globals": {
+      "current": "30.4.1",
+      "wanted": "30.5.2",
+      "latest": "30.5.2",
+      "dependent": "cdkstarter",
+      "location": "/Users/cody/workspace/cdkstarter/node_modules/@jest/globals"
+    },
+    "@jest/test-sequencer": {
+      "current": "30.4.1",
+      "wanted": "30.5.2",
+      "latest": "30.5.2",
+      "dependent": "cdkstarter",
+      "location": "/Users/cody/workspace/cdkstarter/node_modules/@jest/test-sequencer"
+    },
+    "@types/node": {
+      "current": "22.19.19",
+      "wanted": "22.20.5",
+      "latest": "26.6.4",
+      "dependent": "cdkstarter",
+      "location": "/Users/cody/workspace/cdkstarter/node_modules/@types/node"
+    },
+    "@typescript-eslint/parser": {
+      "current": "8.60.0",
+      "wanted": "8.71.0",
+      "latest": "8.71.0",
+      "dependent": "cdkstarter",
+      "location": "/Users/cody/workspace/cdkstarter/node_modules/@typescript-eslint/parser"
+    },
+    "@vitest/coverage-v8": {
+      "current": "4.1.8",
+      "wanted": "4.1.11",
+      "latest": "5.0.3",
+      "dependent": "cdkstarter",
+      "location": "/Users/cody/workspace/cdkstarter/node_modules/@vitest/coverage-v8"
+    },
+    "aws-cdk": {
+      "current": "2.1132.0",
+      "wanted": "2.1144.0",
+      "latest": "2.1144.0",
+      "dependent": "cdkstarter",
+      "location": "/Users/cody/workspace/cdkstarter/node_modules/aws-cdk"
+    },
+    "aws-cdk-github-oidc": {
+      "current": "2.4.1",
+      "wanted": "2.4.1",
+      "latest": "5.2.0",
+      "dependent": "cdkstarter",
+      "location": "/Users/cody/workspace/cdkstarter/node_modules/aws-cdk-github-oidc"
+    },
+    "aws-cdk-lib": {
+      "current": "2.263.0",
+      "wanted": "2.263.0",
+      "latest": "2.272.0",
+      "dependent": "cdkstarter",
+      "location": "/Users/cody/workspace/cdkstarter/node_modules/aws-cdk-lib"
+    },
+    "constructs": {
+      "current": "10.6.0",
+      "wanted": "10.8.1",
+      "latest": "10.8.1",
+      "dependent": "cdkstarter",
+      "location": "/Users/cody/workspace/cdkstarter/node_modules/constructs"
+    },
+    "esbuild": {
+      "current": "0.28.1",
+      "wanted": "0.28.2",
+      "latest": "0.28.2",
+      "dependent": "cdkstarter",
+      "location": "/Users/cody/workspace/cdkstarter/node_modules/esbuild"
+    },
+    "eslint": {
+      "current": "9.39.4",
+      "wanted": "9.39.5",
+      "latest": "10.11.0",
+      "dependent": "cdkstarter",
+      "location": "/Users/cody/workspace/cdkstarter/node_modules/eslint"
+    },
+    "eslint-plugin-functional": {
+      "current": "9.0.5",
+      "wanted": "9.0.5",
+      "latest": "10.0.1",
+      "dependent": "cdkstarter",
+      "location": "/Users/cody/workspace/cdkstarter/node_modules/eslint-plugin-functional"
+    },
+    "eslint-plugin-jsdoc": {
+      "current": "61.7.1",
+      "wanted": "61.7.1",
+      "latest": "63.3.3",
+      "dependent": "cdkstarter",
+      "location": "/Users/cody/workspace/cdkstarter/node_modules/eslint-plugin-jsdoc"
+    },
+    "eslint-plugin-oxlint": {
+      "current": "1.67.0",
+      "wanted": "1.86.0",
+      "latest": "1.86.0",
+      "dependent": "cdkstarter",
+      "location": "/Users/cody/workspace/cdkstarter/node_modules/eslint-plugin-oxlint"
+    },
+    "eslint-plugin-sonarjs": {
+      "current": "3.0.7",
+      "wanted": "3.0.7",
+      "latest": "4.2.2",
+      "dependent": "cdkstarter",
+      "location": "/Users/cody/workspace/cdkstarter/node_modules/eslint-plugin-sonarjs"
+    },
+    "globals": {
+      "current": "17.6.0",
+      "wanted": "17.13.0",
+      "latest": "17.13.0",
+      "dependent": "cdkstarter",
+      "location": "/Users/cody/workspace/cdkstarter/node_modules/globals"
+    },
+    "husky": {
+      "current": "8.0.3",
+      "wanted": "8.0.3",
+      "latest": "9.1.7",
+      "dependent": "cdkstarter",
+      "location": "/Users/cody/workspace/cdkstarter/node_modules/husky"
+    },
+    "jest": {
+      "current": "30.4.2",
+      "wanted": "30.5.2",
+      "latest": "30.5.2",
+      "dependent": "cdkstarter",
+      "location": "/Users/cody/workspace/cdkstarter/node_modules/jest"
+    },
+    "jscodeshift": {
+      "current": "0.15.2",
+      "wanted": "0.15.2",
+      "latest": "17.4.0",
+      "dependent": "cdkstarter",
+      "location": "/Users/cody/workspace/cdkstarter/node_modules/jscodeshift"
+    },
+    "knip": {
+      "current": "5.88.1",
+      "wanted": "5.88.1",
+      "latest": "6.39.0",
+      "dependent": "cdkstarter",
+      "location": "/Users/cody/workspace/cdkstarter/node_modules/knip"
+    },
+    "oxlint": {
+      "current": "1.67.0",
+      "wanted": "1.86.0",
+      "latest": "1.86.0",
+      "dependent": "cdkstarter",
+      "location": "/Users/cody/workspace/cdkstarter/node_modules/oxlint"
+    },
+    "oxlint-tsgolint": {
+      "current": "0.22.1",
+      "wanted": "0.22.1",
+      "latest": "7.0.2003",
+      "dependent": "cdkstarter",
+      "location": "/Users/cody/workspace/cdkstarter/node_modules/oxlint-tsgolint"
+    },
+    "prettier": {
+      "current": "3.8.3",
+      "wanted": "3.9.9",
+      "latest": "3.9.9",
+      "dependent": "cdkstarter",
+      "location": "/Users/cody/workspace/cdkstarter/node_modules/prettier"
+    },
+    "ts-jest": {
+      "current": "29.4.11",
+      "wanted": "29.4.14",
+      "latest": "29.4.14",
+      "dependent": "cdkstarter",
+      "location": "/Users/cody/workspace/cdkstarter/node_modules/ts-jest"
+    },
+    "ts-morph": {
+      "current": "27.0.2",
+      "wanted": "27.0.2",
+      "latest": "28.0.0",
+      "dependent": "cdkstarter",
+      "location": "/Users/cody/workspace/cdkstarter/node_modules/ts-morph"
+    },
+    "tsx": {
+      "current": "4.22.4",
+      "wanted": "4.23.15",
+      "latest": "4.23.15",
+      "dependent": "cdkstarter",
+      "location": "/Users/cody/workspace/cdkstarter/node_modules/tsx"
+    },
+    "typescript": {
+      "current": "6.0.3",
+      "wanted": "6.0.3",
+      "latest": "7.0.2",
+      "dependent": "cdkstarter",
+      "location": "/Users/cody/workspace/cdkstarter/node_modules/typescript"
+    },
+    "typescript-eslint": {
+      "current": "8.60.0",
+      "wanted": "8.71.0",
+      "latest": "8.71.0",
+      "dependent": "cdkstarter",
+      "location": "/Users/cody/workspace/cdkstarter/node_modules/typescript-eslint"
+    },
+    "vite": {
+      "current": "8.0.16",
+      "wanted": "8.3.2",
+      "latest": "8.3.2",
+      "dependent": "cdkstarter",
+      "location": "/Users/cody/workspace/cdkstarter/node_modules/vite"
+    },
+    "vitest": {
+      "current": "4.1.8",
+      "wanted": "4.1.11",
+      "latest": "5.0.3",
+      "dependent": "cdkstarter",
+      "location": "/Users/cody/workspace/cdkstarter/node_modules/vitest"
+    },
+    "zod": {
+      "current": "4.4.3",
+      "wanted": "4.6.5",
+      "latest": "4.6.5",
+      "dependent": "cdkstarter",
+      "location": "/Users/cody/workspace/cdkstarter/node_modules/zod"
+    }
+  },
+  "manifest": {
+    "scripts": {
+      "build": "tsc --noEmit",
+      "postinstall": "[ -n \"$CI\" ] || LISA_BOOTSTRAP=1 node node_modules/@codyswann/lisa/dist/index.js --yes --skip-git-check . 2>/dev/null || true",
+      "test:integration": "vitest run tests/integration --passWithNoTests",
+      "test": "vitest run",
+      "test:unit": "vitest run --exclude='**/integration/**'",
+      "test:cov": "vitest run --coverage",
+      "watch": "tsc -w",
+      "cdk": "cdk",
+      "lint": "oxlint && eslint . --quiet",
+      "lint:fix": "oxlint --fix && eslint . --fix",
+      "lint:slow": "eslint . --config eslint.slow.config.ts --quiet",
+      "typecheck": "tsc --noEmit",
+      "format:check": "prettier --check .",
+      "format": "prettier --check . --write",
+      "prepare": "husky install || true",
+      "knip": "knip",
+      "knip:fix": "knip --fix",
+      "sg:scan": "ast-grep scan",
+      "lisa:update": "npx @codyswann/lisa@latest .",
+      "test:watch": "vitest",
+      "test:debug": "NODE_ENV=test node --inspect-brk node_modules/vitest/vitest.mjs run --no-file-parallelism",
+      "setup:deploy-key": "setup-deploy-key"
+    },
+    "engines": {
+      "npm": ">= 10.9.4",
+      "yarn": "please-use-npm",
+      "pnpm": "please-use-npm",
+      "bun": "please-use-npm",
+      "node": "22.21.1"
+    },
+    "dependencies": {
+      "@aws-cdk/aws-amplify-alpha": "^2.263.0-alpha.0",
+      "aws-cdk-github-oidc": "^2.4.1",
+      "aws-cdk-lib": "2.263.0",
+      "constructs": "^10.4.5",
+      "source-map-support": "^0.5.21",
+      "zod": "^4.3.6"
+    },
+    "devDependencies": {
+      "@ast-grep/cli": "^0.40.4",
+      "@codyswann/lisa": "^2.217.1",
+      "@commitlint/cli": "^20.3.1",
+      "@commitlint/config-conventional": "^20.3.1",
+      "@eslint-community/eslint-plugin-eslint-comments": "^4.5.0",
+      "@eslint/eslintrc": "^3.2.0",
+      "@eslint/js": "^9.39.0",
+      "@jest/globals": "^30.0.0",
+      "@jest/test-sequencer": "^30.2.0",
+      "@types/fs-extra": "^11.0.0",
+      "@types/jest": "^30.0.0",
+      "@types/lodash.merge": "^4.6.0",
+      "@types/node": "^22.0.0",
+      "@typescript-eslint/parser": "^8.54.0",
+      "@vitest/coverage-v8": "^4.1.0",
+      "aws-cdk": "^2.1132.0",
+      "esbuild": "^0.28.1",
+      "esbuild-register": "^3.6.0",
+      "eslint": "^9.39.0",
+      "eslint-config-prettier": "^10.0.0",
+      "eslint-import-resolver-typescript": "^4.4.4",
+      "eslint-plugin-functional": "^9.0.0",
+      "eslint-plugin-import": "^2.32.0",
+      "eslint-plugin-jsdoc": "^61.5.0",
+      "eslint-plugin-oxlint": "^1.62.0",
+      "eslint-plugin-prettier": "^5.5.0",
+      "eslint-plugin-sonarjs": "^3.0.0",
+      "globals": "^17.2.0",
+      "husky": "^8.0.0",
+      "jest": "^30.0.0",
+      "jiti": "^2.4.0",
+      "jscodeshift": "0.15.2",
+      "knip": "^5.0.0",
+      "lint-staged": "^16.2.7",
+      "oxlint": "^1.62.0",
+      "oxlint-tsgolint": "^0.22.1",
+      "prettier": "^3.3.3",
+      "standard-version": "^9.5.0",
+      "ts-jest": "^29.4.6",
+      "ts-morph": "^27.0.2",
+      "ts-node": "^10.9.2",
+      "tsx": "^4.0.0",
+      "typescript": "^6.0.3",
+      "typescript-eslint": "^8.0.0",
+      "vite": "^8.0.5",
+      "vitest": "^4.1.0"
+    },
+    "trustedDependencies": ["@ast-grep/cli", "@codyswann/lisa", "@sentry/cli"],
+    "name": "your-project",
+    "version": "0.0.0",
+    "description": "AWS CDK starter template (lisa-wiki kernel)",
+    "author": "",
+    "private": true,
+    "license": "UNLICENSED",
+    "resolutions": {
+      "@isaacs/brace-expansion": "^5.0.1",
+      "axios": ">=1.15.2",
+      "vite": "$vite",
+      "handlebars": ">=4.7.9",
+      "esbuild": "$esbuild",
+      "lodash": ">=4.18.1",
+      "ws": ">=8.21.0",
+      "form-data": ">=4.0.6",
+      "aws-cdk-lib": "$aws-cdk-lib",
+      "multer": ">=2.2.0",
+      "undici": ">=6.27.0"
+    },
+    "overrides": {
+      "@isaacs/brace-expansion": "^5.0.1",
+      "axios": ">=1.15.2",
+      "vite": "$vite",
+      "handlebars": ">=4.7.9",
+      "esbuild": "$esbuild",
+      "lodash": ">=4.18.1",
+      "ws": ">=8.21.0",
+      "form-data": ">=4.0.6",
+      "aws-cdk-lib": "$aws-cdk-lib",
+      "multer": ">=2.2.0",
+      "undici": ">=6.27.0",
+      "postcss": "^8.5.25",
+      "brace-expansion": ">=5.0.9",
+      "fast-uri": ">=4.1.1",
+      "js-yaml": ">=4.3.0"
+    },
+    "bin": {
+      "infrastructure": "bin/infrastructure.js"
+    }
+  },
+  "audit": {
+    "auditReportVersion": 2,
+    "vulnerabilities": {
+      "@codyswann/lisa": {
+        "name": "@codyswann/lisa",
+        "severity": "high",
+        "isDirect": true,
+        "via": ["eslint-plugin-functional"],
+        "effects": [],
+        "range": ">=1.49.0",
+        "nodes": ["node_modules/@codyswann/lisa"],
+        "fixAvailable": {
+          "name": "@codyswann/lisa",
+          "version": "1.48.0",
+          "isSemVerMajor": true
+        }
+      },
+      "@vitest/coverage-v8": {
+        "name": "@vitest/coverage-v8",
+        "severity": "moderate",
+        "isDirect": true,
+        "via": ["vitest"],
+        "effects": ["vitest"],
+        "range": "2.1.0-beta.1 - 4.1.10",
+        "nodes": [
+          "node_modules/@codyswann/lisa/node_modules/@vitest/coverage-v8",
+          "node_modules/@vitest/coverage-v8"
+        ],
+        "fixAvailable": true
+      },
+      "@vitest/mocker": {
+        "name": "@vitest/mocker",
+        "severity": "moderate",
+        "isDirect": false,
+        "via": [
+          {
+            "source": 1193684,
+            "name": "@vitest/mocker",
+            "dependency": "@vitest/mocker",
+            "title": "Vitest: Path Traversal / Arbitrary File Read via @vitest/mocker Redirect Mock",
+            "url": "https://github.com/advisories/GHSA-82fw-gwwq-j7x9",
+            "severity": "moderate",
+            "cwe": ["CWE-22"],
+            "cvss": {
+              "score": 5.9,
+              "vectorString": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:N"
+            },
+            "range": ">=2.1.0 <4.1.11"
+          }
+        ],
+        "effects": ["vitest"],
+        "range": "2.1.0 - 4.1.10",
+        "nodes": [
+          "node_modules/@codyswann/lisa/node_modules/vitest/node_modules/@vitest/mocker",
+          "node_modules/@vitest/mocker"
+        ],
+        "fixAvailable": true
+      },
+      "baseline-browser-mapping": {
+        "name": "baseline-browser-mapping",
+        "severity": "moderate",
+        "isDirect": false,
+        "via": [
+          {
+            "source": 1193686,
+            "name": "baseline-browser-mapping",
+            "dependency": "baseline-browser-mapping",
+            "title": "baseline-browser-mapping process termination on invalid input causes denial of service",
+            "url": "https://github.com/advisories/GHSA-w5vr-8v7q-w6rv",
+            "severity": "moderate",
+            "cwe": ["CWE-705"],
+            "cvss": {
+              "score": 0,
+              "vectorString": null
+            },
+            "range": ">=2.0.0 <2.11.0"
+          }
+        ],
+        "effects": [],
+        "range": ">=2.0.0 <2.11.0",
+        "nodes": ["node_modules/baseline-browser-mapping"],
+        "fixAvailable": true
+      },
+      "brace-expansion": {
+        "name": "brace-expansion",
+        "severity": "high",
+        "isDirect": false,
+        "via": [
+          {
+            "source": 1130734,
+            "name": "brace-expansion",
+            "dependency": "brace-expansion",
+            "title": "brace-expansion: DoS via unbounded intermediate arrays, bypassing the CVE-2026-14257 mitigation",
+            "url": "https://github.com/advisories/GHSA-rgw5-rvv9-x895",
+            "severity": "high",
+            "cwe": ["CWE-400", "CWE-770"],
+            "cvss": {
+              "score": 7.5,
+              "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+            },
+            "range": ">=4.0.0 <5.0.9"
+          },
+          {
+            "source": 1240103,
+            "name": "brace-expansion",
+            "dependency": "brace-expansion",
+            "title": "brace-expansion: Quadratic-time expansion of the `{a},b}` rewrite causes CPU denial of service",
+            "url": "https://github.com/advisories/GHSA-q2hr-2g5m-vwhr",
+            "severity": "moderate",
+            "cwe": ["CWE-400", "CWE-407"],
+            "cvss": {
+              "score": 5.3,
+              "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L"
+            },
+            "range": ">=4.0.0 <5.0.12"
+          },
+          {
+            "source": 1240107,
+            "name": "brace-expansion",
+            "dependency": "brace-expansion",
+            "title": "brace-expansion: DoS via uncontrolled recursion on nested brace groups causing stack exhaustion",
+            "url": "https://github.com/advisories/GHSA-qhr7-859c-m2p7",
+            "severity": "high",
+            "cwe": ["CWE-400", "CWE-674"],
+            "cvss": {
+              "score": 7.5,
+              "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+            },
+            "range": ">=4.0.0 <5.0.11"
+          },
+          {
+            "source": 1240111,
+            "name": "brace-expansion",
+            "dependency": "brace-expansion",
+            "title": "brace-expansion: DoS via uncontrolled recursion in parseCommaParts causing stack exhaustion",
+            "url": "https://github.com/advisories/GHSA-6j4f-fj2g-mc7p",
+            "severity": "high",
+            "cwe": ["CWE-400", "CWE-674"],
+            "cvss": {
+              "score": 7.5,
+              "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+            },
+            "range": ">=4.0.0 <5.0.10"
+          }
+        ],
+        "effects": [],
+        "range": "4.0.0 - 5.0.11",
+        "nodes": [
+          "node_modules/aws-cdk-lib/node_modules/brace-expansion",
+          "node_modules/brace-expansion"
+        ],
+        "fixAvailable": true
+      },
+      "browserslist": {
+        "name": "browserslist",
+        "severity": "high",
+        "isDirect": false,
+        "via": [
+          {
+            "source": 1153171,
+            "name": "browserslist",
+            "dependency": "browserslist",
+            "title": "Browserslist: Unbounded memory growth (no cache eviction) via distinct query results, leading to eventual OOM",
+            "url": "https://github.com/advisories/GHSA-c83g-rgw3-j3cx",
+            "severity": "high",
+            "cwe": ["CWE-770"],
+            "cvss": {
+              "score": 7.5,
+              "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+            },
+            "range": "<=4.28.6"
+          },
+          {
+            "source": 1153172,
+            "name": "browserslist",
+            "dependency": "browserslist",
+            "title": "Browserslist: Uncaught crash / prototype write via untrusted browserslist-stats.json custom stats (normalizeStats)",
+            "url": "https://github.com/advisories/GHSA-73wf-gq98-2v4g",
+            "severity": "high",
+            "cwe": ["CWE-248", "CWE-1321"],
+            "cvss": {
+              "score": 7.5,
+              "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+            },
+            "range": "<=4.28.6"
+          }
+        ],
+        "effects": [],
+        "range": "<=4.28.6",
+        "nodes": ["node_modules/browserslist"],
+        "fixAvailable": true
+      },
+      "deepmerge-ts": {
+        "name": "deepmerge-ts",
+        "severity": "high",
+        "isDirect": false,
+        "via": [
+          {
+            "source": 1145093,
+            "name": "deepmerge-ts",
+            "dependency": "deepmerge-ts",
+            "title": "DeepmergeTS has stack exhaustion when merging recursive object graphs",
+            "url": "https://github.com/advisories/GHSA-ggr8-5vv4-36mx",
+            "severity": "high",
+            "cwe": ["CWE-674"],
+            "cvss": {
+              "score": 0,
+              "vectorString": null
+            },
+            "range": "<8.0.0"
+          }
+        ],
+        "effects": ["eslint-plugin-functional"],
+        "range": "<8.0.0",
+        "nodes": ["node_modules/deepmerge-ts"],
+        "fixAvailable": {
+          "name": "eslint-plugin-functional",
+          "version": "3.7.2",
+          "isSemVerMajor": true
+        }
+      },
+      "eslint-plugin-functional": {
+        "name": "eslint-plugin-functional",
+        "severity": "high",
+        "isDirect": true,
+        "via": ["deepmerge-ts"],
+        "effects": ["@codyswann/lisa"],
+        "range": ">=4.0.0-rc1",
+        "nodes": ["node_modules/eslint-plugin-functional"],
+        "fixAvailable": {
+          "name": "eslint-plugin-functional",
+          "version": "3.7.2",
+          "isSemVerMajor": true
+        }
+      },
+      "eslint-plugin-sonarjs": {
+        "name": "eslint-plugin-sonarjs",
+        "severity": "high",
+        "isDirect": true,
+        "via": ["minimatch"],
+        "effects": [],
+        "range": "2.0.4 || 3.0.6 - 3.0.7",
+        "nodes": ["node_modules/eslint-plugin-sonarjs"],
+        "fixAvailable": true
+      },
+      "fast-uri": {
+        "name": "fast-uri",
+        "severity": "high",
+        "isDirect": false,
+        "via": [
+          {
+            "source": 1158520,
+            "name": "fast-uri",
+            "dependency": "fast-uri",
+            "title": "fast-uri vulnerable to host confusion via skipped IDN canonicalization on scheme-relative references",
+            "url": "https://github.com/advisories/GHSA-5jgf-p345-68v8",
+            "severity": "high",
+            "cwe": ["CWE-436"],
+            "cvss": {
+              "score": 7.5,
+              "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N"
+            },
+            "range": ">=4.0.1 <4.1.3"
+          },
+          {
+            "source": 1158523,
+            "name": "fast-uri",
+            "dependency": "fast-uri",
+            "title": "fast-uri vulnerable to server-side request forgery via malformed IPv6 normalization",
+            "url": "https://github.com/advisories/GHSA-f65p-4m7j-42xc",
+            "severity": "high",
+            "cwe": ["CWE-20", "CWE-918"],
+            "cvss": {
+              "score": 7.5,
+              "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N"
+            },
+            "range": ">=4.0.0 <4.1.3"
+          },
+          {
+            "source": 1158526,
+            "name": "fast-uri",
+            "dependency": "fast-uri",
+            "title": "fast-uri vulnerable to server-side request forgery via repeated hostname percent-decoding",
+            "url": "https://github.com/advisories/GHSA-fph4-wmhf-6fwf",
+            "severity": "high",
+            "cwe": ["CWE-174", "CWE-918"],
+            "cvss": {
+              "score": 7.5,
+              "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N"
+            },
+            "range": ">=4.0.0 <4.1.3"
+          },
+          {
+            "source": 1158529,
+            "name": "fast-uri",
+            "dependency": "fast-uri",
+            "title": "fast-uri vulnerable to host confusion via percent-encoded scheme normalization",
+            "url": "https://github.com/advisories/GHSA-jqff-g426-hqxp",
+            "severity": "high",
+            "cwe": ["CWE-177"],
+            "cvss": {
+              "score": 7.5,
+              "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N"
+            },
+            "range": ">=4.0.0 <4.1.3"
+          },
+          {
+            "source": 1239942,
+            "name": "fast-uri",
+            "dependency": "fast-uri",
+            "title": "fast-uri vulnerable to authority injection via an unvalidated port in serialize",
+            "url": "https://github.com/advisories/GHSA-qw65-cvwx-89v3",
+            "severity": "high",
+            "cwe": ["CWE-116"],
+            "cvss": {
+              "score": 7.5,
+              "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N"
+            },
+            "range": ">=4.0.0 <4.1.4"
+          },
+          {
+            "source": 1240090,
+            "name": "fast-uri",
+            "dependency": "fast-uri",
+            "title": "fast-uri vulnerable to inconsistent host case normalization via percent-encoded octets",
+            "url": "https://github.com/advisories/GHSA-hrr3-gc8f-f4qj",
+            "severity": "moderate",
+            "cwe": ["CWE-178"],
+            "cvss": {
+              "score": 4.8,
+              "vectorString": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:L/A:N"
+            },
+            "range": ">=4.0.0 <4.1.5"
+          }
+        ],
+        "effects": [],
+        "range": "4.0.0 - 4.1.4",
+        "nodes": ["node_modules/fast-uri"],
+        "fixAvailable": true
+      },
+      "js-yaml": {
+        "name": "js-yaml",
+        "severity": "moderate",
+        "isDirect": false,
+        "via": [
+          {
+            "source": 1239991,
+            "name": "js-yaml",
+            "dependency": "js-yaml",
+            "title": "js-yaml: maxTotalMergeKeys does not limit CPU use for empty merge sources",
+            "url": "https://github.com/advisories/GHSA-r3ph-w7gj-g6xm",
+            "severity": "moderate",
+            "cwe": ["CWE-400", "CWE-407"],
+            "cvss": {
+              "score": 5.3,
+              "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L"
+            },
+            "range": ">=5.0.0 <=5.4.0"
+          }
+        ],
+        "effects": [],
+        "range": "5.0.0 - 5.4.0",
+        "nodes": ["node_modules/js-yaml"],
+        "fixAvailable": true
+      },
+      "minimatch": {
+        "name": "minimatch",
+        "severity": "high",
+        "isDirect": false,
+        "via": [
+          {
+            "source": 1113466,
+            "name": "minimatch",
+            "dependency": "minimatch",
+            "title": "minimatch has a ReDoS via repeated wildcards with non-matching literal in pattern",
+            "url": "https://github.com/advisories/GHSA-3ppc-4f35-3m26",
+            "severity": "high",
+            "cwe": ["CWE-1333"],
+            "cvss": {
+              "score": 0,
+              "vectorString": null
+            },
+            "range": ">=10.0.0 <10.2.1"
+          },
+          {
+            "source": 1113545,
+            "name": "minimatch",
+            "dependency": "minimatch",
+            "title": "minimatch has ReDoS: matchOne() combinatorial backtracking via multiple non-adjacent GLOBSTAR segments",
+            "url": "https://github.com/advisories/GHSA-7r86-cg39-jmmj",
+            "severity": "high",
+            "cwe": ["CWE-407"],
+            "cvss": {
+              "score": 7.5,
+              "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+            },
+            "range": ">=10.0.0 <10.2.3"
+          },
+          {
+            "source": 1113553,
+            "name": "minimatch",
+            "dependency": "minimatch",
+            "title": "minimatch ReDoS: nested *() extglobs generate catastrophically backtracking regular expressions",
+            "url": "https://github.com/advisories/GHSA-23c5-xmqv-rm74",
+            "severity": "high",
+            "cwe": ["CWE-1333"],
+            "cvss": {
+              "score": 7.5,
+              "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+            },
+            "range": ">=10.0.0 <10.2.3"
+          }
+        ],
+        "effects": ["eslint-plugin-sonarjs"],
+        "range": "10.0.0 - 10.2.2",
+        "nodes": ["node_modules/eslint-plugin-sonarjs/node_modules/minimatch"],
+        "fixAvailable": true
+      },
+      "nanoid": {
+        "name": "nanoid",
+        "severity": "high",
+        "isDirect": false,
+        "via": [
+          {
+            "source": 1139427,
+            "name": "nanoid",
+            "dependency": "nanoid",
+            "title": "nanoid: custom generators can loop indefinitely when size is zero",
+            "url": "https://github.com/advisories/GHSA-2v37-7h3g-55p8",
+            "severity": "high",
+            "cwe": ["CWE-835"],
+            "cvss": {
+              "score": 5.9,
+              "vectorString": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H"
+            },
+            "range": "<3.3.18"
+          }
+        ],
+        "effects": [],
+        "range": "<3.3.18",
+        "nodes": ["node_modules/nanoid"],
+        "fixAvailable": true
+      },
+      "smol-toml": {
+        "name": "smol-toml",
+        "severity": "high",
+        "isDirect": false,
+        "via": [
+          {
+            "source": 1193945,
+            "name": "smol-toml",
+            "dependency": "smol-toml",
+            "title": "smol-toml: Denial of Service via malformed TOML documents",
+            "url": "https://github.com/advisories/GHSA-7w5x-hrqm-74c2",
+            "severity": "high",
+            "cwe": ["CWE-606", "CWE-835"],
+            "cvss": {
+              "score": 0,
+              "vectorString": null
+            },
+            "range": "<=1.7.0"
+          }
+        ],
+        "effects": [],
+        "range": "<=1.7.0",
+        "nodes": ["node_modules/smol-toml"],
+        "fixAvailable": true
+      },
+      "vitest": {
+        "name": "vitest",
+        "severity": "moderate",
+        "isDirect": true,
+        "via": [
+          "@vitest/coverage-v8",
+          "@vitest/mocker",
+          {
+            "source": 1193683,
+            "name": "vitest",
+            "dependency": "vitest",
+            "title": "Vitest: Path Traversal / Arbitrary File Read via @vitest/mocker Redirect Mock",
+            "url": "https://github.com/advisories/GHSA-82fw-gwwq-j7x9",
+            "severity": "moderate",
+            "cwe": ["CWE-22"],
+            "cvss": {
+              "score": 5.9,
+              "vectorString": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:N"
+            },
+            "range": ">=2.1.0 <4.1.11"
+          }
+        ],
+        "effects": ["@vitest/coverage-v8"],
+        "range": "2.1.0-beta.1 - 4.1.10",
+        "nodes": [
+          "node_modules/@codyswann/lisa/node_modules/vitest",
+          "node_modules/vitest"
+        ],
+        "fixAvailable": true
+      }
+    },
+    "metadata": {
+      "vulnerabilities": {
+        "info": 0,
+        "low": 0,
+        "moderate": 5,
+        "high": 10,
+        "critical": 0,
+        "total": 15
+      },
+      "dependencies": {
+        "prod": 32,
+        "dev": 1204,
+        "optional": 134,
+        "peer": 2,
+        "peerOptional": 0,
+        "total": 1235
+      }
+    }
+  },
+  "audit_production": {
+    "auditReportVersion": 2,
+    "vulnerabilities": {
+      "brace-expansion": {
+        "name": "brace-expansion",
+        "severity": "high",
+        "isDirect": false,
+        "via": [
+          {
+            "source": 1130734,
+            "name": "brace-expansion",
+            "dependency": "brace-expansion",
+            "title": "brace-expansion: DoS via unbounded intermediate arrays, bypassing the CVE-2026-14257 mitigation",
+            "url": "https://github.com/advisories/GHSA-rgw5-rvv9-x895",
+            "severity": "high",
+            "cwe": ["CWE-400", "CWE-770"],
+            "cvss": {
+              "score": 7.5,
+              "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+            },
+            "range": ">=4.0.0 <5.0.9"
+          },
+          {
+            "source": 1240103,
+            "name": "brace-expansion",
+            "dependency": "brace-expansion",
+            "title": "brace-expansion: Quadratic-time expansion of the `{a},b}` rewrite causes CPU denial of service",
+            "url": "https://github.com/advisories/GHSA-q2hr-2g5m-vwhr",
+            "severity": "moderate",
+            "cwe": ["CWE-400", "CWE-407"],
+            "cvss": {
+              "score": 5.3,
+              "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L"
+            },
+            "range": ">=4.0.0 <5.0.12"
+          },
+          {
+            "source": 1240107,
+            "name": "brace-expansion",
+            "dependency": "brace-expansion",
+            "title": "brace-expansion: DoS via uncontrolled recursion on nested brace groups causing stack exhaustion",
+            "url": "https://github.com/advisories/GHSA-qhr7-859c-m2p7",
+            "severity": "high",
+            "cwe": ["CWE-400", "CWE-674"],
+            "cvss": {
+              "score": 7.5,
+              "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+            },
+            "range": ">=4.0.0 <5.0.11"
+          },
+          {
+            "source": 1240111,
+            "name": "brace-expansion",
+            "dependency": "brace-expansion",
+            "title": "brace-expansion: DoS via uncontrolled recursion in parseCommaParts causing stack exhaustion",
+            "url": "https://github.com/advisories/GHSA-6j4f-fj2g-mc7p",
+            "severity": "high",
+            "cwe": ["CWE-400", "CWE-674"],
+            "cvss": {
+              "score": 7.5,
+              "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+            },
+            "range": ">=4.0.0 <5.0.10"
+          }
+        ],
+        "effects": [],
+        "range": "4.0.0 - 5.0.11",
+        "nodes": ["node_modules/aws-cdk-lib/node_modules/brace-expansion"],
+        "fixAvailable": true
+      }
+    },
+    "metadata": {
+      "vulnerabilities": {
+        "info": 0,
+        "low": 0,
+        "moderate": 0,
+        "high": 1,
+        "critical": 0,
+        "total": 1
+      },
+      "dependencies": {
+        "prod": 32,
+        "dev": 1204,
+        "optional": 134,
+        "peer": 2,
+        "peerOptional": 0,
+        "total": 1235
+      }
+    }
+  },
+  "latest_lisa": {
+    "engines": {
+      "bun": "1.3.8",
+      "npm": "please-use-bun",
+      "node": "22.21.1",
+      "pnpm": "please-use-bun",
+      "yarn": "please-use-bun"
+    },
+    "dependencies": {
+      "tsx": "^4.0.0",
+      "jest": "^30.0.0",
+      "jiti": "^2.4.0",
+      "knip": "^5.0.0",
+      "husky": "^8.0.0",
+      "eslint": "^9.39.0",
+      "semver": "^7.8.1",
+      "vitest": "^4.1.9",
+      "globals": "^16.0.0",
+      "js-yaml": "^4.3.1",
+      "ts-jest": "^29.4.9",
+      "fs-extra": "^11.0.0",
+      "prettier": "^3.3.3",
+      "ts-morph": "^27.0.2",
+      "commander": "^12.0.0",
+      "minimatch": "^10.2.5",
+      "smol-toml": "1.7.1",
+      "@eslint/js": "^9.39.0",
+      "picocolors": "^1.0.0",
+      "typescript": "^6.0.3",
+      "@types/jest": "^30.0.0",
+      "@types/node": "^22.0.0",
+      "jscodeshift": "0.15.2",
+      "lint-staged": "^16.2.7",
+      "jsonc-parser": "^3.3.1",
+      "lodash.merge": "^4.6.2",
+      "@ast-grep/cli": "^0.40.4",
+      "@jest/globals": "^30.0.0",
+      "@commitlint/cli": "^20.5.0",
+      "@types/fs-extra": "^11.0.0",
+      "@eslint/eslintrc": "^3.2.0",
+      "esbuild-register": "^3.6.0",
+      "standard-version": "^9.5.0",
+      "@inquirer/prompts": "^7.0.0",
+      "typescript-eslint": "^8.0.0",
+      "eslint-config-expo": "^10.0.0",
+      "@types/lodash.merge": "^4.6.0",
+      "@vitest/coverage-v8": "^4.1.9",
+      "eslint-plugin-jsdoc": "^61.5.0",
+      "eslint-plugin-react": "^7.37.0",
+      "@jest/test-sequencer": "^30.2.0",
+      "eslint-plugin-import": "^2.32.0",
+      "eslint-plugin-sonarjs": "^4.0.3",
+      "eslint-config-prettier": "^10.0.0",
+      "eslint-plugin-jsx-a11y": "^6.10.0",
+      "eslint-plugin-prettier": "^5.5.0",
+      "@decimalturn/toml-patch": "^1.1.1",
+      "eslint-plugin-functional": "^9.0.0",
+      "eslint-plugin-react-perf": "^3.3.0",
+      "eslint-plugin-react-hooks": "^7.0.0",
+      "eslint-plugin-tailwindcss": "^3.18.0",
+      "eslint-plugin-react-compiler": "^19.1.0-rc.2",
+      "@commitlint/config-conventional": "^20.5.0",
+      "eslint-import-resolver-typescript": "^4.4.4",
+      "@eslint-community/eslint-plugin-eslint-comments": "^4.5.0"
+    }
+  },
+  "latest_oidc": {
+    "engines": {
+      "node": ">= 22 <= 26"
+    },
+    "peerDependencies": {
+      "constructs": "^10.7.2",
+      "aws-cdk-lib": "^2.260.0"
+    }
+  },
+  "latest_amplify_peers": {
+    "constructs": "^10.5.0",
+    "aws-cdk-lib": "^2.272.0"
+  },
+  "latest_node": {
+    "22": {
+      "version": "v22.23.3",
+      "date": "2026-09-23",
+      "files": [
+        "aix-ppc64",
+        "headers",
+        "linux-arm64",
+        "linux-armv7l",
+        "linux-ppc64le",
+        "linux-s390x",
+        "linux-x64",
+        "linux-x64-musl",
+        "osx-arm64-tar",
+        "osx-x64-pkg",
+        "osx-x64-tar",
+        "src",
+        "win-arm64-7z",
+        "win-arm64-zip",
+        "win-x64-7z",
+        "win-x64-exe",
+        "win-x64-msi",
+        "win-x64-zip",
+        "win-x86-7z",
+        "win-x86-exe",
+        "win-x86-msi",
+        "win-x86-zip"
+      ],
+      "npm": "10.9.9",
+      "v8": "12.4.254.21",
+      "uv": "1.51.0",
+      "zlib": "1.3.1",
+      "openssl": "3.5.8",
+      "modules": "127",
+      "lts": "Jod",
+      "security": false
+    },
+    "24": {
+      "version": "v24.21.0",
+      "date": "2026-09-07",
+      "files": [
+        "aix-ppc64",
+        "headers",
+        "linux-arm64",
+        "linux-ppc64le",
+        "linux-s390x",
+        "linux-x64",
+        "linux-x64-musl",
+        "osx-arm64-tar",
+        "osx-x64-pkg",
+        "osx-x64-tar",
+        "src",
+        "win-arm64-7z",
+        "win-arm64-zip",
+        "win-x64-7z",
+        "win-x64-exe",
+        "win-x64-msi",
+        "win-x64-zip"
+      ],
+      "npm": "11.19.0",
+      "v8": "13.6.233.17",
+      "uv": "1.52.1",
+      "zlib": "1.3.2.1-motley",
+      "openssl": "3.5.8",
+      "modules": "137",
+      "lts": "Krypton",
+      "security": false
+    }
+  },
+  "cdk_latest_bundled": {
+    "aws-cdk-lib": "2.272.0",
+    "brace-expansion": "5.0.9"
+  },
+  "reproductions": {
+    "direct": "[WARNING] aws-cdk-lib.Stack#addDependency is deprecated.\n  Use `addStackDependency` instead.\n  This API will be removed in the next major release.\n[WARNING] aws-cdk-lib.Stack#addDependency is deprecated.\n  Use `addStackDependency` instead.\n  This API will be removed in the next major release.\n[WARNING] aws-cdk-lib.CfnResource#addDependency is deprecated.\n  Use `addResourceDependency` instead.\n  This API will be removed in the next major release.\n[WARNING] aws-cdk-lib.CfnResource#addDependency is deprecated.\n  Use `addResourceDependency` instead.\n  This API will be removed in the next major release.\n[WARNING] aws-cdk-lib.Stack#addDependency is deprecated.\n  Use `addStackDependency` instead.\n  This API will be removed in the next major release.\n[WARNING] aws-cdk-lib.Stack#addDependency is deprecated.\n  Use `addStackDependency` instead.\n  This API will be removed in the next major release.\ndirect FAIL CannotDependency: You cannot have a dependency from 'dev-app/AuroraStack/AuroraCluster/writer/Resource' (in Stage 'dev-app') to 'dev-network/VpcStack/Vpc/isolatedSubnet1/RouteTableAssociation' (in Stage 'dev-network'): dependency cannot cross stage boundaries\n[WARNING] aws-cdk-lib.Stack#addDependency is deprecated.\n  Use `addStackDependency` instead.\n  This API will be removed in the next major release.\n[WARNING] aws-cdk-lib.Stack#addDependency is deprecated.\n  Use `addStackDependency` instead.\n  This API will be removed in the next major release.\n[WARNING] aws-cdk-lib.CfnResource#addDependency is deprecated.\n  Use `addResourceDependency` instead.\n  This API will be removed in the next major release.\n[WARNING] aws-cdk-lib.CfnResource#addDependency is deprecated.\n  Use `addResourceDependency` instead.\n  This API will be removed in the next major release.\n[WARNING] aws-cdk-lib.Stack#addDependency is deprecated.\n  Use `addStackDependency` instead.\n  This API will be removed in the next major release.\n[WARNING] aws-cdk-lib.Stack#addDependency is deprecated.\n  Use `addStackDependency` instead.\n  This API will be removed in the next major release.\n[WARNING] aws-cdk-lib.Stack#addDependency is deprecated.\n  Use `addStackDependency` instead.\n  This API will be removed in the next major release.\n[WARNING] aws-cdk-lib.Stack#addDependency is deprecated.\n  Use `addStackDependency` instead.\n  This API will be removed in the next major release.\nunified PASS\n",
+    "reader_and_account": "invalid account IDs accepted: [[\"not-an-account\",true],[\"   \",true],[\"123\",true]]\n[WARNING] aws-cdk-lib.Stack#addDependency is deprecated.\n  Use `addStackDependency` instead.\n  This API will be removed in the next major release.\n[WARNING] aws-cdk-lib.Stack#addDependency is deprecated.\n  Use `addStackDependency` instead.\n  This API will be removed in the next major release.\n3 instances FAIL Error: There is already a Construct with name 'reader' in DatabaseCluster2 [AuroraCluster]\n",
+    "production_probe": {
+      "templates": 14,
+      "resources": 117,
+      "vpc_endpoints": 0,
+      "aurora_tags": [],
+      "backup_selection_tag": "backup=yes",
+      "oidc_subject": "repo:your-org/*:*"
+    },
+    "sources": {
+      "repro-direct.ts": "import * as cdk from '/Users/cody/workspace/cdkstarter/node_modules/aws-cdk-lib';\nimport { NetworkStage } from '/Users/cody/workspace/cdkstarter/lib/stages/network-stage';\nimport { AppStage } from '/Users/cody/workspace/cdkstarter/lib/stages/app-stage';\nimport { EnvironmentStage } from '/Users/cody/workspace/cdkstarter/lib/stages/environment-stage';\nimport { stageEnvironments } from '/Users/cody/workspace/cdkstarter/config/environments';\nimport { alarmThresholds } from '/Users/cody/workspace/cdkstarter/config/observability';\nconst config={...stageEnvironments[0],accountId:'111111111111'};\nconst env={account:config.accountId,region:config.region};\nfor(const mode of ['direct','unified']) {\n const app=new cdk.App({outdir:`/tmp/cdkstarter-review/repro-${mode}`});\n try {\n  if(mode==='direct') {\n   const network=new NetworkStage(app,'dev-network',{environment:config,env});\n   new AppStage(app,'dev-app',{environment:config,vpc:network.vpcStack.vpc,auroraSecurityGroup:network.securityGroupsStack.auroraSecurityGroup,valkeySecurityGroup:network.securityGroupsStack.valkeySecurityGroup,env});\n  } else new EnvironmentStage(app,'dev',{environment:config,alarmThresholds,env});\n  app.synth(); console.log(mode,'PASS');\n }catch(e){console.log(mode,'FAIL',String(e));}\n}\n",
+      "repro-config.ts": "import * as cdk from '/Users/cody/workspace/cdkstarter/node_modules/aws-cdk-lib';\nimport { EnvironmentStage } from '/Users/cody/workspace/cdkstarter/lib/stages/environment-stage';\nimport { stageEnvironments } from '/Users/cody/workspace/cdkstarter/config/environments';\nimport { alarmThresholds } from '/Users/cody/workspace/cdkstarter/config/observability';\nimport { isDeployableAccountId } from '/Users/cody/workspace/cdkstarter/util/config-loader';\nconst base=stageEnvironments[0];\nconsole.log('invalid account IDs accepted:',JSON.stringify(['not-an-account','   ','123'].map(id=>[id,isDeployableAccountId(id)])));\nconst app=new cdk.App({outdir:'/tmp/cdkstarter-review/repro-readers'});\ntry {\n new EnvironmentStage(app,'dev',{environment:{...base,accountId:'111111111111',aurora:{...base.aurora,instanceCount:3}},alarmThresholds,env:{account:'111111111111',region:base.region}});\n app.synth();console.log('3 instances PASS');\n}catch(e){console.log('3 instances FAIL',String(e));}\n",
+      "probe-template.ts": "import * as cdk from '/Users/cody/workspace/cdkstarter/node_modules/aws-cdk-lib';\nimport { EnvironmentStage } from '/Users/cody/workspace/cdkstarter/lib/stages/environment-stage';\nimport { CicdStage } from '/Users/cody/workspace/cdkstarter/lib/stages/cicd-stage';\nimport { stageEnvironments } from '/Users/cody/workspace/cdkstarter/config/environments';\nimport { githubConfig } from '/Users/cody/workspace/cdkstarter/config/github';\nimport { alarmThresholds } from '/Users/cody/workspace/cdkstarter/config/observability';\nconst config={...stageEnvironments[2],accountId:'111111111111'};\nconst env={account:config.accountId,region:config.region};\nconst app=new cdk.App({outdir:'/tmp/cdkstarter-review/probe-template'});\nnew EnvironmentStage(app,'production',{environment:config,alarmThresholds,env});\nnew CicdStage(app,'production-cicd',{environment:config,github:githubConfig,sharedAccountId:'222222222222',bootstrapQualifier:'hnb659fds',env});\napp.synth();\nconsole.log('production unified + CICD synth PASS');\n"
+    }
+  },
+  "upstream_workflow_paths": {
+    "repository": "CodySwannGT/lisa",
+    "ref": "main",
+    "available": {
+      "quality.yml": "105f188f326c9bedae529d40515551076767bf38",
+      "release.yml": "683c581fc150c98102cc9e51f1e62c0549fa0403"
+    },
+    "http_404": [
+      "reusable-auto-update-pr-branches-dispatch.yml",
+      "reusable-auto-update-pr-branches.yml",
+      "reusable-claude-ci-auto-fix.yml",
+      "reusable-claude-code-review-response.yml",
+      "reusable-claude-deploy-auto-fix.yml",
+      "reusable-claude-nightly-code-complexity.yml",
+      "reusable-claude-nightly-test-coverage.yml",
+      "reusable-claude-nightly-test-improvement.yml",
+      "reusable-claude-sync-down-branches.yml",
+      "reusable-claude.yml"
+    ]
+  },
+  "scope_limits": [
+    "No deployment or live AWS state verification",
+    "No dependency upgrades or downstream ports",
+    "No clean installation; install verification was dry-run only",
+    "No historical or fresh hosted CI run verification"
+  ]
+}
